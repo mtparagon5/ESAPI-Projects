@@ -1,0 +1,165 @@
+﻿<UserControl x:Class="PrintJawPositions.MainControl"
+             x:Name="MainUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             Height="auto" Width="1200" Background="#FEFEFE" FontFamily="Arial">
+
+    <Border x:Name="MainBorder" CornerRadius="2" BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="10">
+        <!--<Viewbox>-->
+            <Grid x:Name="MainGrid">
+                <StackPanel MaxHeight="1000">
+                    <StackPanel Orientation="vertical">
+                        <StackPanel x:Name="planInfo_SP" HorizontalAlignment="left" Width="1000">
+                            <Button x:Name="PrintVisual_Btn" Click="Print_Visual" Content="Print" FontWeight="Regular" HorizontalAlignment="Right" VerticalAlignment="Top" Width="100" Height="auto"/>
+                            <StackPanel x:Name="Header_SP" Orientation="Horizontal" HorizontalAlignment="Left">
+                                <TextBlock x:Name="Header" HorizontalAlignment="Center" Margin="375,10" TextWrapping="Wrap" Text="Jaw Tracking" VerticalAlignment="Top" Width="auto" FontWeight="Bold" FontSize="16"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <TextBlock x:Name="PatientId_TB" HorizontalAlignment="Left" Margin="10,1" TextWrapping="Wrap" Text="Patient Id:" VerticalAlignment="Top" Width="85" FontWeight="Bold"/>
+                                <TextBlock x:Name="PatientId" HorizontalAlignment="Left" Margin="1" TextWrapping="Wrap" Text="" VerticalAlignment="Top" MinWidth="100"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <TextBlock x:Name="PatientName_TB" HorizontalAlignment="Left" Margin="10,1" TextWrapping="Wrap" Text="Patient Name:" VerticalAlignment="Top" Width="85" FontWeight="Bold"/>
+                                <TextBlock x:Name="PatientName" HorizontalAlignment="Left" Margin="1" TextWrapping="Wrap" Text="" VerticalAlignment="Top" MinWidth="100"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="auto">
+                                <TextBlock x:Name="PrimaryOnc_TB" HorizontalAlignment="Left" Margin="10,1" TextWrapping="Wrap" Text="Primary Onc:" VerticalAlignment="Top" Width="85" FontWeight="Bold"/>
+                                <TextBlock x:Name="PrimaryOnc" HorizontalAlignment="Left" Margin="1" TextWrapping="Wrap" Text="" VerticalAlignment="Top" MinWidth="100"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="auto">
+                                <TextBlock x:Name="CourseId_TB" HorizontalAlignment="Left" Margin="10,1" TextWrapping="Wrap" Text="Course Id:" VerticalAlignment="Top" Width="85" FontWeight="Bold"/>
+                                <TextBlock x:Name="CourseId" HorizontalAlignment="Left" Margin="1" TextWrapping="Wrap" Text="" VerticalAlignment="Top" MinWidth="100"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel x:Name="proximityStats_SP" Orientation="Horizontal" Margin="0,20,0,0">
+                        <StackPanel x:Name="planList_SP" Width="auto" MinWidth="150" Visibility="Visible">
+                            <Label x:Name="plansList_Label" Content="Plan Selection"  Width="auto" FontWeight="Regular" HorizontalContentAlignment="center" Margin="0,0,0,5"/>
+                            <ListView x:Name="planList_LV" Width="auto" MinWidth="150" SelectionMode="Multiple" Height="auto" Margin="0,-8,0,0" BorderBrush="DarkGray" HorizontalContentAlignment="Left"/>
+                            <Button x:Name="viewJawPositions_Btn" Content="View Jaw Positions" Width="110" Margin="0,10,0,5" HorizontalAlignment="Right" Click="viewJawPositions_Clicked" FontWeight="Regular"></Button>
+                        </StackPanel>
+                        <StackPanel x:Name="StructureInfo_SP" Margin="30,11,0,0">
+                            <GroupBox x:Name="JawPositions_GB" 
+                                      FontWeight="Bold" 
+                                      Header="Jaw Positions of First Control Point"
+                                      Margin="0,0,0,0" 
+                                      HorizontalAlignment="Left" >
+                                <DataGrid x:Name="JawPositions_DG" 
+                                          HorizontalContentAlignment="Center" 
+                                          MaxHeight="600" 
+                                          FontWeight="Normal"
+                                          Margin="0,10,0,2" 
+                                          Width="650" >
+                                    <DataGrid.Resources>
+                                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                                            <Setter Property="Background" Value="LightBlue"/>
+                                            <Setter Property="Height" Value="20"/>
+                                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Setter Property="BorderThickness" Value="0,0,1,2"/>
+                                            <Setter Property="BorderBrush" Value="Black"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        </Style>
+                                    </DataGrid.Resources>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Plan" Binding="{Binding planId}" Width=".9*" IsReadOnly="True">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Status" Binding="{Binding planStatus}" Width="1.1*" IsReadOnly="True">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Field" Binding="{Binding fieldId}" Width="*" IsReadOnly="True">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Jaw Tracking" Binding="{Binding isJawTracking}" Width=".8*" IsReadOnly="True">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="X1" Binding="{Binding x1}" Width=".4*" IsReadOnly="True">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="X2" Binding="{Binding x2}" Width=".4*" IsReadOnly="True">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Y1" Binding="{Binding y1}" Width=".4*" IsReadOnly="True">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Y2" Binding="{Binding y2}" Width=".4*" IsReadOnly="True">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="MU" Binding="{Binding mu}" Width=".4*" IsReadOnly="True">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTemplateColumn Header="" Width=".35*">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button x:Name="JawPositionItemRemove_Btn" Content="n/a" Click="JawPositionRemoveButton_Clicked" Background="#DCDCDC"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </GroupBox>
+                        </StackPanel>
+                    </StackPanel>
+                    <!--<StackPanel x:Name="Note_SP" Orientation="Vertical">
+                        <TextBlock x:Name="Note_TB"
+                            HorizontalAlignment="Left"
+                            Margin="10,50,0,10"
+                            FontSize="10"
+                            Text="NOTE: When Jaw Tracking is utilized, the initial field size that is seen at the treatment machine may differ from the max field size found in the report."
+                            />
+                    </StackPanel>-->
+                </StackPanel>
+            </Grid>
+        <!--</Viewbox>-->
+    </Border>
+    <!--</Grid>-->
+</UserControl>

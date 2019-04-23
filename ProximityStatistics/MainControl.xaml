@@ -1,0 +1,372 @@
+﻿<UserControl x:Class="PlanReview.MainControl"
+             x:Name="MainUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             Height="auto" 
+             Width="auto" 
+             Background="#FEFEFE">
+
+    <Border x:Name="MainBorder" 
+            CornerRadius="2" 
+            BorderBrush="LightGray" 
+            BorderThickness="1" 
+            Padding="10" 
+            Margin="10">
+        <Grid x:Name="MainGrid">
+            <StackPanel MaxHeight="1000">
+                <StackPanel Orientation="vertical">
+                    <StackPanel x:Name="planInfo_SP"
+                                HorizontalAlignment="left" 
+                                Width="830" 
+                                Margin="0,0,0,10">
+                        <Button x:Name="PrintVisual_Btn" 
+                                Click="Print_Visual"
+                                Content="Print"
+                                FontWeight="Regular" 
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Width="100" 
+                                Height="auto"/>
+                        <StackPanel x:Name="Header_SP"
+                                    Orientation="Horizontal" 
+                                    HorizontalAlignment="Left">
+                            <TextBlock x:Name="Header"
+                                       HorizontalAlignment="Center" 
+                                       Margin="315,10" 
+                                       TextWrapping="Wrap" 
+                                       Text="Target Proximity Statistics" 
+                                       VerticalAlignment="Top" 
+                                       Width="auto" 
+                                       FontWeight="Bold" 
+                                       FontSize="16"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" 
+                                    HorizontalAlignment="Left">
+                            <TextBlock x:Name="PatientId_TB" 
+                                       HorizontalAlignment="Left" 
+                                       Margin="10,1" 
+                                       TextWrapping="Wrap" 
+                                       Text="Patient Id:" 
+                                       VerticalAlignment="Top" 
+                                       Width="85" 
+                                       FontWeight="Bold"/>
+                            <TextBlock x:Name="PatientId" 
+                                       HorizontalAlignment="Left" 
+                                       Margin="1" 
+                                       TextWrapping="Wrap" 
+                                       Text="" 
+                                       VerticalAlignment="Top" 
+                                       MinWidth="100"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" 
+                                    HorizontalAlignment="Left">
+                            <TextBlock x:Name="PatientName_TB" 
+                                       HorizontalAlignment="Left" 
+                                       Margin="10,1" 
+                                       TextWrapping="Wrap" 
+                                       Text="Patient Name:" 
+                                       VerticalAlignment="Top" 
+                                       Width="85"
+                                       FontWeight="Bold"/>
+                            <TextBlock x:Name="PatientName" 
+                                       HorizontalAlignment="Left" 
+                                       Margin="1" 
+                                       TextWrapping="Wrap" 
+                                       Text="" 
+                                       VerticalAlignment="Top" 
+                                       MinWidth="100"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" 
+                                    HorizontalAlignment="Left" Width="auto">
+                            <TextBlock x:Name="PrimaryOnc_TB" 
+                                       HorizontalAlignment="Left" 
+                                       Margin="10,1" 
+                                       TextWrapping="Wrap" 
+                                       Text="Primary Onc:" 
+                                       VerticalAlignment="Top" 
+                                       Width="85" 
+                                       FontWeight="Bold"/>
+                            <TextBlock x:Name="PrimaryOnc" 
+                                       HorizontalAlignment="Left"
+                                       Margin="1" 
+                                       TextWrapping="Wrap"
+                                       Text="" 
+                                       VerticalAlignment="Top" 
+                                       MinWidth="100"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" 
+                                    HorizontalAlignment="Left">
+                            <TextBlock x:Name="PlanId_TB"
+                                       HorizontalAlignment="Left"
+                                       Margin="10,1" 
+                                       TextWrapping="Wrap" 
+                                       Text="Plan Id:" 
+                                       VerticalAlignment="Top" 
+                                       Width="85" 
+                                       FontWeight="Bold"/>
+                            <TextBlock x:Name="PlanId"
+                                       HorizontalAlignment="Left"
+                                       Margin="1" 
+                                       TextWrapping="Wrap"
+                                       Text=""
+                                       VerticalAlignment="Top"
+                                       MinWidth="100"/>
+                        </StackPanel>
+                        
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel x:Name="proximityStats_SP" 
+                            Orientation="Horizontal">
+                    <StackPanel x:Name="structureList_SP"
+                                Width="auto" 
+                                MinWidth="150">
+                        <Label x:Name="structureList_Label" 
+                               Content="Available Structures" 
+                               Width="auto"
+                               FontWeight="Regular" 
+                               HorizontalContentAlignment="center" 
+                               Margin="0,0,0,5"/>
+                        <ListView x:Name="structureList_LV"
+                                  Width="auto"
+                                  MinWidth="150" 
+                                  SelectionMode="Multiple" 
+                                  Height="auto" 
+                                  Margin="0,-7,0,0" 
+                                  BorderBrush="DarkGray" 
+                                  HorizontalContentAlignment="Left"/>
+                        <Button x:Name="calculateOverlap_Btn"
+                                Content="Calculate Overlap"
+                                Width="100"
+                                Margin="0,10,0,5"
+                                HorizontalAlignment="Right" 
+                                Click="CalculateOverlap_Clicked" 
+                                FontWeight="Regular"></Button>
+                    </StackPanel>
+                    <StackPanel x:Name="StructureInfo_SP"
+                                Margin="30,0,0,0">
+                        <GroupBox x:Name="TargetStats_GB" 
+                                  Header="Target Statistics" 
+                                  Height="auto" 
+                                  Width="auto" 
+                                  FontWeight="Bold"
+                                  HorizontalAlignment="Left"
+                                  Margin="0,15">
+                            <DataGrid x:Name="TargetStats_DG" 
+                                      HorizontalContentAlignment="Center" 
+                                      Margin="-6,1,-6,-6"
+                                      FontWeight="Normal"
+                                      Background="Transparent"
+                                      Width="320">
+                                <DataGrid.Resources>
+                                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                                        <Setter Property="Background"
+                                                Value="LightBlue"/>
+                                        <Setter Property="FontWeight"
+                                                Value="Bold"/>
+                                        <Setter Property="BorderThickness" 
+                                                Value="0,0,1,2"/>
+                                        <Setter Property="BorderBrush"
+                                                Value="Black"/>
+                                        <Setter Property="HorizontalContentAlignment"
+                                                Value="Center"/>
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Target Id"
+                                                        Binding="{Binding targetId}" 
+                                                        Width="100" 
+                                                        IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Volume (cc)"
+                                                        Binding="{Binding targetVolume}"
+                                                        Width="100" 
+                                                        IsReadOnly="True">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment"
+                                                        Value="Center" />
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Header="# Segments"
+                                                        Binding="{Binding segments}"
+                                                        Width="80"
+                                                        IsReadOnly="True">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <Trigger Property="Text" 
+                                                             Value="1">
+                                                        <Setter Property="Background" 
+                                                                Value="LightGreen"/>
+                                                    </Trigger>
+                                                    <Trigger Property="Text" 
+                                                             Value=">1">
+                                                        <Setter Property="Background"
+                                                                Value="#f4d641"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                                <Setter Property="HorizontalAlignment" 
+                                                        Value="Center" />
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTemplateColumn Header="" 
+                                                            Width=".5*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button x:Name="test_btn"
+                                                        Content="n/a" 
+                                                        Click="TargetDoseRemoveButton_Clicked"
+                                                        Background="#DCDCDC"
+                                                        FontWeight="Regular"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <!--<TextBlock x:Name="TargetStats_TB" TextWrapping="Wrap" Text="stats go here" Margin="0,3,212,31" HorizontalAlignment="Left" VerticalAlignment="Top"/>-->
+                        </GroupBox>
+                        <GroupBox x:Name="TargetProx_GB" 
+                                      Header="Target Proximity Statistics" 
+                                      FontWeight="Bold" 
+                                      Margin="0,10,0,10" 
+                                      HorizontalAlignment="Left" >
+                            <DataGrid Name="OverlapInfo_DG" 
+                                        HorizontalContentAlignment="Center" 
+                                        Margin="-6,1,-6,-6"
+                                        FontWeight="Normal"
+                                        Width="650"
+                                        Background="Transparent">
+                            <DataGrid.Resources>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="Background" 
+                                                Value="LightBlue"/>
+                                    <Setter Property="FontWeight" 
+                                                Value="Bold"/>
+                                    <Setter Property="BorderThickness" 
+                                                Value="0,0,1,2"/>
+                                    <Setter Property="BorderBrush" 
+                                                Value="Black"/>
+                                    <Setter Property="HorizontalContentAlignment" 
+                                                Value="Center"/>
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Structure Id"
+                                                        Binding="{Binding structureId}"
+                                                        Width="*" 
+                                                        IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Left"/>
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                                <Setter Property="VerticalAlignment" 
+                                                        Value="Center" />
+                                            </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                    <DataGridTextColumn Header="Volume (cc)" 
+                                                        Binding="{Binding structureVolume}"
+                                                        Width=".8*" 
+                                                        IsReadOnly="True">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment"
+                                                        Value="Center" />
+                                                <Setter Property="VerticalAlignment" 
+                                                        Value="Center" />
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Header="Target"
+                                                        Binding="{Binding ptvId}" 
+                                                        Width="*" 
+                                                        IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Center" />
+                                                <Setter Property="VerticalAlignment" 
+                                                        Value="Center" />
+                                            </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Dist (cm)" 
+                                                        Binding="{Binding distance}"
+                                                        Width=".7*" 
+                                                        IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment"
+                                                        Value="Center" />
+                                                <Setter Property="VerticalAlignment" 
+                                                        Value="Center" />
+                                            </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Overlap (cc)"
+                                                        Binding="{Binding structureOverlapAbs}" 
+                                                        Width=".8*" 
+                                                        IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Center" />
+                                                <Setter Property="VerticalAlignment" 
+                                                        Value="Center" />
+                                            </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Structure %"
+                                                        Binding="{Binding structureOverlapPct}" 
+                                                        Width=".8*" 
+                                                        IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Center" />
+                                                <Setter Property="VerticalAlignment" 
+                                                        Value="Center" />
+                                            </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Target %"
+                                                    Binding="{Binding targetOverlapPct}" 
+                                                    Width=".8*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                    Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                    Value="Center" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTemplateColumn Header="" 
+                                                        Width=".5*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Name="OverlapItemRemove_Btn" 
+                                                        Content="n/a" 
+                                                        Click="OverlapRemoveButton_Clicked" 
+                                                        Background="#DCDCDC"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        </GroupBox>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+
+        </Grid>
+    </Border>
+    <!--</Grid>-->
+</UserControl>

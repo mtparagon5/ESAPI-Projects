@@ -1,0 +1,8 @@
+S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\projects\PlanReview - Copy\obj\x64\Release\MainControl.baml
+S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\projects\PlanReview - Copy\obj\x64\Release\MainControl.g.cs
+S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\plugins\PlanReview.esapi.dll
+S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\plugins\PlanReview.esapi.pdb
+S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\projects\PlanReview - Copy\obj\x64\Release\PlanReview.esapi_MarkupCompile.cache
+S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\projects\PlanReview - Copy\obj\x64\Release\PlanReview.esapi.g.resources
+S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\projects\PlanReview - Copy\obj\x64\Release\PlanReview.esapi.dll
+S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\projects\PlanReview - Copy\obj\x64\Release\PlanReview.esapi.pdb
