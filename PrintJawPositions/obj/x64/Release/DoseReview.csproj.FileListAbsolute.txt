@@ -1,8 +1,0 @@
-S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\projects\DoseReview\obj\x64\Release\MainControl.baml
-S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\projects\DoseReview\obj\x64\Release\MainControl.g.cs
-S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\plugins\PlanReview(current).esapi.dll
-S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\plugins\PlanReview(current).esapi.pdb
-S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\projects\DoseReview\obj\x64\Release\PlanReview(current).esapi_MarkupCompile.cache
-S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\projects\DoseReview\obj\x64\Release\PlanReview(current).esapi.g.resources
-S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\projects\DoseReview\obj\x64\Release\PlanReview(current).esapi.dll
-S:\shares\RadOnc\ePHI\RO PHI PHYSICS\matt\esapi\projects\DoseReview\obj\x64\Release\PlanReview(current).esapi.pdb
