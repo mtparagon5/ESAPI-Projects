@@ -5,6 +5,9 @@
     using VMS.TPS.Common.Model.API;
     using VMS.TPS.Common.Model.Types;
 
+    /// <summary>
+    /// A collection of DVH Extensions provided by ESAPI examples, as well as a few others. Sometimes, their example methods don't return values if the sample volumes are too small.
+    /// </summary>
     public static class DvhExtensions
     {
         public static DoseValue GetDoseAtVolume(this PlanningItem pitem, Structure structure, double volume, VolumePresentation volumePresentation, DoseValuePresentation requestedDosePresentation)

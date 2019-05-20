@@ -9,6 +9,9 @@
     using System.IO;
     using System.Text;
 
+    /// <summary>
+    /// A collection of methods used for collecting plan data in both JSON and HTML format.
+    /// </summary>
     public class GetPlanData
     {
         public static void recordDvhDataForCurrentPlan(string viewDvhPath_searchableJson, string patientName, string course, PlanSetup currentPlan, IEnumerable<Structure> sorted_structureList, string patientId, string randomId, string primaryPhysician)
@@ -267,8 +270,8 @@
 
             StringBuilder dvhData_randomizedCsvCols_SB = new StringBuilder();
             StringBuilder dvhData_randomizedCsvRows_SB = new StringBuilder();
-			StringBuilder dvhData_randomizedCsvRows_SB_master = new StringBuilder();
-			StringBuilder dvhData_structureSpecificCsvRows_SB = new StringBuilder();
+			      StringBuilder dvhData_randomizedCsvRows_SB_master = new StringBuilder();
+			      StringBuilder dvhData_structureSpecificCsvRows_SB = new StringBuilder();
             StringBuilder dvhData_pysicianAndStructureSpecificCsvRows_SB = new StringBuilder();
 
             string jsonStringForViewDvh = "[{\"patientName\":\"" + patientName + "\", " +
@@ -305,8 +308,8 @@
                 // clear string builders
                 dvhData_randomizedCsvCols_SB.Clear();
                 dvhData_randomizedCsvRows_SB.Clear();
-				dvhData_randomizedCsvRows_SB_master.Clear();
-				dvhData_structureSpecificCsvRows_SB.Clear();
+				        dvhData_randomizedCsvRows_SB_master.Clear();
+				        dvhData_structureSpecificCsvRows_SB.Clear();
                 dvhData_pysicianAndStructureSpecificCsvRows_SB.Clear();
 
                 // variables
@@ -2455,8 +2458,8 @@
 
             StringBuilder dvhData_randomizedCsvCols_SB = new StringBuilder();
             StringBuilder dvhData_randomizedCsvRows_SB = new StringBuilder();
-			StringBuilder dvhData_randomizedCsvRows_SB_master = new StringBuilder();
-			StringBuilder dvhData_structureSpecificCsvRows_SB = new StringBuilder();
+			      StringBuilder dvhData_randomizedCsvRows_SB_master = new StringBuilder();
+			      StringBuilder dvhData_structureSpecificCsvRows_SB = new StringBuilder();
             StringBuilder dvhData_pysicianAndStructureSpecificCsvRows_SB = new StringBuilder();
 
             string jsonStringForViewDvh = "[{\"patientName\":\"" + patientName + "\", " +

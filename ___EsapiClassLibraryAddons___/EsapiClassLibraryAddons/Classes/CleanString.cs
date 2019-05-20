@@ -7,6 +7,11 @@ namespace VMS.TPS
 {
   public class CleanString
   {
+    /// <summary>
+    /// Returns a cleaned string, removing \r, \n, and \t
+    /// </summary>
+    /// <param name="stringToClean"></param>
+    /// <returns></returns>
     public static string clean(string stringToClean){
       var sb = new StringBuilder(stringToClean.Length);
 

@@ -17,6 +17,7 @@
     /// JSON files are object-oriented and can be parsed clearly and easily. For more information on JSON and other object-oriented languages: 
     /// <see cref="!:https://en.wikipedia.org/wiki/JSON">WIKI</see> and 
     ///	AHref <a href="https://www.json.org/">JSON.ORG</a> <see href="https://www.json.org/">HERE</see>
+    ///	NOTE: some comments may not accurately represent the methods they are associated with. Be sure to compare method name with associated comments.
     /// </summary>
     public class ESJO : IEnumerator, IEnumerable
     {

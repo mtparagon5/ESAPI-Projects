@@ -8,6 +8,12 @@
     using System.Linq;
     public class CalculateOverlap
     {
+    /// <summary>
+    /// Calculate volume overlap of Structure1 with Structure2
+    /// </summary>
+    /// <param name="structure1"></param>
+    /// <param name="structure2"></param>
+    /// <returns></returns>
         public static double VolumeOverlap(Structure structure1, Structure structure2)
         {
             // initialize items needed for calculating distance
@@ -71,6 +77,12 @@
             }
             return volumeIntersection;
         }
+        /// <summary>
+        /// Returns the percent overlap of a structure and its provided volume of overlap
+        /// </summary>
+        /// <param name="structure"></param>
+        /// <param name="volumeIntersection"></param>
+        /// <returns></returns>
         public static double PercentOverlap(Structure structure, double volumeIntersection)
         {
             double percentOverlap = (volumeIntersection / structure.Volume) * 100;
@@ -84,6 +96,12 @@
                 return percentOverlap;
             }
         }
+        /// <summary>
+        /// Calculates the overlap of two given structures, then returns their Dice Coefficient, or measure of similarity.
+        /// </summary>
+        /// <param name="structure1"></param>
+        /// <param name="structure2"></param>
+        /// <returns></returns>
         public static double DiceCoefficient(Structure structure1, Structure structure2)
         {
             // initialize items needed for calculating distance
@@ -166,13 +184,20 @@
                 return diceCoefficient;
             }
         }
+        /// <summary>
+        /// Returns the Dice Coefficient, or measure of similarity, of two structures, given their previously calculated volume of overlap.
+        /// </summary>
+        /// <param name="structure1"></param>
+        /// <param name="structure2"></param>
+        /// <param name="volumeOverlap"></param>
+        /// <returns></returns>
         public static double DiceCoefficient(Structure structure1, Structure structure2, double volumeOverlap)
         {
             return Math.Round((2 * volumeOverlap) / (structure1.Volume + structure2.Volume), 3);
         }
 
         /// <summary>
-        /// calculates the shortest distance between structure 1 and structure 2
+        /// Calculates the shortest distance between structure 1 and structure 2
         /// </summary>
         /// <param name="structure1"></param>
         /// <param name="structure2"></param>
@@ -226,6 +251,14 @@
             }
         }
 
+        #region May not be useful
+
+        /// <summary>
+        /// Calculates the furthest distance between any two points of two structures. (Admittedly not very useful).
+        /// </summary>
+        /// <param name="structure1"></param>
+        /// <param name="structure2"></param>
+        /// <returns></returns>
         public static double MaxDistance(Structure structure1, Structure structure2)
         {
             // calculate the max distance between each structure
@@ -263,7 +296,14 @@
                 return maxDistance;
             }
         }
-        #region Average Distances inside/outside radius -- may not be useful
+
+        /// <summary>
+        /// Calculates the average distance of all points of two structures inside a given radius
+        /// </summary>
+        /// <param name="structure1"></param>
+        /// <param name="structure2"></param>
+        /// <param name="radius"></param>
+        /// <returns></returns>
         public static double AverageDistance_InsideRadius(Structure structure1, Structure structure2, double radius)
         {
             // calculate the average distance between each structure inside a designated radius
@@ -310,6 +350,13 @@
                 return averageDistance;
             }
         }
+        /// <summary>
+        /// Calculates the average distance of all points of two structures outside a given radius
+        /// </summary>
+        /// <param name="structure1"></param>
+        /// <param name="structure2"></param>
+        /// <param name="radius"></param>
+        /// <returns></returns>
         public static double AverageDistance_OutsideRadius(Structure structure1, Structure structure2, double radius)
         {
             List<double> pointsOutsideRadius = new List<double>();

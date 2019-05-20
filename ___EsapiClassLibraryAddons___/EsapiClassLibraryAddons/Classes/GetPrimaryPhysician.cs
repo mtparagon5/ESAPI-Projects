@@ -2,6 +2,12 @@
 {
     public class GetPrimary
     {
+        /// <summary>
+        /// Returns the Primary Physician given their Physician ID or username (which differs physician to physician).
+        /// NOTE: Needs to be updated.
+        /// </summary>
+        /// <param name="tempPhysicianId"></param>
+        /// <returns></returns>
         public static string Physician(string tempPhysicianId)
         {
             string primaryPhysician = "";

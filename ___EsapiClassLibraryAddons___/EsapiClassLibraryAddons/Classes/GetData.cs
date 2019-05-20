@@ -9,6 +9,9 @@
     using System.IO;
     using System.Text;
 
+    /// <summary>
+    /// A collection of methods that can be used to collect JSON and CSV data for the various plan types: single plan, all plans in given context, single plan sum, and all plan sums in given context.
+    /// </summary>
     public class GetData
     {
         /// <summary>

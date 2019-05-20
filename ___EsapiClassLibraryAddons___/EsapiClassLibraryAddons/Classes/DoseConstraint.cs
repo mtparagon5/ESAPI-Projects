@@ -2,37 +2,14 @@
 {
     using System;
     using VMS.TPS.Common.Model.API;
+
+    /// <summary>
+    /// A collection of relatively antiquaited methods previously used for checking constraints and returning string results.
+    /// </summary>
     public class DoseConstraint
     {
         public static string max(Structure structure, double d03cc, double maxDose, double maxDoseLimit)
         {
-            //if (SelectedStructure.Id.ToLower().Equals("brainstem"))
-            //{
-            //    //PlanSetup plan = (PlanSetup)SelectedPlanningItem;
-            //    Fractions = (int)plan.UniqueFractionation.NumberOfFractions;
-
-            //    s1_d03cc = DvhExtensions.getDoseAtVolume(s1_dvhDynamic, 0.03);
-            //    s1_dMax = s1_dMax = s1_dvhDynamic.MaxDose.Dose;
-            //    s1_maxDoseLimit_ideal = 54.0;
-            //    if (s1_dMax <= s1_maxDoseLimit_ideal)
-            //    {
-            //        s1_constraintResult_max.Content += string.Format("{0}",
-            //                                                        max("BrainStem", s1_d03cc, s1_dMax, s1_maxDoseLimit_ideal));
-            //    }
-            //    else
-            //    {
-            //        s1_mxDoseLimit_varAcc = 60.0;
-            //        s1_constraintResult_max.Content += string.Format("{0}\n{1}",
-            //                                                        max("BrainStem", s1_d03cc, s1_dMax, s1_maxDoseLimit_ideal),
-            //                                                        max("BrainStem", s1_d03cc, s1_dMax, s1_mxDoseLimit_varAcc));
-            //    }
-            //    s1_constraintResult_mean.Content += string.Format("\tMean Dose = {0:F3}Gy",
-            //                                                        DoseChecks.getMeanDose(s1_dvhDynamic));
-            //    s1_constraintResult_volume.Content = string.Format("{0}\n{1}\n\n\n\nTest: {2}",
-            //                                                        volume("BrainStem", 54.0, DoseChecks.getRelativeVolumeAtDose(s1_dvhDynamic, 54.0), "%", 5.0),
-            //                                                        volume("BrainStem", 60.0, DoseChecks.getRelativeVolumeAtDose(s1_dvhDynamic, 60.0), "%", 1.0),
-            //                                                        Fractions);
-            //}
             if (maxDose <= maxDoseLimit) { return string.Format("\tD(0.03cc):\t{0:F3}Gy\t\t|\tMaxDose:\t{1:F3}Gy\t\t|\tLimit: {2}Gy\t|\tMET\t", d03cc, maxDose, maxDoseLimit); }
             else { return string.Format("\tD(0.03cc):\t{0:F3}Gy|\tMaxDose:\t{1:F3}Gy\t|\tLimit: {2}Gy\t|\tNOT MET\t", d03cc, maxDose, maxDoseLimit); }
         }
@@ -172,7 +149,7 @@
             string meanInfo = displayMeanInfo(dvhDynamic, dynamicDoseLabel);
             string maxInfo = displayMaxInfo(dynamicVolumeLabel, dvhDynamic, dynamicDoseLabel);
 
-            return string.Format("{0}\n{1}\n{2}\n{3}", volumeInfo, meanInfo, maxInfo);
+            return string.Format("{0}\n{1}\n{2}", volumeInfo, meanInfo, maxInfo);
         }
     }
 }

@@ -3,6 +3,9 @@
     using VMS.TPS.Common.Model.API;
     using VMS.TPS.Common.Model.Types;
 
+    /// <summary>
+    /// Various methods for checking dose values
+    /// </summary>
     public class DoseChecks
     {
         public static double getTotalFractionsForPlanSum(PlanSum planSum)
@@ -32,9 +35,10 @@
                 return false;
             }
         }
-        #region checkPTVDose
         public static bool checkPTVDose(double Dose, double DoseLim)
-        {
+        {   
+            // 0.001 is added because when normalizing 100% Rx Dose to 95% Target Volume, 
+            // sometimes it actually rounds to just shy of the 95%, which would cause a false negative.
             if (Dose + .001 >= DoseLim)
             {
                 return true;
@@ -45,7 +49,6 @@
                 return false;
             }
         }
-        #endregion
         public static bool checkCIvol(double volDose)
         {
             if (volDose > 0)
@@ -68,27 +71,6 @@
                 return false;
             }
         }
-
-        #region getCI for CI calcs
-        //public double getCI(double rxDoseVolume, double ptvVolume)
-        //{
-        //    ci = rxDoseVolume / ptvVolume;
-        //    return ci;
-        //}
-        //public bool checkDose(double ci, double CILim)
-        //{
-        //    if (ci < CILim)
-        //    {
-        //        return true;
-        //    }
-        //    else
-        //    {
-        //        return false;
-        //    }
-        //}
-        #endregion
-
-
 
         public static double getMeanDose(DVHData dvh)
         {

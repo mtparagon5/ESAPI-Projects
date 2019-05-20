@@ -6,6 +6,9 @@
     using System.Text;
     using VMS.TPS.Common.Model.API;
 
+    /// <summary>
+    /// A class that can be added to projects in order to create a log
+    /// </summary>
     public class Log
     {
         private string path;
@@ -20,6 +23,12 @@
         private string userName;
         public string UserName { get { return userName; } set { this.userName = value; } }
 
+        /// <summary>
+        /// Log Object
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="inputPath"></param>
+        /// <param name="inputScriptId"></param>
         public Log(ScriptContext context, string inputPath, string inputScriptId)
         {
             path = inputPath;
@@ -27,7 +36,15 @@
             userName = context.CurrentUser.Name;
         }
 
-
+        /// <summary>
+        /// Method used to create or add to a log file given various inputs.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="patient"></param>
+        /// <param name="inputPath"></param>
+        /// <param name="inputScriptId"></param>
+        /// <param name="dosePerFraction"></param>
+        /// <param name="fractions"></param>
         public static void CreateLog(ScriptContext context, PPatient patient, string inputPath, string inputScriptId, string dosePerFraction, string fractions)
         {
             Log log = new Log(context, inputPath, inputScriptId);

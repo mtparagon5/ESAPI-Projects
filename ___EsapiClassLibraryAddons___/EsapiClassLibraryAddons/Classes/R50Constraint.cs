@@ -1,5 +1,9 @@
 ﻿namespace VMS.TPS
 {
+    /// <summary>
+    /// Method for Calculating R50 ranges -- Based on RTOG Protocol for Lung SBRT
+    /// Author: Edi Schreibmann
+    /// </summary>
     public class R50Constraint
     {
         public static void LimitsFromVolume(double volume, out double limit1, out double limit2, out double limit3, out double limit4)

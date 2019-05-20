@@ -2,7 +2,7 @@
 {
 	using System;
 	/// <summary>
-	/// PrimaryPhysician Class
+	/// PrimaryPhysician Class -- Used for creating a tailored Primary Physician Object
 	/// </summary>
 	public class PrimaryPhysician
 	{
@@ -32,7 +32,8 @@
 		public static PrimaryPhysician GetPrimaryPhysician(string physicianId)
 		{
 			PrimaryPhysician pp = new PrimaryPhysician();
-            pp.id = physicianId;
+
+      pp.id = physicianId;
 			pp.name = VMS.TPS.GetPrimary.Physician(physicianId); // reference to EsapiAddons.dll
 
 			return pp;

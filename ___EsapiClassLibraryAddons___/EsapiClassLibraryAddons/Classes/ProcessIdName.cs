@@ -2,9 +2,12 @@
 {
 	using System;
 	using System.Collections.Generic;
-    using System.Linq;
-    using VMS.TPS.Common.Model.API;
+  using System.Linq;
+  using VMS.TPS.Common.Model.API;
 
+    /// <summary>
+    /// An old set of methods for cleaning structure names for data collection - likely antiquated.
+    /// </summary>
     public class ProcessIdName
     {
         public static string processPtName(string PTName)
