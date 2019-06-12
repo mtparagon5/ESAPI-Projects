@@ -1,12 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using System.Windows.Media.Media3D;
 using VMS.TPS.Common.Model.API;
 using VMS.TPS.Common.Model.Types;
+using System.Windows.Media.Media3D;
 
 namespace VMS.TPS
 {
@@ -97,7 +96,6 @@ namespace VMS.TPS
 
   public static class CalculateOverlap
   {
-
     /// <summary>
     /// Calculate volume overlap of Structure1 with Structure2
     /// </summary>
@@ -119,7 +117,7 @@ namespace VMS.TPS
         volumeIntersection = structure1.Volume;
       }
       else if ((structure1.Id.ToLower().Contains("skin") && !structure2.Id.ToLower().Contains("cavity")) ||
-      (structure2.Id.ToLower().Contains("skin") && !structure2.Id.ToLower().Contains("cavity")))
+        (structure2.Id.ToLower().Contains("skin") && !structure2.Id.ToLower().Contains("cavity")))
       {
         volumeIntersection = Double.NaN;
       }
@@ -155,8 +153,8 @@ namespace VMS.TPS
               p.z = z;
 
               if ((structure2Bounds.Contains(p.x, p.y, p.z)) &&
-                (structure1.IsPointInsideSegment(p)) &&
-                (structure2.IsPointInsideSegment(p)))
+                  (structure1.IsPointInsideSegment(p)) &&
+                  (structure2.IsPointInsideSegment(p)))
               {
                 intersectionCount++;
               }
@@ -245,8 +243,8 @@ namespace VMS.TPS
                 p.z = z;
 
                 if ((structure2Bounds.Contains(p.x, p.y, p.z)) &&
-                  (structure1.IsPointInsideSegment(p)) &&
-                  (structure2.IsPointInsideSegment(p)))
+                    (structure1.IsPointInsideSegment(p)) &&
+                    (structure2.IsPointInsideSegment(p)))
                 {
                   intersectionCount++;
                 }
@@ -296,8 +294,8 @@ namespace VMS.TPS
     {
       double shortestDistance = 2000000;
       if (structure1 != structure2 && !structure1.Id.ToLower().Contains("body") && !structure1.Id.ToLower().Contains("body") &&
-        !structure1.Id.ToLower().Contains("external") && !structure2.Id.ToLower().Contains("external") &&
-        !structure2.Id.ToLower().Contains("skin"))
+          !structure1.Id.ToLower().Contains("external") && !structure2.Id.ToLower().Contains("external") &&
+          !structure2.Id.ToLower().Contains("skin"))
       {
         Rect3D structure1Bounds = structure1.MeshGeometry.Bounds;
         Rect3D structure2Bounds = structure2.MeshGeometry.Bounds;
@@ -670,68 +668,45 @@ namespace VMS.TPS
   public class Constraint
   {
     public string Type { get; set; }
+    public string Structure { get; set; }
     public double VolumeLimit { get; set; }
     public double DoseLimit { get; set; }
 
     public Constraint()
     {
       Type = string.Empty;
+      Structure = string.Empty;
       VolumeLimit = double.NaN;
       DoseLimit = double.NaN;
     }
 
-    public Constraint(string type, double doseLimit, double volLimit)
+    public Constraint(string type, string structure, double volLimit, double doseLimit)
     {
       Type = type;
-      DoseLimit = doseLimit;
+      Structure = structure;
       VolumeLimit = volLimit;
+      DoseLimit = doseLimit;
     }
+
 
     public override string ToString()
     {
       switch (Type)
       {
         case "Relative":
-          return string.Format("V{0} Gy <= {1}%", DoseLimit, VolumeLimit);
+          return string.Format("{0}:\r\n\tV{1} Gy <= {2}%", Structure, DoseLimit, VolumeLimit);
         case "Absolute":
-          return string.Format("V{0} Gy <= {1}cc", DoseLimit, VolumeLimit);
+          return string.Format("{0}:\r\n\tV{1} Gy <= {2}cc", Structure, DoseLimit, VolumeLimit);
         case "Max":
-          return string.Format("Max <= {0} Gy", DoseLimit);
+          return string.Format("{0}:\r\n\tMax <= {1} Gy", Structure, DoseLimit);
         case "Mean":
-          return string.Format("Mean <= {0} Gy", DoseLimit);
+          return string.Format("{0}:\r\n\tMean <= {1} Gy", Structure, DoseLimit);
         default:
           return string.Format("Sorry, the constraint type of \"{0}\" is not recognized :(", Type);
       }
     }
   }
 
-  public class Constraints
-  {
-    public string Structure { get; set; }
-    public List<Constraint> ConstraintList { get; set; }
-
-    public Constraints()
-    {
-      Structure = string.Empty;
-      ConstraintList = new List<Constraint>();
-    }
-
-    public Constraints(string structure, List<Constraint> constraints)
-    {
-      Structure = structure;
-      ConstraintList = constraints;
-    }
-
-    public override string ToString()
-    {
-      string s = Structure + ":";
-      foreach (Constraint c in ConstraintList)
-      {
-        s += string.Format("\r\n\t{0}", c.ToString());
-      }
-      return s;
-    }
-  }
 
   public static class ConstraintChecks
   {
@@ -757,41 +732,41 @@ namespace VMS.TPS
       }
     }
 
-    public static string constraintResult(Constraint constraint, double result, DVHData dvhAA, DVHData dvhAR)
+    public static string constraintResult(Constraint constraint, double result)
     {
       switch (constraint.Type)
       {
         case "Relative":
-          return string.Format("V{0} Gy = {1}%\t(Limit: <={2}%; Dlimit = {3} Gy)", constraint.DoseLimit, result, constraint.VolumeLimit, Math.Round(DvhExtensions.getDoseAtVolume(dvhAR, constraint.VolumeLimit), 3));
+          return string.Format("{0}:\r\n\tV{1} Gy = {2}%\t(Limit: <={3}%)", constraint.Structure, constraint.DoseLimit, result, constraint.VolumeLimit);
         case "Absolute":
-          return string.Format("V{0} Gy = {1}cc\t(Limit: <={2}cc; Dlimit = {3} cc)", constraint.DoseLimit, result, constraint.VolumeLimit, Math.Round(DvhExtensions.getDoseAtVolume(dvhAA, constraint.VolumeLimit), 3));
+          return string.Format("{0}:\r\n\tV{1} Gy = {2}cc\t(Limit: <={3}cc)", constraint.Structure, constraint.DoseLimit, result, constraint.VolumeLimit);
         case "Max":
-          return string.Format("Max = {0} Gy\t(Limit: <={1} Gy; D0.03cc = {3} Gy)", result, constraint.DoseLimit, Math.Round(DvhExtensions.getDoseAtVolume(dvhAA, 0.03), 3));
+          return string.Format("{0}:\r\n\tMax = {1} Gy\t(Limit: <={2} Gy)", constraint.Structure, result, constraint.DoseLimit);
         case "Mean":
-          return string.Format("Mean = {0} Gy\t(Limit: <={1} Gy)", result, constraint.DoseLimit, Math.Round(dvhAA.MeanDose.Dose, 3));
+          return string.Format("{0}:\r\n\tMean = {1} Gy\t(Limit: <={2} Gy)", constraint.Structure, result, constraint.DoseLimit);
         default:
           return string.Format("Sorry, the constraint type of \"{0}\" is not recognized :(", constraint.Type);
       }
     }
 
-    public static string constraintSetMessage(List<Constraints> constraints)
+    public static string constraintSetMessage(List<Constraint> constraints)
     {
       var msg = "";
-      foreach (var clist in constraints)
+      foreach (var c in constraints)
       {
-        msg += clist.ToString() + "\r\n---------------------------------------------------------------------------\r\n";
+        msg += c.ToString() + "\r\n---------------------\r\n";
       }
       return msg;
     }
 
   }
 
+
+
   #endregion classes
   public class Script
   {
     public Script() { }
-
-
 
     public void Execute(ScriptContext context /*, System.Windows.Window window*/ )
     {
@@ -863,29 +838,29 @@ namespace VMS.TPS
       {
         // conditions for adding any structure
         if ((!structure.IsEmpty) &&
-          (structure.HasSegment) &&
-          (!structure.Id.Contains("*")) &&
-          (!structure.Id.ToLower().Contains("markers")) &&
-          (!structure.Id.ToLower().Contains("avoid")) &&
-          (!structure.Id.ToLower().Contains("dose")) &&
-          (!structure.Id.ToLower().Contains("contrast")) &&
-          (!structure.Id.ToLower().Contains("air")) &&
-          (!structure.Id.ToLower().Contains("dens")) &&
-          (!structure.Id.ToLower().Contains("bolus")) &&
-          (!structure.Id.ToLower().Contains("suv")) &&
-          (!structure.Id.ToLower().Contains("match")) &&
-          (!structure.Id.ToLower().Contains("wire")) &&
-          (!structure.Id.ToLower().Contains("scar")) &&
-          (!structure.Id.ToLower().Contains("chemo")) &&
-          (!structure.Id.ToLower().Contains("pet")) &&
-          (!structure.Id.ToLower().Contains("dnu")) &&
-          (!structure.Id.ToLower().Contains("fiducial")) &&
-          (!structure.Id.ToLower().Contains("artifact")) &&
-          (!structure.Id.StartsWith("z", StringComparison.InvariantCultureIgnoreCase)) &&
-          (!structure.Id.StartsWith("hs", StringComparison.InvariantCultureIgnoreCase)) &&
-          (!structure.Id.StartsWith("av", StringComparison.InvariantCultureIgnoreCase)) &&
-          (!structure.Id.StartsWith("opti ", StringComparison.InvariantCultureIgnoreCase)) &&
-          (!structure.Id.StartsWith("opti-", StringComparison.InvariantCultureIgnoreCase)))
+            (structure.HasSegment) &&
+            (!structure.Id.Contains("*")) &&
+            (!structure.Id.ToLower().Contains("markers")) &&
+            (!structure.Id.ToLower().Contains("avoid")) &&
+            (!structure.Id.ToLower().Contains("dose")) &&
+            (!structure.Id.ToLower().Contains("contrast")) &&
+            (!structure.Id.ToLower().Contains("air")) &&
+            (!structure.Id.ToLower().Contains("dens")) &&
+            (!structure.Id.ToLower().Contains("bolus")) &&
+            (!structure.Id.ToLower().Contains("suv")) &&
+            (!structure.Id.ToLower().Contains("match")) &&
+            (!structure.Id.ToLower().Contains("wire")) &&
+            (!structure.Id.ToLower().Contains("scar")) &&
+            (!structure.Id.ToLower().Contains("chemo")) &&
+            (!structure.Id.ToLower().Contains("pet")) &&
+            (!structure.Id.ToLower().Contains("dnu")) &&
+            (!structure.Id.ToLower().Contains("fiducial")) &&
+            (!structure.Id.ToLower().Contains("artifact")) &&
+            (!structure.Id.StartsWith("z", StringComparison.InvariantCultureIgnoreCase)) &&
+            (!structure.Id.StartsWith("hs", StringComparison.InvariantCultureIgnoreCase)) &&
+            (!structure.Id.StartsWith("av", StringComparison.InvariantCultureIgnoreCase)) &&
+            (!structure.Id.StartsWith("opti ", StringComparison.InvariantCultureIgnoreCase)) &&
+            (!structure.Id.StartsWith("opti-", StringComparison.InvariantCultureIgnoreCase)))
         //(structure.Id.Contains("CI-", StringComparison.InvariantCultureIgnoreCase) == false) && 
         //(structure.Id.Contains("R50-", StringComparison.InvariantCultureIgnoreCase) == false) &&
         //(structure.Id.Contains("CI_", StringComparison.InvariantCultureIgnoreCase) == false) && 
@@ -898,7 +873,7 @@ namespace VMS.TPS
             targetList.Add(structure);
           }
           if ((structure.Id.StartsWith("CTV", StringComparison.InvariantCultureIgnoreCase)) ||
-            (structure.Id.StartsWith("Prost", StringComparison.InvariantCultureIgnoreCase)))
+              (structure.Id.StartsWith("Prost", StringComparison.InvariantCultureIgnoreCase)))
           {
             ctvList.Add(structure);
             structureList.Add(structure);
@@ -918,24 +893,24 @@ namespace VMS.TPS
           }
           // conditions for adding breast plan targets
           if ((structure.Id.StartsWith("Level I", StringComparison.InvariantCultureIgnoreCase)) ||
-            (structure.Id.StartsWith("IM LN", StringComparison.InvariantCultureIgnoreCase)) ||
-            (structure.Id.StartsWith("Cavity", StringComparison.InvariantCultureIgnoreCase)) ||
-            (structure.Id.StartsWith("Supraclav", StringComparison.InvariantCultureIgnoreCase)))
+              (structure.Id.StartsWith("IM LN", StringComparison.InvariantCultureIgnoreCase)) ||
+              (structure.Id.StartsWith("Cavity", StringComparison.InvariantCultureIgnoreCase)) ||
+              (structure.Id.StartsWith("Supraclav", StringComparison.InvariantCultureIgnoreCase)))
           {
             targetList.Add(structure);
             structureList.Add(structure);
           }
           // conditions for adding oars
           if ((!structure.Id.StartsWith("GTV", StringComparison.InvariantCultureIgnoreCase)) &&
-            (!structure.Id.StartsWith("CTV", StringComparison.InvariantCultureIgnoreCase)) &&
-            (!structure.Id.StartsWith("ITV", StringComparison.InvariantCultureIgnoreCase)) &&
-            (!structure.Id.StartsWith("PTV", StringComparison.InvariantCultureIgnoreCase)) &&
-            (!structure.Id.StartsWith("Level I", StringComparison.InvariantCultureIgnoreCase)) &&
-            (!structure.Id.StartsWith("IM LN", StringComparison.InvariantCultureIgnoreCase)) &&
-            (!structure.Id.StartsWith("Cavity", StringComparison.InvariantCultureIgnoreCase)) &&
-            (!structure.Id.StartsWith("Supraclav", StringComparison.InvariantCultureIgnoreCase)) &&
-            (!structure.Id.StartsWith("Scar", StringComparison.InvariantCultureIgnoreCase)) &&
-            (!structure.Id.ToLower().Contains("carina")))
+              (!structure.Id.StartsWith("CTV", StringComparison.InvariantCultureIgnoreCase)) &&
+              (!structure.Id.StartsWith("ITV", StringComparison.InvariantCultureIgnoreCase)) &&
+              (!structure.Id.StartsWith("PTV", StringComparison.InvariantCultureIgnoreCase)) &&
+              (!structure.Id.StartsWith("Level I", StringComparison.InvariantCultureIgnoreCase)) &&
+              (!structure.Id.StartsWith("IM LN", StringComparison.InvariantCultureIgnoreCase)) &&
+              (!structure.Id.StartsWith("Cavity", StringComparison.InvariantCultureIgnoreCase)) &&
+              (!structure.Id.StartsWith("Supraclav", StringComparison.InvariantCultureIgnoreCase)) &&
+              (!structure.Id.StartsWith("Scar", StringComparison.InvariantCultureIgnoreCase)) &&
+              (!structure.Id.ToLower().Contains("carina")))
           {
             oarList.Add(structure);
             structureList.Add(structure);
@@ -957,38 +932,48 @@ namespace VMS.TPS
       var rel = "Relative";
       var abs = "Absolute";
 
-      List<Constraints> hypoSet_1 = new List<Constraints>() {
-        // Constraint.Constraint(string type, string structure, double volLimit, double doseLimit)
-        new Constraints ("Bladder", new List<Constraint> {new Constraint (rel, Limit.dLimit55, Limit.vLimit50), new Constraint (rel, Limit.dLimit75, Limit.vLimit20)}),
-        new Constraints ("Fem_Head_L", new List<Constraint> {new Constraint (rel, Limit.dLimit42, Limit.vLimit10)}),
-        new Constraints ("Fem_Head_R", new List<Constraint> {new Constraint (rel, Limit.dLimit42, Limit.vLimit10)}),
-        new Constraints ("PenileBulb", new List<Constraint> {new Constraint (rel, Limit.dLimit50, Limit.vLimit50)}),
-        new Constraints ("Rectum", new List<Constraint> {new Constraint (rel, Limit.dLimit55, Limit.vLimit50), new Constraint (rel, Limit.dLimit75, Limit.vLimit20), new Constraint (rel, Limit.dLimit80, Limit.vLimit10)}),
+
+
+      List<Constraint> hypoSet_1 = new List<Constraint>(){
+      // Constraint.Constraint(string type, string structure, double volLimit, double doseLimit)
+        new Constraint(rel, "Bladder", Limit.dLimit55, Limit.vLimit50),
+        new Constraint(rel,"Bladder", Limit.dLimit75, Limit.vLimit20),
+        new Constraint(rel, "Fem_Head_L", Limit.dLimit42, Limit.vLimit10),
+        new Constraint(rel, "Fem_Head_R", Limit.dLimit42, Limit.vLimit10),
+        new Constraint(rel, "PenileBulb", Limit.dLimit50, Limit.vLimit50),
+        new Constraint(rel, "Rectum", Limit.dLimit55, Limit.vLimit50),
+        new Constraint(rel,"Rectum", Limit.dLimit75, Limit.vLimit20),
+        new Constraint(rel,"Rectum", Limit.dLimit80, Limit.vLimit10),
       };
 
-      List<Constraints> hypoSet_2 = new List<Constraints>() {
-        // Constraint.Constraint(string type, string structure, double volLimit, double doseLimit)
-        new Constraints ("Bladder", new List<Constraint> {new Constraint (rel,  Limit.dLimit55, Limit.vLimit50), new Constraint (rel,  Limit.dLimit75, Limit.vLimit20)} ),
-        new Constraints ("Fem_Head_L", new List<Constraint> {new Constraint (rel,  Limit.dLimit42, Limit.vLimit10)} ),
-        new Constraints ("Fem_Head_R",new List<Constraint> {new Constraint (rel,  Limit.dLimit42, Limit.vLimit10)} ),
-        new Constraints ("PenileBulb",new List<Constraint> {new Constraint (rel,  Limit.dLimit50, Limit.vLimit50)} ),
-        new Constraints ("Rectum",new List<Constraint> {new Constraint (rel,  Limit.dLimit55, Limit.vLimit50), new Constraint (rel,  Limit.dLimit65, Limit.vLimit22), new Constraint (rel,  Limit.dLimit70, Limit.vLimit17)} ),
-        new Constraints ("LargeBowel",new List<Constraint> {new Constraint (rel,  Limit.dLimit65, Limit.vLimit10), new Constraint (rel,  Limit.dLimit70, Limit.vLimit5)} ),
+      List<Constraint> hypoSet_2 = new List<Constraint>(){
+      // Constraint.Constraint(string type, string structure, double volLimit, double doseLimit)
+        new Constraint(rel, "Bladder", Limit.dLimit55, Limit.vLimit50),
+        new Constraint(rel,"Bladder", Limit.dLimit75, Limit.vLimit20),
+        new Constraint(rel, "Fem_Head_L", Limit.dLimit42, Limit.vLimit10),
+        new Constraint(rel, "Fem_Head_R", Limit.dLimit42, Limit.vLimit10),
+        new Constraint(rel, "PenileBulb", Limit.dLimit50, Limit.vLimit50),
+        new Constraint(rel, "Rectum", Limit.dLimit55, Limit.vLimit50),
+        new Constraint(rel,"Rectum", Limit.dLimit65, Limit.vLimit22),
+        new Constraint(rel,"Rectum", Limit.dLimit70, Limit.vLimit17),
+        new Constraint(rel,"LargeBowel", Limit.dLimit65, Limit.vLimit10),
+        new Constraint(rel,"LargeBowel", Limit.dLimit70, Limit.vLimit5),
       };
 
-      List<Constraints> seqSet_1 = new List<Constraints>() {
-        // Constraint.Constraint(string type, string structure, double volLimit, double doseLimit)
-        new Constraints ("Bladder-CTV",new List<Constraint> {new Constraint (rel,  Limit.dLimit55, Limit.vLimit50), new Constraint (rel,  Limit.dLimit75, Limit.vLimit20)} ),
-        new Constraints ("Bladder-CTV",new List<Constraint> {} ),
-        new Constraints ("Fem_Head_L",new List<Constraint> {new Constraint (rel,  Limit.dLimit50, Limit.vLimit10)} ),
-        new Constraints ("Fem_Head_R",new List<Constraint> {new Constraint (rel,  Limit.dLimit50, Limit.vLimit10)} ),
-        new Constraints ("Rectum",new List<Constraint> {new Constraint (rel,  Limit.dLimit40, Limit.vLimit55), new Constraint (rel,  Limit.dLimit65, Limit.vLimit35)} ),
-        new Constraints ("Bag_Bowel", new List<Constraint> {new Constraint (abs, Limit.dLimit45, Limit.vLimit150)} ),
+      List<Constraint> seqSet_1 = new List<Constraint>(){
+      // Constraint.Constraint(string type, string structure, double volLimit, double doseLimit)
+        new Constraint(rel, "Bladder-CTV", Limit.dLimit55, Limit.vLimit50),
+        new Constraint(rel,"Bladder-CTV", Limit.dLimit75, Limit.vLimit20),
+        new Constraint(rel, "Fem_Head_L", Limit.dLimit50, Limit.vLimit10),
+        new Constraint(rel, "Fem_Head_R", Limit.dLimit50, Limit.vLimit10),
+        new Constraint(rel, "Rectum", Limit.dLimit40, Limit.vLimit55),
+        new Constraint(rel,"Rectum", Limit.dLimit65, Limit.vLimit35),
+        new Constraint(abs,"Bag_Bowel", Limit.dLimit45, Limit.vLimit150),
         // supposed to be named small bowel
         // new Constraint(abs,"SmallBowel", Limit.dLimit45, Limit.vLimit150),
       };
 
-      List<List<Constraints>> constraintSets = new List<List<Constraints>>() {
+      List<List<Constraint>> constraintSets = new List<List<Constraint>>(){
         hypoSet_1,
         hypoSet_2,
         seqSet_1
@@ -1076,21 +1061,77 @@ namespace VMS.TPS
             else
             {
               isHypoSet_2 = false;
-              boxTitle = "We're the Worst!";
-              MessageBox.Show("Sorry, it seems we don't have the constraints you're looking for :(", boxTitle);
+              MessageBox.Show("Sorry, it seems we don't have the constraints you're looking for :(");
               return;
             }
           }
 
           if (isHypoSet_1)
           {
+            foreach (var c in hypoSet_1)
+            {
+              foreach (var s in sorted_oarList)
+              {
+                DVHData dvhAA = selectedPlanningItem.GetDVHCumulativeData(s, DoseValuePresentation.Absolute, VolumePresentation.AbsoluteCm3, 0.001);
+                DVHData dvhAR = selectedPlanningItem.GetDVHCumulativeData(s, DoseValuePresentation.Absolute, VolumePresentation.Relative, 0.001);
 
-            messages = CheckConstraintSet(selectedPlanningItem, messages, hypoSet_1, sorted_oarList.ToList());
+                if (s.Id == c.Structure)
+                {
+                  sMsg = ConstraintChecks.constraintResult(c, ConstraintChecks.evaluateConstraint(c, dvhAA, dvhAR));
+
+                  if (willCalcOverlap)
+                  {
+                    foreach (var t in sorted_ptvList)
+                    {
+                      sOverlapAbs = CalculateOverlap.VolumeOverlap(s, t);
+                      sOverlapPct = CalculateOverlap.PercentOverlap(s, sOverlapAbs);
+
+                      sMsg += string.Format("\r\nOverlap with {0}:\t{1} cc\t({2} %)", t.Id, sOverlapAbs, sOverlapPct);
+                    }
+
+                  }
+
+                  sMsg += "\r\n---------------------\r\n";
+
+                  messages.Add(sMsg);
+                }
+              }
+            }
           }
           else if (isHypoSet_2)
           {
-            messages = CheckConstraintSet(selectedPlanningItem, messages, hypoSet_2, sorted_oarList.ToList());
+            foreach (var c in hypoSet_2)
+            {
+              foreach (var s in sorted_oarList)
+              {
+                DVHData dvhAA = selectedPlanningItem.GetDVHCumulativeData(s, DoseValuePresentation.Absolute, VolumePresentation.AbsoluteCm3, 0.001);
+                DVHData dvhAR = selectedPlanningItem.GetDVHCumulativeData(s, DoseValuePresentation.Absolute, VolumePresentation.Relative, 0.001);
+
+                if (s.Id == c.Structure)
+                {
+                  sMsg = ConstraintChecks.constraintResult(c, ConstraintChecks.evaluateConstraint(c, dvhAA, dvhAR));
+
+                  if (willCalcOverlap)
+                  {
+                    foreach (var t in sorted_ptvList)
+                    {
+                      sOverlapAbs = CalculateOverlap.VolumeOverlap(s, t);
+                      sOverlapPct = CalculateOverlap.PercentOverlap(s, sOverlapAbs);
+
+                      sMsg += string.Format("\r\nOverlap with {0}:\t{1} cc\t({2} %)", t.Id, sOverlapAbs, sOverlapPct);
+                    }
+
+                  }
+
+                  sMsg += "\r\n---------------------\r\n";
+
+                  messages.Add(sMsg);
+                }
+              }
+            }
           }
+
+
 
           foreach (var msg in messages)
           {
@@ -1100,60 +1141,14 @@ namespace VMS.TPS
           MessageBox.Show(result, boxTitle);
 
         }
-        else
-        {
-          boxTitle = "Standard Fractionated Constraints";
-          var isSequential = false;
-          if (MessageBox.Show("Is this a set of sequential plans?", "Sequential?", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-          {
-            isSequential = true;
-          }
-          else
-          {
-            isSequential = false;
-          }
-          if (isSequential)
-          {
-            var isSeqSet_1 = false;
-            var isSeq1Msg = ConstraintChecks.constraintSetMessage(seqSet_1) + "\r\n\r\nDo these constraints look correct?";
-            if (MessageBox.Show(isSeq1Msg, "Seq Set 1", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-            {
-              isSeqSet_1 = true;
-            }
-            if (isSeqSet_1)
-            {
-
-              messages = CheckConstraintSet(selectedPlanningItem, messages, hypoSet_1, sorted_oarList.ToList());
-            }
-            else
-            {
-              boxTitle = "We're Not Lazy, We Promise!";
-              MessageBox.Show("Sorry, it seems we don't have the constraints you're looking for :(", boxTitle);
-              return;
-            }
-
-            foreach (var msg in messages)
-            {
-              result += msg + "\r\n";
-            }
-
-            MessageBox.Show(result, boxTitle);
-          }
-          else
-          {
-            boxTitle = "Tell Matt To Try Harder!";
-            MessageBox.Show("Sorry, it seems we don't have the standard constraints you're looking for yet :(", boxTitle);
-            return;
-          }
-        }
       }
-      // calculate overlap
       else
       {
+        // calculate overlap
         if (willCalcOverlap)
         {
           boxTitle = "Overlap Stats";
-          sMsg += "Overlap Stats\r\n---------------------------------------------------------------------------\r\n";
+          sMsg += "Overlap Stats\r\n---------------------\r\n";
           foreach (var s in sorted_oarList)
           {
             foreach (var structure in structsWithConstraints.Distinct().ToList())
@@ -1168,7 +1163,7 @@ namespace VMS.TPS
 
                   sMsg += string.Format("\r\n\tOverlap with {0}:\t{1} cc\t({2} %)", t.Id, sOverlapAbs, sOverlapPct);
                 }
-                sMsg += "\r\n\r\n---------------------------------------------------------------------------\r\n";
+                sMsg += "\r\n\r\n---------------------\r\n";
                 messages.Add(sMsg);
               }
             }
@@ -1181,54 +1176,14 @@ namespace VMS.TPS
         }
         else
         {
-          boxTitle = "Oops!";
+          boxTitle = "We're Useless";
           result = "Sorry we couldn't help you with anything :(";
         }
 
         MessageBox.Show(result, boxTitle);
       }
+
     }
-
-    // helper methods
-    public List<string> CheckConstraintSet(PlanningItem selectedPlanningItem, List<string> mList, List<Constraints> ConstraintSet, List<Structure> sortedOarList, bool willCalcOverlap = false, Structure[] sortedPTVList = null)
-    {
-      double sOverlapAbs = 0;
-      double sOverlapPct = 0;
-      foreach (var clist in ConstraintSet)
-      {
-        foreach (var s in sortedOarList)
-        {
-          DVHData dvhAA = selectedPlanningItem.GetDVHCumulativeData(s, DoseValuePresentation.Absolute, VolumePresentation.AbsoluteCm3, 0.001);
-          DVHData dvhAR = selectedPlanningItem.GetDVHCumulativeData(s, DoseValuePresentation.Absolute, VolumePresentation.Relative, 0.001);
-
-          if (s.Id == clist.Structure)
-          {
-            string sMsg = string.Format("{0}:\r\n\t", clist.Structure);
-            foreach (var c in clist.ConstraintList.ToList())
-            {
-              sMsg += ConstraintChecks.constraintResult(c, ConstraintChecks.evaluateConstraint(c, dvhAA, dvhAR), dvhAA, dvhAR);
-              sMsg += "\r\n\t";
-              if (willCalcOverlap)
-              {
-                foreach (var t in sortedPTVList)
-                {
-                  sOverlapAbs = CalculateOverlap.VolumeOverlap(s, t);
-                  sOverlapPct = CalculateOverlap.PercentOverlap(s, sOverlapAbs);
-
-                  sMsg += string.Format("\r\n\tOverlap with {0}:\t{1} cc\t({2} %)", t.Id, sOverlapAbs, sOverlapPct);
-                }
-              }
-            }
-            sMsg += "\r\n---------------------------------------------------------------------------\r\n";
-
-            mList.Add(sMsg);
-          }
-        }
-      }
-      return mList;
-    }
-
 
   }
-
 }
