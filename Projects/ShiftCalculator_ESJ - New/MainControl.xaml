@@ -1,0 +1,1590 @@
+﻿<UserControl x:Class="ShiftCalculator.MainControl"
+             Name="MainUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             Height="auto" 
+             Width="1200" 
+             Background="#FEFEFE"
+             FontFamily="Arial">
+
+    <Border Name="MainBorder" 
+            CornerRadius="2" 
+            BorderBrush="LightGray" 
+            BorderThickness="1">
+        <Grid Name="MainGrid"
+              Margin="70,20,50,10">
+            
+            <StackPanel x:Name="Main_SP" 
+                        Orientation="Vertical">
+                
+                <StackPanel Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,10,10,0">
+                        <Button x:Name="AddNote_Btn" 
+                                Click="AddNote_Clicked" 
+                                Content="Add Note" 
+                                FontWeight="Regular" 
+                                Margin="0,0,5,0" 
+                                Height="auto"
+                                Width="100"/>
+                        <Button x:Name="PrintVisual_Btn" 
+                                Click="Print_Visual" 
+                                Content="Print" 
+                                FontWeight="Regular" 
+                                Margin="0" 
+                                Height="auto"
+                                Width="100"/>
+                    </StackPanel>
+                    <!--<StackPanel Orientation="Vertical"
+                                HorizontalAlignment="Right"
+                                Margin="0,5,10,10">
+                        <Button x:Name="AddConformityToolBox_Btn" 
+                                Click="AddConformityToolBox_Clicked" 
+                                Content="Add Conformity ToolBox" 
+                                FontWeight="Regular" 
+                                Margin="0,0,0,5" 
+                                Height="auto"
+                                Width="205"/>
+                        <Button x:Name="AddCustomConstraint_Btn" 
+                                Click="AddCustomConstraint_Clicked" 
+                                Content="Add Custom Constraint ToolBox" 
+                                FontWeight="Regular" 
+                                Margin="0,0,0,0" 
+                                Height="auto"
+                                Width="205"/>
+                    </StackPanel>-->
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Margin="0,20">
+                        <TextBlock x:Name="Header_TB"
+                                HorizontalAlignment="Center"
+                                Text="Plan Shifts" 
+                                Width="auto"
+                                FontWeight="Bold"
+                                FontSize="16"/>
+                    </StackPanel>
+                
+                    <StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Left">
+                        <TextBlock x:Name="PatientId_TB" 
+                                   HorizontalAlignment="Left" 
+                                   Margin="10,1" 
+                                   TextWrapping="Wrap" 
+                                   Text="Patient Id:" 
+                                   Width="85" 
+                                   FontWeight="Bold"/>
+                        <TextBlock x:Name="PatientId" 
+                                   HorizontalAlignment="Left" 
+                                   Margin="1"
+                                   TextWrapping="Wrap"
+                                   Text="" 
+                                   MinWidth="100"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Left">
+                        <TextBlock x:Name="PatientName_TB" 
+                                   HorizontalAlignment="Left"
+                                   Margin="10,1"
+                                   TextWrapping="Wrap" 
+                                   Text="Patient Name:"
+                                   Width="85"
+                                   FontWeight="Bold"/>
+                        <TextBlock x:Name="PatientName" 
+                                   HorizontalAlignment="Left"
+                                   Margin="1" 
+                                   TextWrapping="Wrap" 
+                                   Text="" 
+                                   MinWidth="100"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Left" Width="auto">
+                        <TextBlock x:Name="PrimaryOnc_TB" 
+                                   HorizontalAlignment="Left" 
+                                   Margin="10,1" 
+                                   TextWrapping="Wrap"
+                                   Text="Primary Onc:"
+                                   Width="85"
+                                   FontWeight="Bold"/>
+                        <TextBlock x:Name="PrimaryOnc" 
+                                   HorizontalAlignment="Left" 
+                                   Margin="1" 
+                                   TextWrapping="Wrap"
+                                   Text="" 
+                                   MinWidth="100"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Left"
+                                Width="auto">
+                        <TextBlock x:Name="CourseId_TB" 
+                                   HorizontalAlignment="Left" 
+                                   Margin="10,1" 
+                                   TextWrapping="Wrap" 
+                                   Text="Course Id:"
+                                   Width="85"
+                                   FontWeight="Bold"/>
+                        <TextBlock x:Name="CourseId"
+                                   HorizontalAlignment="Left" 
+                                   Margin="1"
+                                   TextWrapping="Wrap" 
+                                   Text="" 
+                                   MinWidth="100"/>
+                        <!--<TextBlock x:Name="PlanId_TB" 
+                                   HorizontalAlignment="Left" 
+                                   Margin="10,1" 
+                                   TextWrapping="Wrap" 
+                                   Text="Plan Id:"
+                                   Width="85"
+                                   FontWeight="Bold"/>
+                        <TextBlock x:Name="PlanId"
+                                   HorizontalAlignment="Left" 
+                                   Margin="1"
+                                   TextWrapping="Wrap" 
+                                   Text="" 
+                                   MinWidth="100"/>-->
+                    </StackPanel>
+                    <!--<StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Left"
+                                Width="auto">
+                        <TextBlock x:Name="PlanStatus_TB" 
+                                   HorizontalAlignment="Left" 
+                                   Margin="10,1" 
+                                   TextWrapping="Wrap" 
+                                   Text="Plan Status:"
+                                   Width="85"
+                                   FontWeight="Bold"/>
+                        <TextBlock x:Name="PlanStatus"
+                                   HorizontalAlignment="Left" 
+                                   Margin="1"
+                                   TextWrapping="Wrap" 
+                                   Text="" 
+                                   MinWidth="100"/>
+                    </StackPanel>-->
+                </StackPanel>
+                
+                <!--<StackPanel x:Name="ManualCalc_SP" 
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left">
+                    
+                </StackPanel>-->
+                <!--<StackPanel x:Name="ToolBox_SP" 
+                            Orientation="Horizontal"
+                            Visibility="Visible">
+                    <GroupBox x:Name="CICalc_GB" 
+                              Header="CI / R50 Calc" 
+                              Height="auto" 
+                              Width="575"
+                              FontWeight="Bold"
+                              VerticalAlignment="Center"
+                              Visibility="Hidden">
+
+                        <StackPanel Orientation="Vertical"
+                                        Width="560">
+                            <StackPanel Orientation="Horizontal"
+                                            Margin="10,0,0,5" >
+                                <TextBlock x:Name="RatioTypeCB_TB" 
+                                                Text="Type:"
+                                                Width="85"
+                                                Padding="1"
+                                                VerticalAlignment="Center"
+                                                TextAlignment="left"
+                                                FontWeight="Bold" />
+                                <ComboBox x:Name="RatioType_ComboBox"
+                                                Margin="1" 
+                                                Width="125"
+                                                FontWeight="Regular"
+                                                SelectionChanged="RatioType_SelectionChanged"/>
+                                <TextBlock x:Name="RatioCalcLimitLabel_TB"
+                                                Margin="140,0,0,0"
+                                                Text="Limit/Range:"
+                                                VerticalAlignment="Center"
+                                                Padding="1"
+                                                Width="85"
+                                                FontWeight="Bold"/>
+                                <TextBlock x:Name="ConformityRangeLimit_TB"
+                                                Text=""
+                                                Margin="3,0,0,0"
+                                                VerticalAlignment="Center"
+                                                Width="105"
+                                                FontWeight="Regular"
+                                                Padding="1"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal"
+                                            Width="auto"
+                                            Margin="10,0,0,5" 
+                                            VerticalAlignment="Center">
+
+                                <TextBlock x:Name="RatioStructureCB_TB" 
+                                                Text="Structure:"
+                                                Width="85"
+                                                Padding="1"
+                                                VerticalAlignment="Center"
+                                                TextAlignment="left"
+                                                FontWeight="Bold" />
+                                <ComboBox x:Name="RatioStructure_ComboBox"
+                                                Margin="1" 
+                                                Width="125"
+                                                FontWeight="Regular"/>
+                                <TextBlock x:Name="RatioCalcResultLabel_TB"
+                                                Margin="140,0,0,0"
+                                                Width="85"
+                                                Text="Ratio:"
+                                                VerticalAlignment="Center"
+                                                Padding="1"
+                                                FontWeight="Bold"/>
+                                <TextBlock x:Name="RatioCalcResult_TB"
+                                                Text=""
+                                                Width="105"
+                                                Margin="3,0,0,0"
+                                                VerticalAlignment="Center"
+                                                FontWeight="Regular"
+                                                Padding="1"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal"
+                                            Width="auto"
+                                            Margin="10,0,0,5" 
+                                            VerticalAlignment="Center">
+                                <TextBlock x:Name="TargetCB_TB" 
+                                                Text="Target:"
+                                                Width="85"
+                                                Padding="1"
+                                                VerticalAlignment="Center"
+                                                TextAlignment="left"
+                                                FontWeight="Bold" />
+                                <ComboBox x:Name="RatioTarget_ComboBox"
+                                                Margin="1"
+                                                Width="125"
+                                                FontWeight="Regular"/>
+                                <TextBlock x:Name="RxDoseLabel_TB" 
+                                                Text="Rx Dose" 
+                                                Padding="1"
+                                                Margin="10,0,0,0"
+                                                TextAlignment="Left" 
+                                                HorizontalAlignment="Center" 
+                                                VerticalAlignment="Center" 
+                                                Width="auto" 
+                                                FontWeight="Bold"/>
+                                <TextBox x:Name="RxDose_Input" 
+                                                Background="LightBlue" 
+                                                Margin="3,0,0,0" 
+                                                Padding="1"
+                                                Height="18" 
+                                                HorizontalAlignment="Center" 
+                                                HorizontalContentAlignment="Center" 
+                                                Width="50" 
+                                                FontWeight="Normal"/>
+                                <Button Name="CalculateConformity_Btn" 
+                                            Content="Calculate Conformity" 
+                                            Width="130"
+                                            Margin="90,0,0,0"
+                                            FontWeight="Regular"
+                                            Click="CalculateConformity_Clicked" 
+                                            Background="#DCDCDC"
+                                            HorizontalAlignment="Right"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox x:Name="CustomConstraint_GB" 
+                              Header="Add Custom Constraint" 
+                              Height="auto" 
+                              Width="575"
+                              FontWeight="Bold"
+                              Visibility="Hidden">
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,5">
+                                <TextBlock x:Name="Type_TB" 
+                                           HorizontalAlignment="Left"
+                                           Margin="10,1"
+                                           TextWrapping="Wrap" 
+                                           Text="Type:"
+                                           VerticalAlignment="Center" 
+                                           Width="85"
+                                           FontWeight="Bold"/>
+                                <ComboBox x:Name="ConstraintType_ComboBox" 
+                                           HorizontalAlignment="Left"
+                                           Margin="1" 
+                                           Text="" 
+                                           FontWeight="Regular"
+                                           VerticalAlignment="Center" 
+                                           SelectionChanged="ConstraintTypeSelected"
+                                           MinWidth="125"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,5">
+                                <TextBlock x:Name="Structure_TB" 
+                                           HorizontalAlignment="Left"
+                                           Margin="10,1"
+                                           TextWrapping="Wrap" 
+                                           Text="Structure:"
+                                           VerticalAlignment="Center" 
+                                           Width="85"
+                                           FontWeight="Bold"/>
+                                <ComboBox x:Name="ConstraintStructure_ComboBox" 
+                                           HorizontalAlignment="Left"
+                                           Margin="1" 
+                                           FontWeight="Regular"
+                                           VerticalAlignment="Center" 
+                                           MinWidth="125"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,0">
+                                <StackPanel x:Name="DoseLimit_SP"
+                                            Orientation="Horizontal">
+                                    <TextBlock x:Name="DoseLimit_TB" 
+                                               HorizontalAlignment="Left"
+                                               Margin="10,1"
+                                               TextWrapping="Wrap" 
+                                               Text="Dose Limit:"
+                                               VerticalAlignment="Center" 
+                                               Width="83"
+                                               FontWeight="Bold"/>
+                                    <TextBox x:Name="DoseLimit_Input" 
+                                             Background="LightBlue" 
+                                             Margin="3,0,0,0" 
+                                             Padding="1"
+                                             Height="18"
+                                             HorizontalAlignment="Center" 
+                                             HorizontalContentAlignment="Center"
+                                             Width="45" 
+                                             FontWeight="Normal"/>
+                                    <TextBlock x:Name="DoseLimitLabel_TB" 
+                                               Margin="0" 
+                                               Padding="1"
+                                               Height="18"
+                                               HorizontalAlignment="Left" 
+                                               VerticalAlignment="Bottom"
+                                               Width="30" 
+                                               FontWeight="Normal"
+                                               Text="Gy"/>
+                                </StackPanel>
+                                <StackPanel x:Name="VolumeLimit_SP"
+                                            Orientation="Horizontal">
+                                    <TextBlock x:Name="VolumeLimit_TB" 
+                                               HorizontalAlignment="Left"
+                                               Margin="10,0,10,1"
+                                               TextWrapping="Wrap" 
+                                               Text="Volume Limit:"
+                                               VerticalAlignment="Center" 
+                                               Width="83"
+                                               FontWeight="Bold"/>
+                                    <TextBox x:Name="VolumeLimit_Input" 
+                                             Background="LightBlue" 
+                                             Margin="3,0,0,0" 
+                                             Padding="1"
+                                             Height="18"
+                                             HorizontalAlignment="Center" 
+                                             HorizontalContentAlignment="Center"
+                                             Width="45" 
+                                             FontWeight="Normal"/>
+                                    <TextBlock x:Name="VolumeLimitLabel_TB" 
+                                               Margin="0" 
+                                               Padding="1"
+                                               Height="18"
+                                               HorizontalAlignment="Left" 
+                                               VerticalAlignment="Bottom"
+                                               Width="30" 
+                                               FontWeight="Normal"/>
+                                </StackPanel>
+                                <Button Name="ClearConstraintLimits_Btn" 
+                                        Content="Clear Limits" 
+                                        Width="90"
+                                        Margin="10,0,5,0"
+                                        FontWeight="Regular"
+                                        Click="ClearConstraintLimits_Clicked" 
+                                        Background="#DCDCDC"/>
+                                <Button Name="AddConstraint_Btn" 
+                                        Content="Add Constraint" 
+                                        Width="90"
+                                        Margin="0"
+                                        FontWeight="Regular"
+                                        Click="AddConstraint_Clicked" 
+                                        Background="#DCDCDC"/>
+                            </StackPanel>
+
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>-->
+                
+                <StackPanel Orientation="vertical"
+                            x:Name="PlanAndIsoInput_SP"
+                            Margin="0,0,0,5"
+                            HorizontalAlignment="Left">
+                    <GroupBox x:Name="SimIsoInput_GB" 
+                              Header="Plan and Marker / Field Selections"
+                              Width="auto"
+                              FontWeight="Bold"
+                              VerticalAlignment="Center"
+                              Margin="0,0,0,0">
+                        <StackPanel Orientation="Vertical"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Margin="10,10,0,0"
+                                    Width="auto">
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="5">
+                                <TextBlock x:Name="MarkerOrFieldLabel_TB"
+                                           VerticalAlignment="Center"
+                                           FontWeight="Regular"
+                                           Width="160"
+                                           Text="Shifting from Marker or Field?"/>
+                                <ComboBox x:Name="MarkerOrField_CB" 
+                                          Margin="10,0,0,0"
+                                          FontWeight="Regular"
+                                          Width="150"
+                                          SelectionChanged="IsoTypeSelected"/>
+                               
+                            </StackPanel>
+                            
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="5"
+                                        x:Name="Plan1Selector_SP">
+                                <TextBlock x:Name="Plan1Label_TB"
+                                            VerticalAlignment="Center"
+                                            FontWeight="Regular"
+                                            Width="160"
+                                            Text="Plan Id: "/>
+                                <ComboBox x:Name="Plan1_CB" 
+                                            Margin="10,0,0,0"
+                                            FontWeight="Regular"
+                                            Width="150"
+                                            SelectionChanged="Plan1Selected"/>
+                                <StackPanel x:Name="Marker_SP" 
+                                            Orientation="Horizontal"
+                                            Margin="10,0,0,0"
+                                            Visibility="Collapsed">
+                                    <TextBlock x:Name="Plan1MarkerLabel_TB"
+                                            VerticalAlignment="Center"
+                                            FontWeight="Regular"
+                                            Width="65"
+                                            TextAlignment="Right"
+                                            Text="Marker: "/>
+                                    <ComboBox x:Name="StartingIso_CB" 
+                                            Margin="5,0,0,0"
+                                            FontWeight="Regular"
+                                            Width="100"
+                                            SelectionChanged="IsoSelected"/>
+                                </StackPanel>
+                                <!--<StackPanel>
+                                    <TextBlock x:Name="Plan1MarkerLabel_TB"
+                                            VerticalAlignment="Center"
+                                            FontWeight="Regular"
+                                           Width="50"
+                                           
+                                            Text="Marker: "/>
+                                    <ComboBox x:Name="StartingIso_CB" 
+                                            Margin="10,0,0,0"
+                                            FontWeight="Regular"
+                                            Width="150"
+                                            SelectionChanged="IsoSelected"/>
+                                </StackPanel>-->
+                                <StackPanel x:Name="Plan1Iso_SP" 
+                                            Orientation="Horizontal"
+                                            Margin="30,0,0,0"
+                                            Visibility="Collapsed">
+                                    <TextBlock x:Name="X_TB" 
+                                        Text="X" 
+                                        Height="15" 
+                                        TextAlignment="Right" 
+                                        HorizontalAlignment="Center" 
+                                        VerticalAlignment="Bottom" 
+                                        Width="13" 
+                                        FontWeight="Normal"/>
+                                    <TextBox x:Name="X_Input" 
+                                        Background="LightBlue" 
+                                        Margin="3,0,0,0" 
+                                        Padding="1"
+                                        HorizontalAlignment="Center" 
+                                        HorizontalContentAlignment="Center" 
+                                        VerticalContentAlignment="Center"
+                                        Width="45" 
+                                        FontWeight="Normal"/>
+                                    <TextBlock x:Name="Xcm_TB" 
+                                        Text="cm" 
+                                        Margin="2,0,0,0" 
+                                        Width="30"
+                                        Padding="1"
+                                        VerticalAlignment="Bottom" 
+                                        FontWeight="Normal"/>
+                                    <TextBlock x:Name="Y_TB" 
+                                        Text="Y" 
+                                        Height="15" 
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Bottom"
+                                        Margin="0,0,0,0" 
+                                        FontWeight="Normal"/>
+                                    <TextBox x:Name="Y_Input" 
+                                        Background="LightBlue" 
+                                        Margin="3,0,0,0" 
+                                        Padding="1"
+                                        HorizontalAlignment="Center" 
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Width="45" 
+                                        FontWeight="Normal"/>
+                                    <TextBlock x:Name="Ycm_TB"
+                                        Text="cm"
+                                        Margin="2,0,0,0"
+                                        Width="30"
+                                        Padding="1"
+                                        HorizontalAlignment="Center" 
+                                        VerticalAlignment="Bottom" 
+                                        FontWeight="Normal" />
+                                    <TextBlock x:Name="Z_TB" 
+                                        Text="Z" 
+                                        Height="15" 
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Bottom"
+                                        Margin="0,0,0,0" 
+                                        FontWeight="Normal"/>
+                                    <TextBox x:Name="Z_Input" 
+                                        Background="LightBlue" 
+                                        Margin="3,0,0,0" 
+                                        Padding="1"
+                                        HorizontalAlignment="Center" 
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Width="45" 
+                                        FontWeight="Normal"/>
+                                    <TextBlock x:Name="Zcm_TB"
+                                        Text="cm"
+                                        Margin="2,0,0,0"
+                                        Width="30"
+                                        Padding="1"
+                                        HorizontalAlignment="Center" 
+                                        VerticalAlignment="Bottom" 
+                                        FontWeight="Normal" />
+                                    <Button x:Name="ClearCoordinates_Btn" 
+                                    Click="ClearSimIsoCoordinates_Clicked" 
+                                    Content="Clear" 
+                                    FontWeight="Regular" 
+                                    Margin="0,0,2,0" 
+                                    Height="auto"
+                                    Width="50"/>
+
+                                </StackPanel>
+                                    <!--<TextBlock x:Name="Plan1FieldIso_TB"
+                                            VerticalAlignment="Center"
+                                            FontWeight="Regular"
+                                            Width="auto"
+                                            Margin="10,0,0,0"
+                                            Text="Plan Iso populates here"/>-->
+                                    
+                                
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="5"
+                                        x:Name="Plan2Selector_SP"
+                                        Visibility="Collapsed">
+                                <TextBlock x:Name="Plan2Label_TB"
+                                            VerticalAlignment="Center"
+                                            FontWeight="Regular"
+                                            Width="160"
+                                            Text="Plan with Iso being shifted to: "/>
+                                <ComboBox x:Name="Plan2_CB" 
+                                            Margin="10,0,0,0"
+                                            FontWeight="Regular"
+                                            Width="150"
+                                            SelectionChanged="Plan2Selected"/>
+                                <StackPanel x:Name="Plan2Iso_SP" 
+                                            Orientation="Horizontal"
+                                            Margin="30,0,0,0"
+                                            Visibility="Collapsed">
+                                    <TextBlock x:Name="X2_TB" 
+                                        Text="X" 
+                                        Height="15" 
+                                        TextAlignment="Right" 
+                                        HorizontalAlignment="Center" 
+                                        VerticalAlignment="Bottom" 
+                                        Width="13" 
+                                        FontWeight="Normal"/>
+                                    <TextBox x:Name="X2_Input" 
+                                        Background="LightBlue" 
+                                        Margin="3,0,0,0" 
+                                        Padding="1"
+                                        HorizontalAlignment="Center" 
+                                        HorizontalContentAlignment="Center" 
+                                        VerticalContentAlignment="Center"
+                                        Width="45" 
+                                        FontWeight="Normal"/>
+                                    <TextBlock x:Name="Xcm2_TB" 
+                                        Text="cm" 
+                                        Margin="2,0,0,0" 
+                                        Width="30"
+                                        Padding="1"
+                                        VerticalAlignment="Bottom" 
+                                        FontWeight="Normal"/>
+                                    <TextBlock x:Name="Y2_TB" 
+                                        Text="Y" 
+                                        Height="15" 
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Bottom"
+                                        Margin="0,0,0,0" 
+                                        FontWeight="Normal"/>
+                                    <TextBox x:Name="Y2_Input" 
+                                        Background="LightBlue" 
+                                        Margin="3,0,0,0" 
+                                        Padding="1"
+                                        HorizontalAlignment="Center" 
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Width="45" 
+                                        FontWeight="Normal"/>
+                                    <TextBlock x:Name="Ycm2_TB"
+                                        Text="cm"
+                                        Margin="2,0,0,0"
+                                        Width="30"
+                                        Padding="1"
+                                        HorizontalAlignment="Center" 
+                                        VerticalAlignment="Bottom" 
+                                        FontWeight="Normal" />
+                                    <TextBlock x:Name="Z2_TB" 
+                                        Text="Z" 
+                                        Height="15" 
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Bottom"
+                                        Margin="0,0,0,0" 
+                                        FontWeight="Normal"/>
+                                    <TextBox x:Name="Z2_Input" 
+                                        Background="LightBlue" 
+                                        Margin="3,0,0,0" 
+                                        Padding="1"
+                                        HorizontalAlignment="Center" 
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Width="45" 
+                                        FontWeight="Normal"/>
+                                    <TextBlock x:Name="Zcm2_TB"
+                                        Text="cm"
+                                        Margin="2,0,0,0"
+                                        Width="30"
+                                        Padding="1"
+                                        HorizontalAlignment="Center" 
+                                        VerticalAlignment="Bottom" 
+                                        FontWeight="Normal" />
+                                    <Button x:Name="ClearCoordinates2_Btn" 
+                                    Click="ClearSimIsoCoordinates2_Clicked" 
+                                    Content="Clear" 
+                                    FontWeight="Regular" 
+                                    Margin="0,0,2,0" 
+                                    Height="auto"
+                                    Width="50"/>
+
+                                </StackPanel>
+                                <!--<TextBlock x:Name="Plan2FieldIso_TB"
+                                            VerticalAlignment="Center"
+                                            FontWeight="Regular"
+                                            Width="auto"
+                                            Margin="20,0,0,0"
+                                            Text="Plan Iso populates here"/>-->
+                                <!--<ComboBox x:Name="Plan2Iso_CB" 
+                                            Margin="10,0,0,0"
+                                            FontWeight="Regular"
+                                            Width="150"
+                                            SelectionChanged="IsoSelected"/>
+                                <TextBlock x:Name="Plan2MarkerLabel_TB"
+                                        VerticalAlignment="Center"
+                                        FontWeight="Regular"
+                                           Width="75"
+                                           Margin="10,0,0,0"
+                                        Text="Marker: "/>
+                                <ComboBox x:Name="Plan2Iso_CB" 
+                                            Margin="10,0,0,0"
+                                            FontWeight="Regular"
+                                            Width="150"
+                                            SelectionChanged="IsoSelected"/>-->
+                            </StackPanel>
+                            <!--<StackPanel Orientation="Horizontal">
+                                <TextBlock x:Name="X_TB" 
+                                           Text="X" 
+                                           Height="15" 
+                                           TextAlignment="Right" 
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Bottom" 
+                                           Width="13" 
+                                           FontWeight="Normal"/>
+                                <TextBox x:Name="X_Input" 
+                                         Background="LightBlue" 
+                                         Margin="3,0,0,0" 
+                                         Padding="1"
+                                         HorizontalAlignment="Center" 
+                                         HorizontalContentAlignment="Center" 
+                                         VerticalContentAlignment="Center"
+                                         Width="45" 
+                                         FontWeight="Normal"/>
+                                <TextBlock x:Name="Xcm_TB" 
+                                           Text="cm" 
+                                           Margin="2,0,0,0" 
+                                           Width="30"
+                                           Padding="1"
+                                           VerticalAlignment="Bottom" 
+                                           FontWeight="Normal"/>
+                                <TextBlock x:Name="Y_TB" 
+                                           Text="Y" 
+                                           Height="15" 
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Bottom"
+                                           Margin="0,0,0,0" 
+                                           FontWeight="Normal"/>
+                                <TextBox x:Name="Y_Input" 
+                                         Background="LightBlue" 
+                                         Margin="3,0,0,0" 
+                                         Padding="1"
+                                         HorizontalAlignment="Center" 
+                                         HorizontalContentAlignment="Center"
+                                         VerticalContentAlignment="Center"
+                                         Width="45" 
+                                         FontWeight="Normal"/>
+                                <TextBlock x:Name="Ycm_TB"
+                                           Text="cm"
+                                           Margin="2,0,0,0"
+                                           Width="30"
+                                           Padding="1"
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Bottom" 
+                                           FontWeight="Normal" />
+                                <TextBlock x:Name="Z_TB" 
+                                           Text="Z" 
+                                           Height="15" 
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Bottom"
+                                           Margin="0,0,0,0" 
+                                           FontWeight="Normal"/>
+                                <TextBox x:Name="Z_Input" 
+                                         Background="LightBlue" 
+                                         Margin="3,0,0,0" 
+                                         Padding="1"
+                                         HorizontalAlignment="Center" 
+                                         HorizontalContentAlignment="Center"
+                                         VerticalContentAlignment="Center"
+                                         Width="45" 
+                                         FontWeight="Normal"/>
+                                <TextBlock x:Name="Zcm_TB"
+                                           Text="cm"
+                                           Margin="2,0,0,0"
+                                           Width="30"
+                                           Padding="1"
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Bottom" 
+                                           FontWeight="Normal" />
+                                <Button x:Name="ClearCoordinates_Btn" 
+                                        Click="ClearSimIsoCoordinates_Clicked" 
+                                        Content="Clear" 
+                                        FontWeight="Regular" 
+                                        Margin="0,0,2,0" 
+                                        Height="auto"
+                                        Width="50"/>
+
+                            </StackPanel>-->
+                            <Button x:Name="CalcShifts_Btn" 
+                                    Click="CalcShifts_Clicked" 
+                                    Content="Calculate Shifts" 
+                                    FontWeight="Regular" 
+                                    HorizontalAlignment="right"
+                                    Margin="0,10,5,5" 
+                                    Height="auto"
+                                    Width="100"/>
+                        </StackPanel>
+                    </GroupBox>
+                    
+                    <!--<GroupBox x:Name="SimIsoInput_GB" 
+                              Header="Select the Iso Marker"
+                              Width="425"
+                              FontWeight="Bold"
+                              VerticalAlignment="Center"
+                              Margin="0,0,0,0">
+                        <StackPanel Orientation="Vertical"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Margin="10,10,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock x:Name="CbLabel_TB"
+                                           VerticalAlignment="Center"
+                                           FontWeight="Regular"
+                                           Text=""/>
+                                <ComboBox x:Name="Marker_CB" 
+                                          Margin="10,0,0,10"
+                                          FontWeight="Regular"
+                                          Width="150"
+                                          SelectionChanged="IsoSelected"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock x:Name="X_TB" 
+                                           Text="X" 
+                                           Height="15" 
+                                           TextAlignment="Right" 
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Bottom" 
+                                           Width="13" 
+                                           FontWeight="Normal"/>
+                                <TextBox x:Name="X_Input" 
+                                         Background="LightBlue" 
+                                         Margin="3,0,0,0" 
+                                         Padding="1"
+                                         HorizontalAlignment="Center" 
+                                         HorizontalContentAlignment="Center" 
+                                         VerticalContentAlignment="Center"
+                                         Width="45" 
+                                         FontWeight="Normal"/>
+                                <TextBlock x:Name="Xcm_TB" 
+                                           Text="cm" 
+                                           Margin="2,0,0,0" 
+                                           Width="30"
+                                           Padding="1"
+                                           VerticalAlignment="Bottom" 
+                                           FontWeight="Normal"/>
+                                <TextBlock x:Name="Y_TB" 
+                                           Text="Y" 
+                                           Height="15" 
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Bottom"
+                                           Margin="0,0,0,0" 
+                                           FontWeight="Normal"/>
+                                <TextBox x:Name="Y_Input" 
+                                         Background="LightBlue" 
+                                         Margin="3,0,0,0" 
+                                         Padding="1"
+                                         HorizontalAlignment="Center" 
+                                         HorizontalContentAlignment="Center"
+                                         VerticalContentAlignment="Center"
+                                         Width="45" 
+                                         FontWeight="Normal"/>
+                                <TextBlock x:Name="Ycm_TB"
+                                           Text="cm"
+                                           Margin="2,0,0,0"
+                                           Width="30"
+                                           Padding="1"
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Bottom" 
+                                           FontWeight="Normal" />
+                                <TextBlock x:Name="Z_TB" 
+                                           Text="Z" 
+                                           Height="15" 
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Bottom"
+                                           Margin="0,0,0,0" 
+                                           FontWeight="Normal"/>
+                                <TextBox x:Name="Z_Input" 
+                                         Background="LightBlue" 
+                                         Margin="3,0,0,0" 
+                                         Padding="1"
+                                         HorizontalAlignment="Center" 
+                                         HorizontalContentAlignment="Center"
+                                         VerticalContentAlignment="Center"
+                                         Width="45" 
+                                         FontWeight="Normal"/>
+                                <TextBlock x:Name="Zcm_TB"
+                                           Text="cm"
+                                           Margin="2,0,0,0"
+                                           Width="30"
+                                           Padding="1"
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Bottom" 
+                                           FontWeight="Normal" />
+                                <Button x:Name="ClearCoordinates_Btn" 
+                                        Click="ClearSimIsoCoordinates_Clicked" 
+                                        Content="Clear" 
+                                        FontWeight="Regular" 
+                                        Margin="0,0,2,0" 
+                                        Height="auto"
+                                        Width="50"/>
+                                
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>-->
+                    <!--<GroupBox Header="Select Plans Using Iso"
+                              Width="425"
+                              FontWeight="Bold">
+                        <StackPanel x:Name="planList_SP" 
+                                Width="413" 
+                                MinWidth="150"
+                                HorizontalAlignment="Left"
+                                    VerticalAlignment="Top">
+                            
+                            <ListView x:Name="planList_LV"
+                                      Width="413" 
+                                      SelectionMode="Multiple" 
+                                      Height="auto" 
+                                      Padding="5"
+                                      Margin="0"
+                                      BorderBrush="DarkGray" 
+                                      FontWeight="Regular"
+                                      HorizontalContentAlignment="Left"/>
+                            <Button x:Name="CalcShifts_Btn" 
+                                    Click="CalcShifts_Clicked" 
+                                    Content="Calculate Shifts" 
+                                    FontWeight="Regular" 
+                                    HorizontalAlignment="left"
+                                    Margin="5,10,0,5" 
+                                    Height="auto"
+                                    Width="100"/>
+                            -->
+                    <!--<Button x:Name="selectPlans_Btn" 
+                                Content="Select Plans" 
+                                Width="110" Margin="5,10,0,5" 
+                                HorizontalAlignment="Left" 
+                                Click="SelectPlans_Clicked" 
+                                FontWeight="Regular"/>-->
+                    <!--
+                        </StackPanel>
+                    </GroupBox>-->
+                    
+                </StackPanel>
+                
+                <StackPanel x:Name="Notes_SP" 
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Left"
+                            Visibility="Visible"
+                            Margin="0,0,0,10">
+                    <GroupBox x:Name="Notes_GB" 
+                                Header="Notes" 
+                                Visibility="Hidden"
+                                VerticalAlignment="Top"
+                                Height="auto" 
+                                Width="650"
+                                FontWeight="Bold">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="Note_TB" 
+                                        Width="589"
+                                        Padding="1"
+                                        HorizontalAlignment="Left"
+                                        FontWeight="Regular"
+                                        TextWrapping="Wrap"
+                                        AcceptsReturn="True">
+                            </TextBox>
+                            <Button Name="ClearNote_Btn" 
+                                Content="Clear" 
+                                Width="49"
+                                FontWeight="Regular"
+                                VerticalAlignment="Top"
+                                Click="ClearNote_Clicked" 
+                                Background="#DCDCDC"/>
+                        </StackPanel>
+                    </GroupBox>
+                    
+                    <!--<GroupBox x:Name="Ratio_GB" 
+                              Header="CI / R50 Statistics"
+                              Height="auto"
+                              Width="575"
+                              FontWeight="Bold"
+                              Visibility="Hidden">
+                        <DataGrid Name="Ratio_DG" 
+                                  HorizontalContentAlignment="Center" 
+                                  Margin="0,10,-2,-2"
+                                  FontWeight="Normal"
+                                  Background="Transparent">
+                            <DataGrid.Resources>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="Background" 
+                                                Value="LightBlue"/>
+                                    <Setter Property="FontWeight" 
+                                                Value="Bold"/>
+                                    <Setter Property="BorderThickness" 
+                                                Value="0,0,1,2"/>
+                                    <Setter Property="BorderBrush" 
+                                                Value="Black"/>
+                                    <Setter Property="HorizontalContentAlignment" 
+                                                Value="Center"/>
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Target Id"
+                                                        Binding="{Binding targetId}" 
+                                                        Width=".95*" 
+                                                        IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Type" 
+                                                        Binding="{Binding ratioType}"
+                                                        Width=".8*" 
+                                                        IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment"
+                                                        Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Limit"
+                                                        Binding="{Binding rangeLimit}" 
+                                                        Width="*" 
+                                                        IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Actual"
+                                                        Binding="{Binding conformity}" 
+                                                        Width=".8*" 
+                                                        IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Result"
+                                                        Binding="{Binding result}" 
+                                                        Width=".8*" 
+                                                        IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <Trigger Property="Text" 
+                                                         Value="MET">
+                                                    <Setter Property="Background"
+                                                            Value="LightGreen"/>
+                                                </Trigger>
+                                                <Trigger Property="Text" 
+                                                         Value="Acceptable">
+                                                    <Setter Property="Background" 
+                                                            Value="#f4b642"/>
+                                                </Trigger>
+                                                <Trigger Property="Text" 
+                                                         Value="NOT MET">
+                                                    <Setter Property="Background" 
+                                                            Value="#F63C3C"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTemplateColumn Header="" 
+                                                            Width=".3*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Name="ConformityItemRemove_Btn" 
+                                                        Content="n/a" 
+                                                        Click="ConformityItemRemoveButton_Clicked" 
+                                                        Background="#DCDCDC"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>-->
+                    
+                </StackPanel>
+                
+                <StackPanel x:Name="IsoDicomCooridinates_SP" 
+                            Orientation="Horizontal" 
+                            Margin="0,0,0,0"
+                            Visibility="Visible">
+                    <GroupBox x:Name="SimIsoTable_GB" 
+                              Header="DICOM Coordinates of Selected Marker" 
+                              Height="auto" 
+                              Width="650"
+                              FontWeight="Bold">
+                        <DataGrid Name="IsoDicomCooridinates_DG" 
+                                  HorizontalContentAlignment="Center" 
+                                  Margin="0,10,-2,-2" 
+                                  FontWeight="Normal"
+                                  Background="Transparent">
+                            <DataGrid.Resources>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="Background" 
+                                            Value="LightBlue"/>
+                                    <Setter Property="FontWeight" 
+                                            Value="Bold"/>
+                                    <Setter Property="BorderThickness" 
+                                            Value="0,0,1,2"/>
+                                    <Setter Property="BorderBrush" 
+                                            Value="Black"/>
+                                    <Setter Property="HorizontalContentAlignment" 
+                                            Value="Center"/>
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.Columns>
+
+                                <DataGridTextColumn Header="Structure Set Id" 
+                                                    Binding="{Binding StructureSetId}"
+                                                    Width="1.45*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Left"/>
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Patient Orientation" 
+                                                    Binding="{Binding PatientOrientation}"
+                                                    Width="1.45*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Center"/>
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Iso Marker Id" 
+                                                    Binding="{Binding MarkerId}"
+                                                    Width="*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Center"/>
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Starting X"
+                                                    Binding="{Binding SimIsoX}"
+                                                    Width="*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <Trigger Property="Text" 
+                                                         Value="1">
+                                                    <Setter Property="Background"
+                                                            Value="LightGreen"/>
+                                                </Trigger>
+                                                <Trigger Property="Text" 
+                                                         Value=">1">
+                                                    <Setter Property="Background" 
+                                                            Value="#f4d641"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                            <Setter Property="HorizontalAlignment"
+                                                    Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Starting Y"
+                                                    Binding="{Binding SimIsoY}"
+                                                    Width="*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                    Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Starting Z" 
+                                                    Binding="{Binding SimIsoZ}" 
+                                                    Width="*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                    Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+
+                                <DataGridTemplateColumn Header=""
+                                                        Width=".5*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Name="test_btn" 
+                                                    Content="n/a" 
+                                                    FontSize="12"
+                                                    Click="DicomCoordRemoveBtn_Clicked"
+                                                    Background="#DCDCDC" 
+                                                    FontWeight="Regular"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+
+                    <!--<GroupBox x:Name="SimIsoTable_GB" 
+                              Header="DICOM Coordinates of Selected Marker" 
+                              Height="auto" 
+                              Width="650"
+                              FontWeight="Bold">
+                        <DataGrid Name="IsoDicomCooridinates_DG" 
+                                  HorizontalContentAlignment="Center" 
+                                  Margin="0,10,-2,-2" 
+                                  FontWeight="Normal"
+                                  Background="Transparent">
+                            <DataGrid.Resources>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="Background" 
+                                            Value="LightBlue"/>
+                                    <Setter Property="FontWeight" 
+                                            Value="Bold"/>
+                                    <Setter Property="BorderThickness" 
+                                            Value="0,0,1,2"/>
+                                    <Setter Property="BorderBrush" 
+                                            Value="Black"/>
+                                    <Setter Property="HorizontalContentAlignment" 
+                                            Value="Center"/>
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.Columns>
+
+                                <DataGridTextColumn Header="Structure Set Id" 
+                                                    Binding="{Binding StructureSetId}"
+                                                    Width="1.45*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Left"/>
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Patient Orientation" 
+                                                    Binding="{Binding PatientOrientation}"
+                                                    Width="1.45*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Center"/>
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Iso Marker Id" 
+                                                    Binding="{Binding MarkerId}"
+                                                    Width="*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Center"/>
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Initial Iso X"
+                                                    Binding="{Binding SimIsoX}"
+                                                    Width="*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <Trigger Property="Text" 
+                                                         Value="1">
+                                                    <Setter Property="Background"
+                                                            Value="LightGreen"/>
+                                                </Trigger>
+                                                <Trigger Property="Text" 
+                                                         Value=">1">
+                                                    <Setter Property="Background" 
+                                                            Value="#f4d641"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                            <Setter Property="HorizontalAlignment"
+                                                    Value="Center" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Initial Iso Y"
+                                                    Binding="{Binding SimIsoY}"
+                                                    Width="*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                    Value="Center" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Initial Iso Z" 
+                                                    Binding="{Binding SimIsoZ}" 
+                                                    Width="*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                    Value="Center" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                
+                                <DataGridTemplateColumn Header=""
+                                                        Width=".5*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Name="test_btn" 
+                                                    Content="n/a" 
+                                                    FontSize="12"
+                                                    Click="DicomCoordRemoveBtn_Clicked"
+                                                    Background="#DCDCDC" 
+                                                    FontWeight="Regular"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>-->
+
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal" 
+                            Margin="0,10,0,0">
+                    <GroupBox x:Name="Shifts_GB" 
+                              Header="Shift Information" 
+                              Height="auto" 
+                              Width="1070"
+                              FontWeight="Bold">
+                        <DataGrid Name="ShiftInfo_DG" 
+                                  HorizontalContentAlignment="Center" 
+                                  Margin="0,10,-2,-2" 
+                                  FontWeight="Normal"
+                                  FontSize="12"
+                                  MaxHeight="200"
+                                  Background="Transparent">
+                            <DataGrid.Resources>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="Background" 
+                                            Value="LightBlue"/>
+                                    <Setter Property="FontWeight" 
+                                            Value="Bold"/>
+                                    <Setter Property="BorderThickness" 
+                                            Value="0,0,1,2"/>
+                                    <Setter Property="BorderBrush" 
+                                            Value="Black"/>
+                                    <Setter Property="HorizontalContentAlignment" 
+                                            Value="Center"/>
+                                    <Setter Property="VerticalContentAlignment" 
+                                            Value="Center"/>
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.Columns>
+
+                                <DataGridTextColumn Header="Plan Id" 
+                                                    Binding="{Binding PlanId}"
+                                                    Width=".9*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Left"/>
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Shift Description" 
+                                                    Binding="{Binding ShiftDescription}"
+                                                    Width="1.5*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="HorizontalAlignment" 
+                                                        Value="Center"/>
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Plan Status"
+                                                    Binding="{Binding PlanStatus}"
+                                                    Width="1.2*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <Trigger Property="Text" 
+                                                         Value="1">
+                                                    <Setter Property="Background"
+                                                            Value="LightGreen"/>
+                                                </Trigger>
+                                                <Trigger Property="Text" 
+                                                         Value=">1">
+                                                    <Setter Property="Background" 
+                                                            Value="#f4d641"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                            <Setter Property="HorizontalAlignment"
+                                                    Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <!--<DataGridTextColumn Header="Field Id"
+                                                    Binding="{Binding FieldId}"
+                                                    Width="*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                    Value="Center" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>-->
+                                <DataGridTextColumn Header="Iso X (cm)" 
+                                                    Binding="{Binding FieldIsoX}" 
+                                                    Width=".5*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                    Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Iso Y (cm)" 
+                                                    Binding="{Binding FieldIsoY}"
+                                                    Width=".5*"
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment"
+                                                    Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="Iso Z (cm)" 
+                                                    Binding="{Binding FieldIsoZ}" 
+                                                    Width=".5*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                    Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="X Shift"
+                                                    Binding="{Binding ShiftX}" 
+                                                    Width=".6*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                    Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <!--<DataGridTextColumn Header="X-Dir"
+                                                    Binding="{Binding DirectionX}" 
+                                                    Width=".6*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                    Value="Center" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>-->
+                                <DataGridTextColumn Header="Y Shift"
+                                                    Binding="{Binding ShiftY}" 
+                                                    Width=".6*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                    Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <!--<DataGridTextColumn Header="Y-Dir"
+                                                    Binding="{Binding DirectionY}" 
+                                                    Width=".6*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                    Value="Center" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>-->
+                                <DataGridTextColumn Header="Z Shift"
+                                                    Binding="{Binding ShiftZ}" 
+                                                    Width=".6*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                    Value="Center" />
+                                            <Setter Property="VerticalAlignment" 
+                                                        Value="Center"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <!--<DataGridTextColumn Header="Z-Dir"
+                                                    Binding="{Binding DirectionZ}" 
+                                                    Width=".6*" 
+                                                    IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="HorizontalAlignment" 
+                                                    Value="Center" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>-->
+                                <DataGridTemplateColumn Header=""
+                                                        Width=".2*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Name="test_btn" 
+                                                    Content="n/a" 
+                                                    FontSize="10"
+                                                    Click="ShiftInfoRemoveBtn_Clicked"
+                                                    Background="#DCDCDC" 
+                                                    FontWeight="Regular"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+
+                </StackPanel>
+                
+            </StackPanel>
+            
+        </Grid>
+    </Border>
+</UserControl>
