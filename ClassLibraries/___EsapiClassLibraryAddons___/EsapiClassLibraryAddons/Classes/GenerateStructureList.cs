@@ -52,6 +52,7 @@
 					  (structure.HasSegment) &&
 					  (!structure.Id.Contains("*")) &&
 					  (!structure.Id.ToLower().Contains("markers")) &&
+					  (!structure.Id.ToLower().Contains("couch")) &&
 					  (!structure.Id.ToLower().Contains("avoid")) &&
 					  (!structure.Id.ToLower().Contains("dose")) &&
 					  (!structure.Id.ToLower().Contains("contrast")) &&

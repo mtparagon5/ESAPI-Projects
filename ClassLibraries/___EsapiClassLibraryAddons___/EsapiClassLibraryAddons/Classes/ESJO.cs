@@ -365,7 +365,7 @@
               if (mtype != "VMAT" && mtype != "IMRT") { isOptimized = false; }
             } // a FiF plan will have some IMRT and some STATIC - need all to be IMRT or VMAT
 
-            //MessageBox.Show(""isOptimized Defined");
+            //MessageBox.Show("isOptimized Defined");
 
 
             var planJOList = new List<ESJO>();
@@ -378,14 +378,14 @@
             ESJO planTreated = ESJO.CreateESJO("IsTreated", plan.PSetup.IsTreated.ToString().ToLower()); planJOList.Add(planTreated);
             ESJO planIntent = ESJO.CreateESJO("Intent", plan.PSetup.PlanIntent); planJOList.Add(planIntent);
             ESJO planTxOrientation = ESJO.CreateESJO("TreatmentOrientation", plan.PSetup.TreatmentOrientation.ToString()); planJOList.Add(planTxOrientation);
-            //MessageBox.Show(""Plan Beams Starting");
+            //MessageBox.Show("Plan Beams Starting");
 
             var beamInfoList = new List<ESJO>();
             ESJO beamInfo = ESJO.CreateESJO("TreatmentFields", plan.Beams.ToList()); planJOList.Add(beamInfo);
 
             //ESJO beamInfo = ESJO.CreateESJO("TreatmentFields", plan.Beams.ToList());
 
-            //MessageBox.Show(""Plan Desctiption JOs Created");
+            //MessageBox.Show("Plan Desctiption JOs Created");
 
 
             // image info
@@ -395,7 +395,7 @@
             ESJO imageSeries = ESJO.CreateESJO("Series", plan.StructureSet.Image.Series.ToString().Replace(" ", "_")); imageList.Add(imageSeries);
             ESJO imageLength = ESJO.CreateESJO("Length", Math.Round(plan.StructureSet.Image.Origin.Length, 3)); imageList.Add(imageLength);
 
-            //MessageBox.Show(""Plan Image JOs Created");
+            //MessageBox.Show("Plan Image JOs Created");
 
 
             // image origin info
@@ -405,7 +405,7 @@
             ESJO imageOrigin_Z = ESJO.CreateESJO("Z", Math.Round(plan.StructureSet.Image.Origin.z, 3)); originList.Add(imageOrigin_Z);
             ESJO imageOriginInfo = ESJO.CreateESJO("Origin", originList); imageList.Add(imageOriginInfo); // add origin info to image info list
 
-            //MessageBox.Show(""Image Origin JOs Created");
+            //MessageBox.Show("Image Origin JOs Created");
 
 
             // user origin info
@@ -420,7 +420,7 @@
             ESJO imageUserOriginInfo = ESJO.CreateESJO("UserOrigin", userOriginList, "{", "}"); imageList.Add(imageUserOriginInfo); // add user origin info to image info list
             ESJO planImageInfo = ESJO.CreateESJO("Image", imageList, "{", "}"); planJOList.Add(planImageInfo); // add image info to plan info
 
-            //MessageBox.Show(""Image JOs Added");
+            //MessageBox.Show("Image JOs Added");
 
 
             // target volume id
@@ -430,7 +430,7 @@
             }
             catch
             {
-              MessageBox.Show("Target Volume Not Selected");
+              //MessageBox.Show("Target Volume Not Selected");
             }
 
             // rx info
@@ -446,7 +446,7 @@
             }
             ESJO planDosePerFraction = ESJO.CreateESJO("DosePerFraction", plan.DosePerFraction); planJOList.Add(planDosePerFraction);
 
-            //MessageBox.Show(""Rx JOs Added");
+            //MessageBox.Show("Rx JOs Added");
 
 
             // optimization info
@@ -495,7 +495,7 @@
               ESJO planStructuresWithObjectives = CreateESJO("StructuresWithOptimizationObjectives", structuresWithObjectives); planJOList.Add(planStructuresWithObjectives);
 
             }
-            //MessageBox.Show(""Opti JOs Added");
+            //MessageBox.Show("Opti JOs Added");
 
 
             // dose statistics
@@ -507,6 +507,7 @@
             //ESJO doseSeries = ESJO.CreateESJO("Series", plan.PSetup.Dose.Series.Id.ToString().Replace(" ", "_")); doseList.Add(doseSeries);
 
             plan.PSetup.DoseValuePresentation = DoseValuePresentation.Absolute;
+            //MessageBox.Show("1");
             ESJO absDoseMax = ESJO.CreateESJO("AbsDoseMax3D", Math.Round(plan.PSetup.Dose.DoseMax3D.Dose, 5)); doseList.Add(absDoseMax);
 
             plan.PSetup.DoseValuePresentation = DoseValuePresentation.Relative;
@@ -534,7 +535,7 @@
             //        ESJO level = ESJO.CreateESJO("Level", dose.Level.ValueAsString); isodoseList.Add(level);
 
 
-            //       MessageBox.Show("color and level added");
+            //       //MessageBox.Show("color and level added");
 
 
             //        //ESJO boundsLocation_X = ESJO.CreateESJO("X", dose.MeshGeometry.Bounds.Location.X); locationList.Add(boundsLocation_X);
@@ -542,7 +543,7 @@
             //        //ESJO boundsLocation_Z = ESJO.CreateESJO("Z", dose.MeshGeometry.Bounds.Location.Z); locationList.Add(boundsLocation_Z);
             //        //ESJO location = ESJO.CreateESJO("Location", locationList, "{", "}"); boundsList.Add(location); // add location obj to bounds obj
 
-            //       MessageBox.Show("Location added");
+            //       //MessageBox.Show("Location added");
 
             //        //ESJO size_X = ESJO.CreateESJO("X", dose.MeshGeometry.Bounds.Size.X); sizeList.Add(size_X);
             //        //ESJO size_Y = ESJO.CreateESJO("Y", dose.MeshGeometry.Bounds.Size.Y); sizeList.Add(size_Y);
@@ -550,7 +551,7 @@
 
             //        //ESJO size = ESJO.CreateESJO("Size", sizeList, "{", "}"); boundsList.Add(size); // add size obj to bounds obj
 
-            //       MessageBox.Show("Size added");
+            //       //MessageBox.Show("Size added");
 
 
             //        //ESJO bounds_X = ESJO.CreateESJO("X", dose.MeshGeometry.Bounds.X); boundsList.Add(bounds_X);
@@ -562,7 +563,7 @@
 
             //        //ESJO bounds = ESJO.CreateESJO("Bounds", boundsList, "{", "}"); meshGeometryList.Add(bounds); // add bounds object to mesh geometry obj
 
-            //       MessageBox.Show("Bounds added");
+            //       //MessageBox.Show("Bounds added");
 
 
             //        //var positionsList = new List<ESJO>();
@@ -578,7 +579,7 @@
             //        //}
             //        //ESJO postions = ESJO.CreateESJO("Positions", positionsList, "[", "]"); meshGeometryList.Add(postions); // add positions object to mesh geometry obj
 
-            //       MessageBox.Show("Positions added");
+            //       //MessageBox.Show("Positions added");
 
 
             //        var textureCoordinatesList = new List<ESJO>();
@@ -593,7 +594,7 @@
             //        }
             //        ESJO textureCoordinates = ESJO.CreateESJO("TextureCoordinates", textureCoordinatesList, "[", "]"); meshGeometryList.Add(textureCoordinates); // add texture coordinates object to mesh geometry obj
 
-            //       MessageBox.Show("texture coordinates added");
+            //       //MessageBox.Show("texture coordinates added");
 
 
             //        var normalsList = new List<ESJO>();
@@ -610,7 +611,7 @@
             //        }
             //        ESJO normals = ESJO.CreateESJO("Normals", normalsList, "[", "]"); meshGeometryList.Add(textureCoordinates); // add normals object to mesh geometry obj
 
-            //       MessageBox.Show("Normals added");
+            //       //MessageBox.Show("Normals added");
 
 
             //        var triangleIndicesList = new List<int>();
@@ -620,12 +621,12 @@
             //        }
             //        ESJO triangleIndices = ESJO.CreateESJO("TriangleIndices", triangleIndicesList); meshGeometryList.Add(triangleIndices); // add normals object to mesh geometry obj
 
-            //       MessageBox.Show("Triangle Indices added");
+            //       //MessageBox.Show("Triangle Indices added");
 
 
             //        ESJO meshGeometry = ESJO.CreateESJO("MeshGeometry", meshGeometryList, "{", "}"); isodoseList.Add(meshGeometry); // add mesh geometry object to main isodose obj
 
-            //       MessageBox.Show("mesh added");
+            //       //MessageBox.Show("mesh added");
 
 
             //        ESJO isodose = ESJO.CreateESJO(isodoseList, "{", "}"); isodosesList.Add(isodose);
@@ -639,8 +640,9 @@
             //}
             ESJO planIsodoseData = ESJO.CreateESJO("DoseMaxStatistics", doseList); planJOList.Add(planIsodoseData);
 
-            //MessageBox.Show(""Isodose JOs Added");
+            ////MessageBox.Show("Isodose JOs Added");
 
+            //MessageBox.Show("2");
 
 
             var oarDataObjectList = new List<ESJO>();
@@ -661,6 +663,7 @@
               // esjos
               ESJO id = ESJO.CreateESJO("StructureId", structure.Id.ToString().Replace(" ", "_")); joList.Add(id);
               ESJO dicomType = ESJO.CreateESJO("DicomType", structure.DicomType); joList.Add(dicomType);
+            //MessageBox.Show("3");
 
               // color
               ESJO color = ESJO.CreateESJO("RGB", string.Format("rgb({0},{1},{2})", structure.Color.R, structure.Color.G, structure.Color.B)); joList.Add(color);
@@ -672,6 +675,7 @@
               ESJO centerPoint_Y = ESJO.CreateESJO("Y", Math.Round(structure.CenterPoint.y, 3)); centerpointList.Add(centerPoint_Y);
               ESJO centerPoint_Z = ESJO.CreateESJO("Z", Math.Round(structure.CenterPoint.z, 3)); centerpointList.Add(centerPoint_Z);
               ESJO centerPoint = ESJO.CreateESJO("CenterPoint", centerpointList); joList.Add(centerPoint); // add centerpoint
+            //MessageBox.Show("4");
 
               var meshGeometryList = new List<ESJO>();
               var boundsList = new List<ESJO>();
@@ -697,6 +701,7 @@
               ESJO boundsSize_Z = ESJO.CreateESJO("SizeZ", structure.MeshGeometry.Bounds.SizeZ); boundsList.Add(boundsSize_Z);
 
               ESJO bounds = ESJO.CreateESJO("Bounds", boundsList, "{", "}"); meshGeometryList.Add(bounds); // add bounds object to mesh geometry obj
+            //MessageBox.Show("5");
 
               //var positionsList = new List<ESJO>();
               //for (var i = 0; i < structure.MeshGeometry.Positions.Count; i++)
@@ -749,6 +754,7 @@
               ESJO segments = ESJO.CreateESJO("NumberOfSegments", (structure.GetNumberOfSeparateParts().ToString())); joList.Add(segments);
               ESJO isHighResolution = ESJO.CreateESJO("IsHighResolution", structure.IsHighResolution.ToString().ToLower()); joList.Add(isHighResolution);
               ESJO volume = ESJO.CreateESJO("Volume_cc", Math.Round(structure.Volume, 5)); joList.Add(volume);
+            //MessageBox.Show("6");
 
               // dose stats
 
@@ -768,6 +774,8 @@
                 ESJO meanDose = ESJO.CreateESJO("MeanDose_Gy", Math.Round(dvhAA.MeanDose.Dose, 5)); sDoseStatsList.Add(meanDose);
                 ESJO medianDose = ESJO.CreateESJO("MedianDose_Gy", Math.Round(dvhAA.MedianDose.Dose, 5)); sDoseStatsList.Add(medianDose);
                 ESJO std = ESJO.CreateESJO("STD", Math.Round(dvhAA.StdDev, 5)); sDoseStatsList.Add(std);
+            //MessageBox.Show("7");
+
               }
               else if (dvhAA.MaxDose.Unit == DoseValue.DoseUnit.cGy)
               {
@@ -778,6 +786,8 @@
                 ESJO meanDose = ESJO.CreateESJO("MeanDose_cGy", Math.Round(dvhAA.MeanDose.Dose, 5)); sDoseStatsList.Add(meanDose);
                 ESJO medianDose = ESJO.CreateESJO("MedianDose_cGy", Math.Round(dvhAA.MedianDose.Dose, 5)); sDoseStatsList.Add(medianDose);
                 ESJO std = ESJO.CreateESJO("STD", Math.Round(dvhAA.StdDev, 5)); sDoseStatsList.Add(std);
+            //MessageBox.Show("8");
+
               }
 
               for (double i = 0; i <= dvhAR.MaxDose.Dose + .1; i += .1)
@@ -792,6 +802,8 @@
               {
                 relDoseAndVolDvhTuple.Add(Tuple.Create(Math.Round(i, 2), Math.Round(DvhExtensions.getVolumeAtDose(dvhRR, i), 3)));
               }
+            //MessageBox.Show("9");
+
               ESJO dvh_relVol = ESJO.CreateESJO("DVH_AbsDose_RelVol", relVolDvhTuple); sDoseStatsList.Add(dvh_relVol);
               ESJO dvh_absVol = ESJO.CreateESJO("DVH_AbsDose_AbsVol", absVolDvhTuple); sDoseStatsList.Add(dvh_absVol);
               ESJO dvh_relDoseAndVol = ESJO.CreateESJO("DVH_RelDose_RelVol", relDoseAndVolDvhTuple); sDoseStatsList.Add(dvh_relDoseAndVol);
@@ -800,11 +812,13 @@
 
               ESJO structureObjects = ESJO.CreateESJO(joList, "{", "}");
               oarDataObjectList.Add(structureObjects);
+            //MessageBox.Show("10");
+
             }
             // create json object to include all oar data and add it to plan data object list
             var structureData_jo = ESJO.CreateESJO("OarData", oarDataObjectList, "[", "]"); planJOList.Add(structureData_jo);
 
-            //MessageBox.Show(""OAR JOs Added");
+            //MessageBox.Show("OAR JOs Added");
 
 
             var targetDataObjectList = new List<ESJO>();
@@ -969,7 +983,7 @@
             // create json object to include all target data and add it to plan data object list
             var targetData_jo = ESJO.CreateESJO("TargetData", targetDataObjectList, "[", "]"); planJOList.Add(targetData_jo);
 
-            //MessageBox.Show(""target JOs Added");
+            //MessageBox.Show("target JOs Added");
 
 
             var proxStatsObjectList = new List<ESJO>();
@@ -1022,7 +1036,7 @@
 
             ESJO proxStats = ESJO.CreateESJO("ProximityStatistics", proxStatsObjectList, "[", "]"); planJOList.Add(proxStats);
 
-            //MessageBox.Show(""Proximity JOs Added");
+            ////MessageBox.Show("Proximity JOs Added");
 
 
             ESJO planObjects = ESJO.CreateESJO(planJOList, "{", "}");
@@ -1045,7 +1059,7 @@
                                                                                 out IEnumerable<Structure> sorted_structureList,
                                                                                 out IEnumerable<Structure> sorted_emptyStructuresList);
 
-            //MessageBox.Show(""sum - Structure Lists Created");
+            ////MessageBox.Show("sum - Structure Lists Created");
 
             //var isOptimized = true;
             //var planType = string.Empty;
@@ -1073,7 +1087,7 @@
             //    }
             //}
 
-            //MessageBox.Show(""sum - isOptimized Defined");
+            //MessageBox.Show("sum - isOptimized Defined");
 
 
             var planJOList = new List<ESJO>();
@@ -1095,7 +1109,7 @@
             }
             ESJO beamInfo = ESJO.CreateESJO("PlanSumTreatmentFields", beamInfoList, "[{", "}]"); planJOList.Add(beamInfo);
 
-            //MessageBox.Show(""sum - Plan Desctiption JOs Created");
+            //MessageBox.Show("sum - Plan Desctiption JOs Created");
 
             if (plan.StructureSets.Count() == 1)
             {
@@ -1169,7 +1183,7 @@
             }
             catch
             {
-              MessageBox.Show("Sum - No Target Volumes Collected");
+              //MessageBox.Show("Sum - No Target Volumes Collected");
             }
 
             // rx info
@@ -1185,7 +1199,7 @@
             //}
             //ESJO planDosePerFraction = ESJO.CreateESJO("DosePerFraction", plan.DosePerFraction); planJOList.Add(planDosePerFraction);
 
-            //MessageBox.Show(""sum - Rx JOs Added");
+            //MessageBox.Show("sum - Rx JOs Added");
 
 
             //// optimization info
@@ -1226,7 +1240,7 @@
 
             //    ESJO planStructuresWithObjectives = CreateESJO("StructuresWithOptimizationObjectives", structuresWithObjectives); planJOList.Add(planStructuresWithObjectives);
             //}
-            //MessageBox.Show(""sum - Opti JOs Added");
+            ////MessageBox.Show("sum - Opti JOs Added");
 
 
             // dose statistics
@@ -1328,7 +1342,7 @@
 
             ESJO planIsodoseData = ESJO.CreateESJO("DoseMaxStatistics", doseList); planJOList.Add(planIsodoseData);
 
-            //MessageBox.Show(""sum - Isodose JOs Added");
+            //MessageBox.Show("sum - Isodose JOs Added");
 
 
 
@@ -1490,7 +1504,7 @@
             // create json object to include all oar data and add it to plan data object list
             var structureData_jo = ESJO.CreateESJO("OarData", oarDataObjectList, "[", "]"); planJOList.Add(structureData_jo);
 
-            //MessageBox.Show(""sum - OAR JOs Added");
+            //MessageBox.Show("sum - OAR JOs Added");
 
 
             var targetDataObjectList = new List<ESJO>();
@@ -1652,7 +1666,7 @@
             // create json object to include all target data and add it to plan data object list
             var targetData_jo = ESJO.CreateESJO("TargetData", targetDataObjectList, "[", "]"); planJOList.Add(targetData_jo);
 
-            //MessageBox.Show(""sum - Target JOs Added");
+            //MessageBox.Show("sum - Target JOs Added");
 
 
             //var proxStatsObjectList = new List<ESJO>();
@@ -1694,7 +1708,7 @@
             //}
             //ESJO proxStats = ESJO.CreateESJO("ProximityStatistics", proxStatsObjectList); planJOList.Add(proxStats);
 
-            //MessageBox.Show(""sum - Proximity JOs Added");
+            ////MessageBox.Show("sum - Proximity JOs Added");
 
 
             ESJO planObjects = ESJO.CreateESJO(planJOList, "{", "}");

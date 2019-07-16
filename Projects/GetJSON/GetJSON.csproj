@@ -35,7 +35,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EsapiAddons">
+    <Reference Include="EsapiAddons, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Build\EsapiClassLibrary\EsapiAddons.dll</HintPath>
     </Reference>
     <Reference Include="System" />
