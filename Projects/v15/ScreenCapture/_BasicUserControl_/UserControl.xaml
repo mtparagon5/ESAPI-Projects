@@ -1,0 +1,73 @@
+﻿<UserControl x:Class="VMS.TPS.MainControl"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VMS.TPS"
+        mc:Ignorable="d"
+        Height="900" Width="1200" Background="#FEFEFE">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Image Grid.Row="0" 
+               x:Name="ImageControl"
+               ScrollViewer.CanContentScroll="True"
+               VerticalAlignment="Center"
+               HorizontalAlignment="Center"
+               MaxHeight="650"
+               Margin="0"></Image>
+        <StackPanel VerticalAlignment="Bottom">
+            <StackPanel VerticalAlignment="Bottom"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
+                <Button Grid.Row="1" 
+                    Margin="10"
+                    Height="30" 
+                    Width="450"
+                    Click="Primary_OnClick"
+                    Content="Capture Aria Context On Primary Screen"/>
+                <Button Grid.Row="1" 
+                    Margin="10"
+                    Height="30" 
+                    Width="450"
+                    Click="Secondary_OnClick"
+                    Content="Capture Aria Context On Secondary Screen"/>
+            </StackPanel>
+            <StackPanel VerticalAlignment="Center"
+                        HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                <Label Content="Enter Patient Id:"
+                       Margin="10"></Label>
+                <TextBox Width="150"
+                         x:Name="PatientId"
+                         Margin="0,10,10,10"
+                         HorizontalAlignment="Center"
+                         HorizontalContentAlignment="Left"
+                         VerticalAlignment="Center"
+                         VerticalContentAlignment="Center"
+                         Background="LightBlue"></TextBox>
+                <Label Content="Enter Unique File Descriptor:"
+                       Margin="10"></Label>
+                <!--<TextBox Width="150"
+                         x:Name="FileSuffix"
+                         Margin="0,10,140,10"
+                         HorizontalAlignment="Center"
+                         HorizontalContentAlignment="Left"
+                         VerticalAlignment="Center"
+                         VerticalContentAlignment="Center"
+                         Background="LightBlue"></TextBox>-->
+                <ComboBox Width="150"
+                         x:Name="FileSuffix"
+                         Margin="0,10,140,10"
+                         HorizontalAlignment="Center"
+                         HorizontalContentAlignment="Left"
+                         VerticalAlignment="Center"
+                         VerticalContentAlignment="Center"
+                          SelectionChanged="FileSuffix_SelectionChanged"></ComboBox>
+            </StackPanel>
+        </StackPanel>
+        
+    </Grid>
+</UserControl>

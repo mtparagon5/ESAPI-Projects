@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D7574214-01B5-4DA0-AEC6-F0A2FAB50A3C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>VMS.TPS</RootNamespace>
+    <AssemblyName>EsapiAddons_v15</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\Build\v15\EsapiClassLibrary\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Interop.Microsoft.Office.Core">
+      <HintPath>..\..\..\..\References\Microsoft\Interop.Microsoft.Office.Core.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.Word, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>..\..\..\References\Microsoft\Microsoft.Office.Interop.Word.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="VMS.TPS.Common.Model.API, Version=1.0.300.11, Culture=neutral, PublicKeyToken=305b81e210ec4b89, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\References\VMS_v15\VMS.TPS.Common.Model.API.dll</HintPath>
+    </Reference>
+    <Reference Include="VMS.TPS.Common.Model.Types, Version=1.0.300.11, Culture=neutral, PublicKeyToken=305b81e210ec4b89, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\References\VMS_v15\VMS.TPS.Common.Model.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Classes\CalculateOverlap.cs" />
+    <Compile Include="Classes\CleanString.cs" />
+    <Compile Include="Classes\DoseChecks.cs" />
+    <Compile Include="Classes\DoseConstraint.cs" />
+    <Compile Include="Classes\DvhExtensions.cs" />
+    <Compile Include="Classes\ESJO.cs" />
+    <Compile Include="Classes\FieldProperties.cs" />
+    <Compile Include="Classes\GenerateStructureList.cs" />
+    <Compile Include="Classes\GetData.cs" />
+    <Compile Include="Classes\GetDvh.cs" />
+    <Compile Include="Classes\GetPlanData.cs" />
+    <Compile Include="Classes\GetPrimaryPhysician.cs" />
+    <Compile Include="Classes\JawTracking.cs" />
+    <Compile Include="Classes\Log.cs" />
+    <Compile Include="Classes\PatientPositioningInformation.cs" />
+    <Compile Include="Classes\PlanExtensions.cs" />
+    <Compile Include="Classes\PPatient.cs" />
+    <Compile Include="Classes\PPlan.cs" />
+    <Compile Include="Classes\PrimaryPhysician.cs" />
+    <Compile Include="Classes\ProcessIdName.cs" />
+    <Compile Include="Classes\R50Constraint.cs" />
+    <Compile Include="Classes\StructureCheck.cs" />
+    <Compile Include="Classes\WaitCursor.cs" />
+    <Compile Include="Classes\WordExtensions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
