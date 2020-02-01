@@ -1,0 +1,234 @@
+<UserControl x:Class="AutoPlan_GUI.MainControl"
+             Name="MainUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             Height="auto" Width="auto" Background="#FEFEFE">
+    <Border CornerRadius="2" BorderBrush="LightGray" BorderThickness="1" Margin="15">
+        <Grid>
+            <!-- main panel -->
+            <StackPanel Orientation="Vertical">
+              <!-- row 1 -->
+              <StackPanel Orientation="Horizontal" Margin="40"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
+                
+                  <!-- instructions -->
+                  <StackPanel Margin="10"
+                              Orientation="Vertical">
+                      <Label Content="Instructions:"
+                                Width="160"/>
+                      <TextBlock Text=""
+                                Width="150px"
+                                TextWrapping="WrapWithOverflow"/>
+                      <TextBlock Text="1."
+                                Width="150px"
+                                TextWrapping="WrapWithOverflow"/>
+                      <TextBlock Text=""
+                                Width="150px"
+                                TextWrapping="WrapWithOverflow"/>
+                      <TextBlock Text="2."
+                                Width="150px"
+                                TextWrapping="WrapWithOverflow"/>
+                      <TextBlock Text=""
+                                Width="150px"
+                                TextWrapping="WrapWithOverflow"/>
+                      <TextBlock Text="3.'"
+                                Width="150px"
+                                TextWrapping="WrapWithOverflow"/>
+                      <TextBlock Text=""
+                                Width="150px"
+                                TextWrapping="WrapWithOverflow"/>
+                  </StackPanel>
+                  <!-- oar avoids -->
+                  <StackPanel Orientation="Horizontal">
+                    <Label x:Name="OarAvoid_Label"
+                            Content="OAR Avoids To Create:"/>
+                    <TextBlock Text="Select OARs you'd like to create avoidance structures for (not required)"/>
+                    <StackPanel Orientation="Vertical" Margin="10">
+                      <Label x:Name="OarList_Label" 
+                                HorizontalAlignment="Left" 
+                                VerticalAlignment="Top" 
+                                Width="auto"
+                                Content="OARs"/>
+                      <ListView x:Name="OarList_LV"
+                                Margin="0,5,0,0"
+                                Width="auto"
+                                MinWidth="150" 
+                                SelectionMode="Multiple" 
+                                Height="auto" 
+                                BorderBrush="DarkGray" 
+                                HorizontalContentAlignment="Left"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
+                      <StackPanel Orientation="Horizontal">
+                        <Label Content="Additional Margin:"/>
+                        <TextBlock Text="If left blank, the defalut is 0mm"/>
+                        <!-- Need text input box here for margin -->
+                      </StackPanel>
+                      <StackPanel Orientation="Horizontal">
+                        <Label Content="Preferred Prefix:"/>
+                        <TextBlock Text="If left blank, the defalut is 'zav-'"/>
+                        <!-- Need text input box here for prefix -->
+                      </StackPanel>
+                    </StackPanel>
+                  </StackPanel>
+                  <!-- opti ptvs -->
+                  <StackPanel Orientation="Horizontal">
+                    <Label x:Name="OptiPTV_Label"
+                            Content="Opti PTVs To Create:"/>
+                    <TextBlock Text="Select Targets you'd like to create opti ptv structures for (not required)"/>
+                    <StackPanel Orientation="Vertical" Margin="10">
+                        <Label x:Name="TargetList_Label" 
+                                    HorizontalAlignment="Left" 
+                                    VerticalAlignment="Top" 
+                                    Width="auto"
+                                    Content="Targets"/>
+                        <ListView x:Name="TargetList_LV"
+                                  Margin="0,5,0,0"
+                                      Width="auto"
+                                      MinWidth="150" 
+                                      SelectionMode="Multiple" 
+                                      Height="auto" 
+                                      BorderBrush="DarkGray" 
+                                      HorizontalContentAlignment="Left"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
+                      <StackPanel Orientation="Horizontal">
+                        <Label Content="Additional Margin"/>
+                        <TextBlock Text="If left blank, the defalut is 0mm"/>
+                        <!-- Need text input box here for margin -->
+                      </StackPanel>
+                      <StackPanel Orientation="Horizontal">
+                        <Label Content="Crop Margin:"/>
+                        <TextBlock Text="If left blank, the defalut is 1mm"/>
+                        <!-- Need text input box here for prefix -->
+                      </StackPanel>
+                      <StackPanel Orientation="Horizontal">
+                        <Label Content="Preferred Prefix:"/>
+                        <TextBlock Text="If left blank, the defalut is 'zopti'"/>
+                        <!-- Need text input box here for prefix -->
+                      </StackPanel>
+                    </StackPanel>
+                  </StackPanel>
+                  <!-- <StackPanel Margin="10"
+                              Visibility="visible">
+                      
+                      <StackPanel Orientation="Vertical">
+                          
+                          <Label Content="Save to..."/>
+                          <StackPanel>
+
+                              <StackPanel Orientation="Horizontal"
+                                          Margin="10,0,0,0">
+                                  <CheckBox VerticalAlignment="Center"
+                                      Checked="saveToResEdChecked"
+                                      Unchecked="saveToResEdUnChecked"
+                                      IsChecked="True"
+                                      IsEnabled="False"/>
+                                  <Label Content="Resident Education"
+                                        Width="120"/>
+
+                              </StackPanel>
+                              
+                          </StackPanel>
+                          
+                      </StackPanel>
+
+                      <StackPanel>
+                          <Label Content="Tx Site..."/>
+
+                          <StackPanel x:Name="txSiteSelector_SP"
+                                      Visibility="Visible">
+                              <ComboBox x:Name="txSiteList_CB"
+                                    FontWeight="Regular"
+                                    VerticalContentAlignment="Center"
+                                    Margin="5"
+                                    Width="150"
+                                    SelectionChanged="txSiteSelected"/>
+                          </StackPanel>
+                      </StackPanel>
+
+                      
+                  </StackPanel>
+                  <StackPanel Margin="10">
+                      <Button x:Name="collectJSON_Btn"
+                              Content="Collect Plan Data"
+                              Margin="0,15,0,5"
+                              Click="collectJSON_Btn_Clicked"/>
+                      <Label Content="Progress: "
+                              HorizontalAlignment="Left"/>
+                      <TextBlock x:Name="progressResult_TB"
+                                TextWrapping="WrapWithOverflow"
+                                TextAlignment="Left"
+                                Width="160"
+                                Padding="10"
+                                Text="Please select the plan(s) to be included in data collection..."/>
+                      
+                  </StackPanel> -->
+              </StackPanel>
+              <!-- row 2 -->
+              <StackPanel Orientation="Horizontal" 
+                          Margin="40"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
+                <Label Content="Save to..."/>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal"
+                                Margin="10,0,0,0">
+                        <CheckBox VerticalAlignment="Center"
+                            Checked=""
+                            Unchecked=""
+                            IsChecked="True"
+                            IsEnabled="True"/>
+                        <Label Content="Use Plan Template"
+                              Width="120"/>
+                        <!-- show plan template toolbox if using plan template -->
+                        <CheckBox VerticalAlignment="Center"
+                            Checked=""
+                            Unchecked=""
+                            IsChecked="False"
+                            IsEnabled="True"/>
+                        <Label Content="Add Fields Manually"
+                              Width="120"/>
+                        <!-- show field design toolbox if adding fields manually -->
+                    </StackPanel>
+                </StackPanel>
+                <!-- plan template toolbox -->
+                <StackPanel Orientation="Vertical"
+                            Visibility="Visible">
+                  <Label x:Name="PlanTemplateList_Label" 
+                          HorizontalAlignment="Left" 
+                          VerticalAlignment="Top" 
+                          Width="auto"
+                          Content="Available Plan Templates"/>
+                  <ListView x:Name="PlanTemplateList_LV"
+                            Margin="0,5,0,0"
+                            Width="auto"
+                            MinWidth="150" 
+                            SelectionMode="Multiple" 
+                            Height="auto" 
+                            BorderBrush="DarkGray" 
+                            HorizontalContentAlignment="Left"/>
+                </StackPanel>
+                <!-- field design toolbox -->
+                <StackPanel Orientation="Vertical"
+                            Visibility="Visible">
+                  <Label x:Name="FieldDesignToolBox_Label" 
+                          HorizontalAlignment="Left" 
+                          VerticalAlignment="Top" 
+                          Width="auto"
+                          Content="Field Design ToolBox"/>
+                  <StackPanel Orientation="Horizontal">
+                    
+                  </StackPanel>
+                </StackPanel>
+              </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>
+
+
