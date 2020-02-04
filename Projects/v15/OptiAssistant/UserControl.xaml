@@ -6,67 +6,111 @@
         xmlns:local="clr-namespace:VMS.TPS"
         mc:Ignorable="d"
         Height="auto" Width="auto" Background="#efefef"  FontFamily="Lucida Sans" FontWeight="Thin">
+
+  <!--Styles-->
+  <UserControl.Resources>
+    <Style x:Key="GreenRoundButtonTemplate" TargetType="Button">
+      <Setter Property="Foreground" Value="White"></Setter>
+      <Setter Property="Background" Value="#b1cbbb"></Setter>
+      <Setter Property="Cursor" Value="Hand"></Setter>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border CornerRadius="10"
+                    Background="{TemplateBinding Background}"
+                    BorderThickness="1">
+              <ContentPresenter HorizontalAlignment="Center" 
+                                VerticalAlignment="Center" 
+                                Margin="{TemplateBinding Padding}">
+              </ContentPresenter>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="#abc4b5"/>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+  </UserControl.Resources>
+  
+  <!--Main-->
   <Border CornerRadius="0" BorderBrush="#034f84" BorderThickness="1" Margin="50">
     <Grid>
       <StackPanel Margin="0">
-        <StackPanel Height="18"
-                    Background="#b1cbbb"
+        <!--Heading-->
+        <StackPanel Background="#b1cbbb"
                     VerticalAlignment="Center">
-          <StackPanel Orientation="Horizontal"
-                      HorizontalAlignment="Right">
-            <Label Content="Opti Assistant - Create Optimization Structures With Ease"
-                    Foreground="White"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    FontSize="11"
-                    Margin="0,0,392,0"
-                    VerticalContentAlignment="Center"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Right"
-                    Cursor="Hand"/>
-            <Button Content="Show Instructions"
-                    Foreground="White"
-                    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                    x:Name="Instructions_Button"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    FontSize="11"
-                    Margin="0,2,8,2"
-                    VerticalContentAlignment="Center"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Right"
-                    Cursor="Hand"/>
-          </StackPanel>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+
+              <Label  Grid.Column="1"
+                      Content="Opti Assistant - Create Optimization Structures With Ease"
+                      Foreground="White"
+                      Background="Transparent"
+                      BorderThickness="0"
+                      FontSize="13"
+                      VerticalContentAlignment="Center"
+                      VerticalAlignment="Center"
+                      HorizontalAlignment="Center"/>
+              <Button Grid.Column="2"
+                      x:Name="Instructions_Button"
+                      Content="Show Instructions"
+                      Click="Instructions_Button_Click"
+                      Foreground="White"
+                      Background="Transparent"
+                      BorderThickness="0"
+                      FontSize="12"
+                      Margin="0,2,8,2"
+                      VerticalContentAlignment="Center"
+                      VerticalAlignment="Center"
+                      HorizontalAlignment="right"
+                      Cursor="Help"/>
+            </Grid>
         </StackPanel>
         <!-- main panel -->
-        <StackPanel Orientation="Horizontal"
-                    Margin="5"
+        <StackPanel Orientation="Vertical"
+                    Margin="0"
                     HorizontalAlignment="Center">
-          <!-- instructions -->
-          <StackPanel Orientation="Vertical"
-                        Margin="5,0"
-                        Width="150"
-                        Visibility="Collapsed">
-            <Label Content="Instructions"
-                      HorizontalAlignment="Center"/>
-            <TextBlock Text="1."
-                        TextWrapping="WrapWithOverflow"
-                        Margin="0,5"
-                        FontSize="13"/>
-            <TextBlock Text="2."
-                        TextWrapping="WrapWithOverflow"
-                        Margin="0,5"
-                        FontSize="13"/>
-            <TextBlock Text="3.'"
-                        TextWrapping="WrapWithOverflow"
-                        Margin="0,5"
-                        FontSize="13"/>
-          </StackPanel>
+          
           <!-- Opti Structure Parameters -->
           <StackPanel Orientation="Vertical"
                       VerticalAlignment="Center"
-                      Margin="50,50">
+                      Margin="50">
             <!-- row 1 -->
+            <StackPanel Orientation="Horizontal"
+                        Margin="5"
+                        HorizontalAlignment="Center">
+
+              <Label Content="Help me create..."
+                     VerticalAlignment="Center"
+                     Margin="5,0"/>
+              <CheckBox Content="Avoid Structures"
+                        VerticalAlignment="Center"
+                        VerticalContentAlignment="Bottom"
+                        Margin="5,0"
+                        x:Name="CreateAvoids_CB"
+                        Click="CreateAvoids_CB_Click"/>
+              <CheckBox Content="Opti Structures"
+                        VerticalAlignment="Center"
+                        VerticalContentAlignment="Bottom"
+                        Margin="5,0"
+                        x:Name="CreateOptis_CB"
+                        Click="CreateOptis_CB_Click"/>
+              <CheckBox Content="Ring Structures"
+                        VerticalAlignment="Center"
+                        Margin="5,0"
+                        VerticalContentAlignment="Bottom"
+                        x:Name="CreateRings_CB"
+                        Click="CreateRingss_CB_Click"/>
+
+            </StackPanel>
+            <!-- row 2 -->
             <StackPanel Orientation="Horizontal" 
                         Margin="5"
                         HorizontalAlignment="Center"
@@ -75,7 +119,9 @@
               <!-- oar avoids -->
               <StackPanel Orientation="Horizontal"
                           Background="White"
-                          Margin="0,0,5,0">
+                          Margin="0,0,5,0"
+                          x:Name="AvoidanceStructure_SP"
+                          Visibility="Visible">
                 <StackPanel Width="350">
                   <Label x:Name="OarAvoid_Label"
                           Content="OAR Avoids To Create"
@@ -96,62 +142,86 @@
                               HorizontalContentAlignment="Center"
                               VerticalContentAlignment="Center"
                               BorderBrush="White"/>
-                  <StackPanel>
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
-                      <Label Content="Grow Margin [mm]:"
-                             Width="120"
-                             FontSize="13"
-                             Foreground="#034f84"/>
-                      <TextBox Width="30"
-                                x:Name="AdditionalAvoidanceMargin_TextBox"
-                                Background="#b1cbbb"
-                                TextAlignment="Center"
-                                Margin="0,3"
+                  <!--Prefix-->
+                  <StackPanel Orientation="Horizontal"
+                              HorizontalAlignment="Center"
+                              Width="315">
+                    <Label Content="Preferred Prefix:"
+                            Width="120"
+                            FontSize="13"
+                            Foreground="#034f84"/>
+                    <TextBox Width="30"
+                              x:Name="AvoidPrefix_TextBox"
+                              Background="#b1cbbb"
+                              TextAlignment="Center"
+                              VerticalContentAlignment="Center"
+                              Margin="0,3"
+                              FontSize="11"
+                              Text="zav"/>
+                    <TextBlock Text="(If left blank, the defalut is 'zav')"
+                                TextWrapping="Wrap"
                                 FontSize="11"
-                                VerticalContentAlignment="Center"
-                                Text="0"/>
-                      <TextBlock Text="(If left blank, the defalut is 0mm)"
-                                 FontSize="11"
-                                 FontStyle="Italic"
-                                 VerticalAlignment="Center"
-                                 Margin="5,0"
-                                 Foreground="#034f84"/>
-                      <!-- Need text input box here for margin -->
-                    </StackPanel>
+                                FontStyle="Italic"
+                                VerticalAlignment="Center"
+                                Margin="5,0"
+                                Foreground="#034f84"/>
                   </StackPanel>
-                  <StackPanel>
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
-                      <Label Content="Preferred Prefix:"
-                             Width="120"
-                             FontSize="13"
-                             Foreground="#034f84"/>
-                      <TextBox Width="30"
-                               x:Name="PreferredAvoidancePrefix_TextBox"
-                               Background="#b1cbbb"
-                               TextAlignment="Center"
-                               VerticalContentAlignment="Center"
-                               Margin="0,3"
-                               FontSize="11"
-                               Text="zav"/>
-                      <TextBlock Text="(If left blank, the defalut is 'zav')"
-                                  TextWrapping="Wrap"
-                                  FontSize="11"
-                                 FontStyle="Italic"
-                                 VerticalAlignment="Center"
-                                 Margin="5,0"
-                                 Foreground="#034f84"/>
-                    </StackPanel>
-                    <!-- Need text input box here for prefix -->
+                  <!--Grow Margin-->
+                  <StackPanel Orientation="Horizontal"
+                              HorizontalAlignment="Center"
+                              Width="315">
+                    <Label Content="OAR Margin [mm]:"
+                            Width="120"
+                            FontSize="13"
+                            Foreground="#034f84"/>
+                    <TextBox Width="30"
+                              x:Name="AvoidGrowMargin_TextBox"
+                              Background="#b1cbbb"
+                              TextAlignment="Center"
+                              Margin="0,3"
+                              FontSize="11"
+                              VerticalContentAlignment="Center"
+                              Text="2"/>
+                    <TextBlock Text="(If left blank, the defalut is 2mm)"
+                                FontSize="11"
+                                FontStyle="Italic"
+                                VerticalAlignment="Center"
+                                Margin="5,0"
+                                Foreground="#034f84"/>
                   </StackPanel>
+                  <!--Crop Margin-->
+                  <StackPanel Orientation="Horizontal"
+                              HorizontalAlignment="Center"
+                              Width="315">
+                    <Label Content="Crop Margin [mm]:"
+                            Width="120"
+                            FontSize="13"
+                            Foreground="#034f84"/>
+                    <TextBox Width="30"
+                              x:Name="AvoidCropMargin_TextBox"
+                              Background="#b1cbbb"
+                              TextAlignment="Center"
+                              Margin="0,3"
+                              FontSize="11"
+                              VerticalContentAlignment="Center"
+                              Text="1"/>
+                    <TextBlock Text="(If left blank, the defalut is 1mm)"
+                                FontSize="11"
+                                FontStyle="Italic"
+                                VerticalAlignment="Center"
+                                Margin="5,0"
+                                Foreground="#034f84"/>
+                  </StackPanel>
+                  
                 </StackPanel>
               </StackPanel>
               
               <!-- opti ptvs -->
               <StackPanel Orientation="Horizontal"
                           Background="White"
-                          Margin="0,0,5,0">
+                          Margin="0,0,5,0"
+                          x:Name="OptiStructure_SP"
+                          Visibility="Visible">
                 <StackPanel Width="350"
                             Margin="5,0">
                   <Label x:Name="OptiPTV_Label"
@@ -173,57 +243,81 @@
                             HorizontalContentAlignment="Center"
                             VerticalContentAlignment="Center"
                             BorderBrush="White"/>
-                  <StackPanel>
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
-                      <Label Content="Grow Margin [mm]:"
-                             Width="120"
-                             FontSize="13"/>
-                      <TextBox Width="30"
-                                x:Name="AdditionalOptiMargin_TextBox"
-                                Background="#b1cbbb"
-                                TextAlignment="Center"
-                                Margin="0,3"
+                  <!--Preferred Prefix-->
+                  <StackPanel Orientation="Horizontal"
+                              HorizontalAlignment="Center"
+                              Width="315">
+                    <Label Content="Preferred Prefix:"
+                            Width="120"
+                            FontSize="13"/>
+                    <TextBox Width="30"
+                              x:Name="OptiPrefix_TextBox"
+                              Background="#b1cbbb"
+                              TextAlignment="Center"
+                              Margin="0,3"
+                              FontSize="11"
+                              VerticalContentAlignment="Center"
+                              Text="zopti"/>
+                    <TextBlock Text="(If left blank, the defalut is 'zopti')"
+                                TextWrapping="Wrap"
                                 FontSize="11"
-                                VerticalContentAlignment="Center"
-                                Text="0"/>
-                      <TextBlock Text="(If left blank, the defalut is 0mm)"
-                                 FontSize="11"
-                                 FontStyle="Italic"
-                                 VerticalAlignment="Center"
-                                 Margin="5,0"/>
-                      <!-- Need text input box here for margin -->
-                    </StackPanel>
+                                FontStyle="Italic"
+                                VerticalAlignment="Center"
+                                Margin="5,0"/>
                   </StackPanel>
-                  <StackPanel>
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
-                      <Label Content="Preferred Prefix:"
-                             Width="120"
-                             FontSize="13"/>
-                      <TextBox Width="30"
-                               x:Name="PreferredOptiPrefix_TextBox"
-                               Background="#b1cbbb"
-                               TextAlignment="Center"
-                               Margin="0,3"
-                               FontSize="11"
-                               VerticalContentAlignment="Center"
-                               Text="zopti"/>
-                      <TextBlock Text="(If left blank, the defalut is 'zopti')"
-                                  TextWrapping="Wrap"
-                                  FontSize="11"
-                                 FontStyle="Italic"
-                                 VerticalAlignment="Center"
-                                 Margin="5,0"/>
-                    </StackPanel>
-                    <!-- Need text input box here for prefix -->
+                  <!--PTV Margin-->
+                  <StackPanel Orientation="Horizontal"
+                              HorizontalAlignment="Center"
+                              Width="315">
+                    <Label Content="PTV Margin [mm]:"
+                            Width="120"
+                            FontSize="13"/>
+                    <TextBox Width="30"
+                              x:Name="OptiGrowMargin_TextBox"
+                              Background="#b1cbbb"
+                              TextAlignment="Center"
+                              Margin="0,3"
+                              FontSize="11"
+                              VerticalContentAlignment="Center"
+                              Text="1"/>
+                    <TextBlock Text="(If left blank, the defalut is 1mm)"
+                                FontSize="11"
+                                FontStyle="Italic"
+                                VerticalAlignment="Center"
+                                Margin="5,0"/>
                   </StackPanel>
+                  <!--Crop Margin-->
+                  <StackPanel Orientation="Horizontal"
+                              HorizontalAlignment="Center"
+                              Width="315">
+                    <Label Content="Crop Margin [mm]:"
+                            Width="120"
+                            FontSize="13"
+                            Foreground="#034f84"/>
+                    <TextBox Width="30"
+                              x:Name="OptiCropMargin_TextBox"
+                              Background="#b1cbbb"
+                              TextAlignment="Center"
+                              Margin="0,3"
+                              FontSize="11"
+                              VerticalContentAlignment="Center"
+                              Text="2"/>
+                    <TextBlock Text="(If left blank, the defalut is 2mm)"
+                                FontSize="11"
+                                FontStyle="Italic"
+                                VerticalAlignment="Center"
+                                Margin="5,0"
+                                Foreground="#034f84"/>
+                  </StackPanel>
+                  
                 </StackPanel>
               </StackPanel>
 
               <!-- rings -->
               <StackPanel Orientation="Horizontal"
-                          Background="White">
+                          Background="White"
+                          x:Name="RingStructure_SP"
+                          Visibility="Visible">
                 <StackPanel Width="350"
                             Margin="5,0">
                   <Label x:Name="Ring_Label"
@@ -245,57 +339,123 @@
                               HorizontalContentAlignment="Center"
                               VerticalContentAlignment="Center"
                               BorderBrush="White"/>
-                  <StackPanel>
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
-                      <Label Content="Ring Margin [mm]:"
-                              Width="120"
-                              FontSize="13"/>
-                      <TextBox Width="30"
-                          x:Name="RingMargin_TextBox"
-                          Background="#b1cbbb"
-                          TextAlignment="Center"
-                          Margin="0,3"
-                          FontSize="11"
-                          VerticalContentAlignment="Center"
-                          Text="10"/>
-                      <TextBlock Text="(If left blank, the defalut is 10mm)"
-                                  FontSize="11"
-                                  FontStyle="Italic"
-                                  VerticalAlignment="Center"
-                                  Margin="5,0"/>
-                    </StackPanel>
+                  <!--Preferred Prefix-->
+                  <StackPanel Orientation="Horizontal"
+                              HorizontalAlignment="Center"
+                              Width="315">
+                    <Label Content="Preferred Prefix:"
+                          Width="120"
+                          FontSize="13"/>
+                    <TextBox Width="30"
+                            x:Name="RingPrefix_TextBox"
+                            Background="#b1cbbb"
+                            TextAlignment="Center"
+                            Margin="0,3"
+                            FontSize="11"
+                            VerticalContentAlignment="Center"
+                            Text="zring"/>
+                    <TextBlock Text="(If left blank, the defalut is 'zring #')"
+                              TextWrapping="Wrap"
+                              FontSize="11"
+                              FontStyle="Italic"
+                              VerticalAlignment="Center"
+                              Margin="5,0"/>
                   </StackPanel>
-                  <StackPanel>
-                    <StackPanel Orientation="Horizontal"
-                              HorizontalAlignment="Center">
-                      <Label Content="Preferred Prefix:"
+                  <!--Number of Rings-->
+                  <StackPanel Orientation="Horizontal"
+                              HorizontalAlignment="Center"
+                              Width="315">
+                    <Label  Content="Number of Rings:"
                             Width="120"
                             FontSize="13"/>
-                      <TextBox Width="30"
-                              x:Name="PreferredRingName_TextBox"
+                    <TextBox  Width="30"
+                              x:Name="RingCount_TextBox"
                               Background="#b1cbbb"
                               TextAlignment="Center"
                               Margin="0,3"
                               FontSize="11"
                               VerticalContentAlignment="Center"
-                              Text="zopti"/>
-                      <TextBlock Text="(If left blank, the defalut is 'zopti')"
-                                TextWrapping="Wrap"
+                              Text="3"/>
+                    <TextBlock  Text="(If left blank, the defalut is 3)"
                                 FontSize="11"
                                 FontStyle="Italic"
                                 VerticalAlignment="Center"
                                 Margin="5,0"/>
-                    </StackPanel>
                   </StackPanel>
+                  <!--Ring Margin-->
+                  <StackPanel Orientation="Horizontal"
+                              HorizontalAlignment="Center"
+                              Width="315">
+                    <Label Content="Ring Margin [mm]:"
+                            Width="120"
+                            FontSize="13"/>
+                    <TextBox Width="30"
+                        x:Name="RingGrowMargin_TextBox"
+                        Background="#b1cbbb"
+                        TextAlignment="Center"
+                        Margin="0,3"
+                        FontSize="11"
+                        VerticalContentAlignment="Center"
+                        Text="10"/>
+                    <TextBlock Text="(If left blank, the defalut is 10mm)"
+                                FontSize="11"
+                                FontStyle="Italic"
+                                VerticalAlignment="Center"
+                                Margin="5,0"/>
                   </StackPanel>
+                  
+                </StackPanel>
               </StackPanel>
               
             </StackPanel>
-            <!-- row 2 -->
             
           </StackPanel>
-      
+
+          <StackPanel Orientation="Horizontal"
+                      HorizontalAlignment="Center">
+            <Button x:Name="CreateStructures_Btn"
+                    Click="CreateStructures_Btn_Click"
+                    Content="Create Structure(s)"
+                    FontSize="12"
+                    Width="450"
+                    Padding="5"
+                    Margin="0,0,0,50"
+                    Style="{StaticResource GreenRoundButtonTemplate}"
+                    VerticalContentAlignment="Center"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Cursor="Hand"/>
+
+          </StackPanel>
+
+          <!-- instructions -->
+          <StackPanel Orientation="Vertical"
+                      VerticalAlignment="Center"
+                      Margin="0"
+                      Width="300"
+                      x:Name="Instructions_SP"
+                      Visibility="Collapsed">
+            <Label Content="Instructions"
+                   HorizontalAlignment="Center"
+                   FontSize="12"/>
+            <TextBlock  Text="1. Select the types of structures you would like to create."
+                        TextWrapping="WrapWithOverflow"
+                        Margin="5"
+                        FontSize="12"/>
+            <TextBlock Text="2. Select the OARs/PTVs you want structures created for."
+                        TextWrapping="WrapWithOverflow"
+                        Margin="5"
+                        FontSize="12"/>
+            <TextBlock Text="3. Define your desired Prefix, OAR or PTV Margin (Grow/Shrink : +/-), and Crop Margin."
+                        TextWrapping="WrapWithOverflow"
+                        Margin="5"
+                        FontSize="12"/>
+            <TextBlock Text='4. Click the "Create Structure(s)" Button.'
+                        TextWrapping="WrapWithOverflow"
+                        Margin="5,5"
+                        FontSize="12"/>
+          </StackPanel>
+
         </StackPanel>
         <!--<StackPanel VerticalAlignment="Bottom">
           
@@ -303,4 +463,10 @@
       </StackPanel>
     </Grid>
   </Border>
+
+  
+
+
 </UserControl>
+
+

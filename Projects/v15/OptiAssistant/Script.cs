@@ -64,6 +64,7 @@ namespace VMS.TPS
       #region mainControl variable definitions
 
       mainControl.ss = structureSet;
+      mainControl.patient = context.Patient;
 
       mainControl.user = context.CurrentUser.ToString();
       mainControl.day = DateTime.Now.ToLocalTime().Day.ToString();
@@ -113,6 +114,13 @@ namespace VMS.TPS
       #endregion structure organization and ordering
       //---------------------------------------------------------------------------------
       #region populate listviews
+
+      if (mainControl.sorted_ptvList.Count() < 1)
+      {
+        MessageBox.Show("There are no PTVs detected. The tools for Opti PTV and Ring Creation are disabled.");
+        mainControl.CreateOptis_CB.IsEnabled = false;
+        mainControl.CreateRings_CB.IsEnabled = false;
+      }
 
       // populate listviews with structures on startup
       if (mainControl.sorted_oarList != null) { foreach (Structure s in mainControl.sorted_oarList) { mainControl.OarList_LV.Items.Add(s); } }
