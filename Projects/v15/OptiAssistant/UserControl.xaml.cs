@@ -13,7 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
+using VMS.TPS;
 using VMS.TPS.Common.Model.API;
 using VMS.TPS.Common.Model.Types;
 
@@ -111,7 +111,7 @@ namespace OptiAssistant
 
     #region basic events
 
-    private void CreateAvoids_CB_Click(object sender, RoutedEventArgs e)
+    public void CreateAvoids_CB_Click(object sender, RoutedEventArgs e)
     {
       var cb = sender as CheckBox;
       if (cb.IsChecked == true)
@@ -125,7 +125,7 @@ namespace OptiAssistant
 
     }
 
-    private void CreateRingss_CB_Click(object sender, RoutedEventArgs e)
+    public void CreateRingss_CB_Click(object sender, RoutedEventArgs e)
     {
       var cb = sender as CheckBox;
       if (cb.IsChecked == true)
@@ -138,7 +138,7 @@ namespace OptiAssistant
       }
     }
 
-    private void CreateOptis_CB_Click(object sender, RoutedEventArgs e)
+    public void CreateOptis_CB_Click(object sender, RoutedEventArgs e)
     {
       var cb = sender as CheckBox;
       if (cb.IsChecked == true)
@@ -151,7 +151,7 @@ namespace OptiAssistant
       }
     }
 
-    private void Instructions_Button_Click(object sender, RoutedEventArgs e)
+    public void Instructions_Button_Click(object sender, RoutedEventArgs e)
     {
       if (Instructions_SP.Visibility == Visibility.Visible)
       {
@@ -165,94 +165,181 @@ namespace OptiAssistant
       }
     }
 
-    private void CreateStructures_Btn_Click(object sender, RoutedEventArgs e)
+    public void CreateStructures_Btn_Click(object sender, RoutedEventArgs e)
     {
       patient.BeginModifications();
 
-      var avStructures = OarList_LV.SelectedItems;
-      string avPrefix;
-      int avGrowMargin;
-      int avCropMargin;
-
-      #region set/parse variables
-      // set prefix
-      if (AvoidGrowMargin_TextBox.Text == "")
+      
+      // find body
+      Structure body = null;
+      try
       {
-        avGrowMargin = DEFAULT_AVOIDANCE_GROW_MARGIN;
+        body = Helpers.GetBody(ss);
       }
-      if (AvoidPrefix_TextBox.Text == "") { avPrefix = DEFAULT_AVOIDANCE_PREFIX; } else { avPrefix = AvoidPrefix_TextBox.Text; }
-
-      // set crop margin
-      if (AvoidCropMargin_TextBox.Text == "") { avCropMargin = DEFAULT_AVOIDANCE_GROW_MARGIN; }
-      else
+      catch
       {
-        if (int.TryParse(AvoidCropMargin_TextBox.Text, out avCropMargin))
+        var message = "Sorry, could not find a structure of type BODY:\n\n\t- Structures will need to be manually cropped outside of the Body";
+        var title = "Structure Error";
+
+        MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
+      }
+
+      // create zopti total
+      Structure zoptiTotal = null;
+      if (sorted_ptvList.Count() > 0)
+      {
+        string zoptiTotalId = "zopti total";
+        // add empty zopti total structure
+        zoptiTotal = ss.AddStructure(AVOIDANCE_DICOM_TYPE, zoptiTotalId);
+        zoptiTotal.SegmentVolume = Helpers.BooleanStructures(sorted_ptvList);
+        if (body != null)
+        {
+          zoptiTotal.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zoptiTotal, body, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+        }
+      }
+
+
+
+      #region avoidance structures
+
+      if (CreateAvoids_CB.IsChecked == true)
+      {
+
+        var avStructuresToMake = OarList_LV.SelectedItems;
+        string avPrefix;
+        int avGrowMargin;
+        int avCropMargin;
+
+        // set prefix
+        if (AvoidGrowMargin_TextBox.Text == "")
+        {
+          avGrowMargin = DEFAULT_AVOIDANCE_GROW_MARGIN;
+        }
+        if (AvoidPrefix_TextBox.Text == "") { avPrefix = DEFAULT_AVOIDANCE_PREFIX; } else { avPrefix = AvoidPrefix_TextBox.Text; }
+
+        // set crop margin
+        if (AvoidCropMargin_TextBox.Text == "") { avCropMargin = DEFAULT_AVOIDANCE_GROW_MARGIN; }
+        else
+        {
+          if (int.TryParse(AvoidCropMargin_TextBox.Text, out avCropMargin))
+          {
+            //parsing successful 
+          }
+          else
+          {
+            //parsing failed. 
+            MessageBox.Show("Oops, please enter a valid Crop Margin for your avoidance structures.");
+          }
+        }
+
+        // set grow margin
+        if (int.TryParse(AvoidGrowMargin_TextBox.Text, out avGrowMargin))
         {
           //parsing successful 
         }
         else
         {
           //parsing failed. 
-          MessageBox.Show("Oops, please enter a valid Crop Margin for your avoidance structures.");
+          MessageBox.Show("Oops, please enter a valid Margin for your avoidance structures.");
         }
+
+        foreach (var s in avStructuresToMake)
+        {
+
+          var oar = (Structure)s;
+          var avId = avPrefix + oar.Id.ToString();
+
+          // remove structure if present in ss
+          Helpers.RemoveStructure(ss, avId);
+
+          // add empty avoid structure
+          var avoidStructure = ss.AddStructure(AVOIDANCE_DICOM_TYPE, avId);
+
+          // copy oar with defined margin
+          avoidStructure.SegmentVolume = Helpers.AddMargin(oar, (double)avGrowMargin);
+
+          // crop avoid structure from ptv total (if ptvs are found)
+          if (zoptiTotal != null) { avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure, zoptiTotal, avCropMargin); }
+
+        }
+
       }
 
-      // set grow margin
-      if (int.TryParse(AvoidGrowMargin_TextBox.Text, out avGrowMargin))
+      #endregion avoidance structures
+
+      #region opti structures
+      // TODO...change copied code to work for optis
+      if (CreateOptis_CB.IsChecked == true)
       {
-        //parsing successful 
+
+        var optiStructuresToMake = PTVList_LV.SelectedItems;
+        string optiPrefix;
+        int optiGrowMargin;
+        int optiCropMargin;
+
+        // set prefix
+        if (AvoidGrowMargin_TextBox.Text == "")
+        {
+          optiGrowMargin = DEFAULT_AVOIDANCE_GROW_MARGIN;
+        }
+        if (OptiPrefix_TextBox.Text == "") { optiPrefix = DEFAULT_OPTI_PREFIX; } else { optiPrefix = OptiPrefix_TextBox.Text; }
+
+        // set crop margin
+        if (OptiCropMargin_TextBox.Text == "") { optiCropMargin = DEFAULT_OPTI_GROW_MARGIN; }
+        else
+        {
+          if (int.TryParse(OptiCropMargin_TextBox.Text, out optiCropMargin))
+          {
+            //parsing successful 
+          }
+          else
+          {
+            //parsing failed. 
+            MessageBox.Show("Oops, please enter a valid Crop Margin for your avoidance structures.");
+          }
+        }
+
+        // set grow margin
+        if (int.TryParse(OptiGrowMargin_TextBox.Text, out optiGrowMargin))
+        {
+          //parsing successful 
+        }
+        else
+        {
+          //parsing failed. 
+          MessageBox.Show("Oops, please enter a valid Margin for your avoidance structures.");
+        }
+
+        foreach (var s in optiStructuresToMake)
+        {
+
+          var ptv = (Structure)s;
+          var optiId = optiPrefix + ptv.Id.ToString();
+
+          // remove structure if present in ss
+          Helpers.RemoveStructure(ss, optiId);
+
+          // add empty avoid structure
+          var optiStructure = ss.AddStructure(OPTI_DICOM_TYPE, optiId);
+
+          // copy ptv with defined margin
+          optiStructure.SegmentVolume = Helpers.AddMargin(ptv, (double)optiGrowMargin);
+
+          // crop OPTI structure outside body (if body found)
+          if (body != null)
+          {
+            optiStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(optiStructure, body, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+          }
+
+          // TODO...add logic/functionality to allow user to select which optis should be cropped from which and with which margins
+
+        }
+
       }
-      else
-      {
-        //parsing failed. 
-        MessageBox.Show("Oops, please enter a valid Margin for your avoidance structures.");
-      }
 
-      #endregion set/parse variables
+      #endregion opti structures
 
-      foreach (var s in avStructures)
-      {
-        var oar = (Structure)s;
-        var avId = avPrefix + oar.Id.ToString();
-
-        // remove structure if present in ss
-        RemoveStructure(ss, avId);
-
-        // add structure
-        var avoid = ss.AddStructure(AVOIDANCE_DICOM_TYPE, avId);
-        avoid.SegmentVolume = addMargin(oar, (double)avGrowMargin);
-        avoid.SegmentVolume = cropStructure(avoid, oar, avCropMargin);
-
-
-        // add margin to existing structure
-
-
-
-
-
-
-
-
-        // TODO: for opti structures
-
-        //// get body structure
-        //Structure body;
-        //try
-        //{
-        //  body = ss.Structures.FirstOrDefault(x => x.Id.ToLower() == "body" || x.Id.ToLower() == "external");
-        //}
-        //catch
-        //{
-        //  throw new Exception("Can't identify a Body contour.");
-        //}
-
-        //// remove previous body-margin structure
-        //RemoveStructure(ss, "BODY-MARGIN");
-        //// create body-margin structure and add internal margin for cropping targets outside body plus margin
-        //var bodyLessMargin = ss.AddStructure("AVOIDANCE", "BODY-MARGIN");
-        //bodyLessMargin.SegmentVolume = body.Margin(-DEFAULT_OPTI_CROP_MARGIN);
-      }
-
+      
     }
 
     #endregion
@@ -330,126 +417,6 @@ namespace OptiAssistant
       //MessageBox.Show(" Data collection complete. Thanks for helping us collect data!\n\n\t\t\t:)");
 
       #endregion
-    }
-    public class WaitCursor : IDisposable
-    {
-      private Cursor _previousCursor;
-
-      public WaitCursor()
-      {
-        _previousCursor = Mouse.OverrideCursor;
-
-        Mouse.OverrideCursor = Cursors.Wait;
-      }
-
-      #region IDisposable Members
-
-      public void Dispose()
-      {
-        Mouse.OverrideCursor = _previousCursor;
-      }
-
-      #endregion
-    }
-
-    
-
-    /// <summary>
-    /// function to remove structure
-    /// </summary>
-    /// <param name="ss">StructureSet</param>
-    /// <param name="structureId">Structure Id to match</param>
-    private static void RemoveStructure(StructureSet ss, string structureId)
-    {
-      if (ss.Structures.Any(st => st.Id == structureId))
-      {
-        var st = ss.Structures.Single(x => x.Id == structureId);
-        ss.RemoveStructure(st);
-      }
-    }
-
-   /// <summary>
-   /// Add margin to existing structure
-   /// </summary>
-   /// <param name="structure"></param>
-   /// <param name="margin"></param>
-   /// <returns></returns>
-    private static SegmentVolume addMargin(Structure structure, double margin)
-    {
-      return structure.SegmentVolume.Margin(margin);
-    }
-
-    /// <summary>
-    /// Crop structure from another structure
-    /// </summary>
-    /// <param name="structureToCrop"></param>
-    /// <param name="StructureToCropFrom"></param>
-    /// <param name="cropMargin"></param>
-    /// <returns></returns>
-    private static SegmentVolume cropStructure(Structure structureToCrop, Structure StructureToCropFrom, double cropMargin)
-    {
-      return structureToCrop.SegmentVolume.Sub(StructureToCropFrom.SegmentVolume.Margin(cropMargin));
-    }
-
-    /// <summary>
-    /// Crop opti ptv from higher dose ptv with given margin -- default margin = 1.0 mm
-    /// </summary>
-    /// <param name="opti"></param>
-    /// <param name="ptv"></param>
-    /// <param name="cropMargin"></param>
-    /// <returns></returns>
-    private static SegmentVolume cropOpti(Structure opti, Structure ptv, double cropMargin = 1)
-    {
-      return opti.SegmentVolume.Sub(ptv.SegmentVolume.Margin(cropMargin));
-    }
-
-    /// <summary>
-    /// Crop structure outside body with given margin -- default margin = -4.0 mm (e.g. for targets)
-    /// </summary>
-    /// <param name="structure"></param>
-    /// <param name="body"></param>
-    /// <param name="cropMargin"></param>
-    /// <returns></returns>
-    private static SegmentVolume cropOutsideBodyWithMargin(Structure structure, Structure body, double cropMargin = -4)
-    {
-      return structure.SegmentVolume.And(body.SegmentVolume.Margin(cropMargin));
-    }
-
-    /// <summary>
-    /// Crop structure outside body structure that already has an internal margin
-    /// </summary>
-    /// <param name="structure"></param>
-    /// <param name="bodyLessMargin"></param>
-    /// <returns></returns>
-    private static SegmentVolume cropOutsideBodyLessMargin(Structure structure, Structure bodyLessMargin)
-    {
-      return structure.SegmentVolume.And(bodyLessMargin.SegmentVolume);
-    }
-
-    /// <summary>
-    /// Boolean two structures
-    /// </summary>
-    /// <param name="structure1"></param>
-    /// <param name="structure2"></param>
-    /// <returns></returns>
-    private static SegmentVolume booleanStructures(Structure structure1, Structure structure2)
-    {
-      return structure1.SegmentVolume.Or(structure2.SegmentVolume);
-    }
-
-    /// <summary>
-    /// Boolean a list of structures
-    /// </summary>
-    /// <param name="structuresToBoolean"></param>
-    /// <returns></returns>
-    private static Structure booleanStructures(List<Structure> structuresToBoolean)
-    {
-      Structure combinedStructure = structuresToBoolean[0];
-      foreach (var s in structuresToBoolean)
-      {
-        combinedStructure.SegmentVolume = combinedStructure.SegmentVolume.Or(s.SegmentVolume);
-      }
-      return combinedStructure;
     }
 
     #endregion
