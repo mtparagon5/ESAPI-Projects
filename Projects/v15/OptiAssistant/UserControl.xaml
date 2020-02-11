@@ -121,7 +121,7 @@
                           Background="White"
                           Margin="0,0,5,0"
                           x:Name="AvoidanceStructure_SP"
-                          Visibility="Visible">
+                          Visibility="Collapsed">
                 <StackPanel Width="350">
                   <Label x:Name="OarAvoid_Label"
                           Content="OAR Avoids To Create"
@@ -192,7 +192,9 @@
                   <!--Crop Margin-->
                   <StackPanel Orientation="Horizontal"
                               HorizontalAlignment="Center"
-                              Width="315">
+                              Width="315"
+                              x:Name="CropAvoidsFromPTVs"
+                              Visibility="Collapsed">
                     <Label Content="Crop Margin [mm]:"
                             Width="120"
                             FontSize="13"
@@ -204,8 +206,8 @@
                               Margin="0,3"
                               FontSize="11"
                               VerticalContentAlignment="Center"
-                              Text="1"/>
-                    <TextBlock Text="(If left blank, the defalut is 1mm)"
+                              Text="2"/>
+                    <TextBlock Text="(If left blank, the defalut is 2mm)"
                                 FontSize="11"
                                 FontStyle="Italic"
                                 VerticalAlignment="Center"
@@ -221,7 +223,7 @@
                           Background="White"
                           Margin="0,0,5,0"
                           x:Name="OptiStructure_SP"
-                          Visibility="Visible">
+                          Visibility="Collapsed">
                 <StackPanel Width="350"
                             Margin="5,0">
                   <Label x:Name="OptiPTV_Label"
@@ -286,30 +288,257 @@
                                 VerticalAlignment="Center"
                                 Margin="5,0"/>
                   </StackPanel>
-                  <!--Crop Margin-->
+                  <!--Crop Checkbox-->
+
                   <StackPanel Orientation="Horizontal"
-                              HorizontalAlignment="Center"
-                              Width="315">
-                    <Label Content="Crop Margin [mm]:"
-                            Width="120"
+                                HorizontalAlignment="Center">
+                    <Label Content="Options"
+                           VerticalAlignment="Center"
+                           FontSize="13"
+                           Foreground="#034f84"/>
+                  </StackPanel>
+                  <Label Content="__________________________________________________________"
+                            Margin="0,-20,0,0"
+                            HorizontalAlignment="Center"
+                            VerticalContentAlignment="Top"
                             FontSize="13"
                             Foreground="#034f84"/>
-                    <TextBox Width="30"
-                              x:Name="OptiCropMargin_TextBox"
+                  <StackPanel Orientation="Vertical"
+                              HorizontalAlignment="Center"
+                              Margin="0,0,0,5">
+
+                    <CheckBox Content="Crop Outside Body"
+                              VerticalAlignment="Center"
+                              VerticalContentAlignment="Bottom"
+                              HorizontalAlignment="Left"
+                              HorizontalContentAlignment="Left"
                               Background="#b1cbbb"
-                              TextAlignment="Center"
-                              Margin="0,3"
-                              FontSize="11"
-                              VerticalContentAlignment="Center"
-                              Text="2"/>
-                    <TextBlock Text="(If left blank, the defalut is 2mm)"
-                                FontSize="11"
-                                FontStyle="Italic"
-                                VerticalAlignment="Center"
-                                Margin="5,0"
-                                Foreground="#034f84"/>
+                              FontSize="12"
+                              Margin="5,3"                              x:Name="CropFromBody_CB"
+                              Click="HandleOptiOptionsSelection"/>
+
+                    <CheckBox Content="Multiple Dose Levels"
+                              VerticalAlignment="Center"
+                              VerticalContentAlignment="Bottom"
+                              HorizontalAlignment="Left"
+                              HorizontalContentAlignment="Left"
+                              Background="#b1cbbb"
+                              FontSize="12"
+                              Margin="5,3"                              x:Name="MultipleDoseLevels_CB"
+                              Click="HandleOptiOptionsSelection"/>
+
+                    <!--<CheckBox Content="Opti GTV For Single Lesions"
+                              VerticalAlignment="Center"
+                              VerticalContentAlignment="Bottom"
+                              HorizontalAlignment="Left"
+                              HorizontalContentAlignment="Left"
+                              Background="#b1cbbb"
+                              FontSize="12"
+                              Margin="5,3"                              x:Name="CreateOptiGTV_CB"
+                              Click="CreateOptiGTV_CB_Click"/>
+                    
+                    <CheckBox Content="Opti Total"
+                              VerticalAlignment="Center"
+                              VerticalContentAlignment="Bottom"
+                              HorizontalAlignment="Left"
+                              HorizontalContentAlignment="Left"
+                              Background="#b1cbbb"
+                              FontSize="12"
+                              Margin="5,3"                              x:Name="CreateOptiTotal_CB"
+                              Click="CreateOptiTotal_CB_Click"/>-->
+
                   </StackPanel>
-                  
+                  <!--Options Section-->
+                  <StackPanel x:Name="OptiOptions_SP"
+                              Visibility="Collapsed">
+
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
+                      <Label Content="Crop Margins"
+                             VerticalAlignment="Center"
+                             FontSize="13"
+                             Foreground="#034f84"/>
+                    </StackPanel>
+                    <Label Content="____________________________________________________________________________"
+                            Margin="0,-20,0,0"
+                            HorizontalAlignment="Center"
+                            VerticalContentAlignment="Top"
+                            FontSize="13"
+                            Foreground="#034f84"/>
+                    <!--Crop From Body Margin-->
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Width="315"
+                                Visibility="Collapsed"
+                                x:Name="CropFromBody_SP">
+                      <Label Content="From Body [mm]:"
+                              Width="120"
+                              FontSize="13"
+                              Foreground="#034f84"/>
+                      <TextBox Width="30"
+                                x:Name="BodyCropMargin_TextBox"
+                                Background="#b1cbbb"
+                                TextAlignment="Center"
+                                Margin="0,3"
+                                FontSize="11"
+                                VerticalContentAlignment="Center"
+                                Text="4"/>
+                      <TextBlock Text="(If left blank, the defalut is 4mm)"
+                                  FontSize="11"
+                                  FontStyle="Italic"
+                                  VerticalAlignment="Center"
+                                  Margin="5,0"
+                                  Foreground="#034f84"/>
+                    </StackPanel>
+
+                    <!--Crop From Optis Margin-->
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Width="315"
+                                Visibility="Collapsed"
+                                x:Name="CropFromOptis_SP">
+                      <Label Content="From Optis [mm]:"
+                              Width="120"
+                              FontSize="13"
+                              Foreground="#034f84"/>
+                      <TextBox Width="30"
+                                x:Name="OptiCropMargin_TextBox"
+                                Background="#b1cbbb"
+                                TextAlignment="Center"
+                                Margin="0,3"
+                                FontSize="11"
+                                VerticalContentAlignment="Center"
+                                Text="2"/>
+                      <TextBlock Text="(If left blank, the defalut is 2mm)"
+                                  FontSize="11"
+                                  FontStyle="Italic"
+                                  VerticalAlignment="Center"
+                                  Margin="5,0"
+                                  Foreground="#034f84"/>
+                    <!--Crop From Body Margin-->
+                    </StackPanel>
+
+                    <!--Multiple Dose Level Options-->
+                    <StackPanel x:Name="MultiDoseLevelOptions_SP"
+                                  Visibility="Collapsed">
+                      <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center">
+                        <Label Content="Dose Levels"
+                               VerticalAlignment="Center"
+                               FontSize="13"
+                               Foreground="#034f84"/>
+                        <Label Content="(Lowest to Highest)"
+                               VerticalAlignment="Center"
+                               FontSize="11"
+                               FontStyle="Italic"
+                               Foreground="#034f84"/>
+                      </StackPanel>
+                      <Label Content="____________________________________________________________________________"
+                              Margin="0,-20,0,0"
+                              HorizontalAlignment="Center"
+                              VerticalContentAlignment="Top"
+                              FontSize="13"
+                              Foreground="#034f84"/>
+                      <!--Radios-->
+                      <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center">
+                      
+                        <RadioButton  x:Name="DoseLevel1_Radio"
+                                      GroupName="DoseLevels"
+                                      Content="1"
+                                      VerticalContentAlignment="Bottom"
+                                      Margin="5"
+                                      Checked="HandleDoseLevelCount"/>
+                        <RadioButton  x:Name="DoseLevel2_Radio"
+                                      GroupName="DoseLevels"
+                                      Content="2"
+                                      VerticalContentAlignment="Bottom"
+                                      Margin="5"
+                                      Checked="HandleDoseLevelCount"/>
+                        <RadioButton  x:Name="DoseLevel3_Radio"
+                                      GroupName="DoseLevels"
+                                      Content="3"
+                                      VerticalContentAlignment="Bottom"
+                                      Margin="5"
+                                      Checked="HandleDoseLevelCount"/>
+                        <RadioButton  x:Name="DoseLevel4_Radio"
+                                      GroupName="DoseLevels"
+                                      Content="4"
+                                      VerticalContentAlignment="Bottom"
+                                      Margin="5"
+                                      Checked="HandleDoseLevelCount"/>
+
+                      </StackPanel>
+                    
+                      <!--PTV : Dose Level Selectors-->
+                      <StackPanel>
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Width="315"
+                                    Margin="0,0,0,5"
+                                    x:Name="DoseLevel1_SP"
+                                    Visibility="Visible">
+
+                          <Label Content="Dose Level 1"
+                                  Width="120"
+                                  FontSize="13"
+                                  Foreground="#034f84"/>
+                          <ListBox x:Name="DoseLevel1_LB"
+                                   Width="175"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Width="315"
+                                    Margin="0,0,0,5"
+                                    x:Name="DoseLevel2_SP"
+                                    Visibility="Collapsed">
+
+                          <Label Content="Dose Level 2"
+                                  Width="120"
+                                  FontSize="13"
+                                  Foreground="#034f84"/>
+                          <ListBox x:Name="DoseLevel2_LB"
+                                   Width="175"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Width="315"
+                                    Margin="0,0,0,5"
+                                    x:Name="DoseLevel3_SP"
+                                    Visibility="Collapsed">
+
+                          <Label Content="Dose Level 3"
+                                  Width="120"
+                                  FontSize="13"
+                                  Foreground="#034f84"/>
+                          <ListBox x:Name="DoseLevel3_LB"
+                                   Width="175"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Width="315"
+                                    Margin="0,0,0,5"
+                                    x:Name="DoseLevel4_SP"
+                                    Visibility="Collapsed">
+
+                          <Label Content="Dose Level 4"
+                                  Width="120"
+                                  FontSize="13"
+                                  Foreground="#034f84"/>
+                          <ListBox x:Name="DoseLevel4_LB"
+                                   Width="175"/>
+                        </StackPanel>
+
+                      </StackPanel>
+                      
+                    </StackPanel>
+                    
+                  </StackPanel>
+
+
                 </StackPanel>
               </StackPanel>
 
@@ -317,7 +546,7 @@
               <StackPanel Orientation="Horizontal"
                           Background="White"
                           x:Name="RingStructure_SP"
-                          Visibility="Visible">
+                          Visibility="Collapsed">
                 <StackPanel Width="350"
                             Margin="5,0">
                   <Label x:Name="Ring_Label"

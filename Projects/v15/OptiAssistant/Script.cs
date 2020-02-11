@@ -120,6 +120,26 @@ namespace VMS.TPS
         MessageBox.Show("There are no PTVs detected. The tools for Opti PTV and Ring Creation are disabled.");
         mainControl.CreateOptis_CB.IsEnabled = false;
         mainControl.CreateRings_CB.IsEnabled = false;
+        mainControl.hasNoPTV = true;
+      }
+      else if (mainControl.sorted_ptvList.Count() == 1)
+      {
+        mainControl.MultipleDoseLevels_CB.IsEnabled = false;
+        mainControl.hasSinglePTV  = true;
+      }
+      else
+      {
+        mainControl.CropAvoidsFromPTVs.Visibility = Visibility.Visible;
+        mainControl.hasMultiplePTVs = true;
+        mainControl.DoseLevel1_Radio.IsChecked = true;
+
+        foreach (var s in mainControl.sorted_ptvList)
+        {
+          mainControl.DoseLevel1_LB.Items.Add(s);
+          mainControl.DoseLevel2_LB.Items.Add(s);
+          mainControl.DoseLevel3_LB.Items.Add(s);
+          mainControl.DoseLevel4_LB.Items.Add(s);
+        }
       }
 
       // populate listviews with structures on startup
