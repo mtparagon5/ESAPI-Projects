@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="VMS.TPS.MainControl"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VMS.TPS"
+        mc:Ignorable="d"
+        Height="500" Width="900" Background="#efefef"  FontFamily="Lucida Sans" FontWeight="Thin">
+  <Border CornerRadius="0" BorderBrush="#034f84" BorderThickness="1" Margin="50">
+    <Grid>
+      <!--default orientation is vertical-->
+      <StackPanel>
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Center">
+          <Label Content="OARs:"/>
+          <!--name items to use them in file.xaml.cs-->
+          <ListView x:Name="Oars_ListView"
+                     Margin="5"
+                      Width="auto"
+                      MinWidth="100"
+                      MinHeight="100" 
+                      SelectionMode="Multiple" 
+                      Height="auto" 
+                      HorizontalContentAlignment="Center"
+                      VerticalContentAlignment="Center"
+                      BorderBrush="White"/>
+          <!--margin is left, top, right, bottom-->
+          <Button Content="Get OARs"
+                  Height="20"
+                  Margin="20,-15,20,50"
+                  x:Name="GetOars_Button"
+                  Click="GetOars_Button_Click"/>
+
+        </StackPanel>
+        <StackPanel Orientation="Vertical">
+          <Label Content="targets:"/>
+          <!--name items to use them in file.xaml.cs-->
+          <ListView x:Name="Targets_ListView"
+                    Margin="5"
+                    MinHeight="100" 
+                    SelectionMode="Single" 
+                    Height="auto" 
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    BorderBrush="White"/>
+          <Button Content="Get Target Volume"
+                  Height="20"
+                  Width="150"
+                  Margin="20"
+                  x:Name="GetTargetVolume_Button"
+                  Click="GetTargetVolume_Button_Click"/>
+        </StackPanel>
+      </StackPanel>
+    </Grid>
+  </Border>
+</UserControl>

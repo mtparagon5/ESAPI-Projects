@@ -135,17 +135,17 @@ namespace VMS.TPS
 
         foreach (var s in mainControl.sorted_ptvList)
         {
-          mainControl.DoseLevel1_LB.Items.Add(s);
-          mainControl.DoseLevel2_LB.Items.Add(s);
-          mainControl.DoseLevel3_LB.Items.Add(s);
-          mainControl.DoseLevel4_LB.Items.Add(s);
+          mainControl.DoseLevel1_LB.Items.Add(s.Id);
+          mainControl.DoseLevel2_LB.Items.Add(s.Id);
+          mainControl.DoseLevel3_LB.Items.Add(s.Id);
+          mainControl.DoseLevel4_LB.Items.Add(s.Id);
         }
       }
 
       // populate listviews with structures on startup
-      if (mainControl.sorted_oarList != null) { foreach (Structure s in mainControl.sorted_oarList) { mainControl.OarList_LV.Items.Add(s); } }
-      if (mainControl.sorted_ptvList != null) { foreach (Structure t in mainControl.sorted_ptvList) { mainControl.PTVList_LV.Items.Add(t); } }
-      if (mainControl.sorted_ptvList != null) { foreach (Structure t in mainControl.sorted_ptvList) { mainControl.PTVListForRings_LV.Items.Add(t); } }
+      if (mainControl.sorted_oarList != null) { foreach (Structure s in mainControl.sorted_oarList) { mainControl.OarList_LV.Items.Add(s.Id); } }
+      if (mainControl.sorted_ptvList != null) { foreach (Structure t in mainControl.sorted_ptvList) { mainControl.PTVList_LV.Items.Add(t.Id); } }
+      if (mainControl.sorted_ptvList != null) { foreach (Structure t in mainControl.sorted_ptvList) { mainControl.PTVListForRings_LV.Items.Add(t.Id); } }
      
       #endregion
       //---------------------------------------------------------------------------------

@@ -180,11 +180,13 @@ namespace OptiAssistant
     }
 
     // temp create structures function to allow for design testing
-    public void CreateStructures_Btn_Click(object sender, RoutedEventArgs e) { }
+    //public void CreateStructures_Btn_Click(object sender, RoutedEventArgs e) { }
 
     // create structures button
-    public void CreateStructures_Btn_ClickLive(object sender, RoutedEventArgs e)
+    public void CreateStructures_Btn_Click(object sender, RoutedEventArgs e)
     {
+
+      #region validation
 
       // validation
       if (CreateAvoids_CB.IsChecked == false && CreateOptis_CB.IsChecked == false && CreateRings_CB.IsChecked == false)
@@ -210,6 +212,20 @@ namespace OptiAssistant
           MessageBox.Show("Four Dose Levels have been selected:\n\n\t- Targets for at least four dose levels should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
       }
+      else if (CreateAvoids_CB.IsChecked == true && OarList_LV.SelectedItems.Count == 0)
+      {
+          MessageBox.Show("Oops, it appears you'd like to create avoid structures but haven't selected any structures to create avoids for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+      }
+      else if (CreateOptis_CB.IsChecked == true && PTVList_LV.SelectedItems.Count == 0)
+      {
+        MessageBox.Show("Oops, it appears you'd like to create opti ptv structures but haven't selected any targets to create optis for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+      }
+      else if (CreateRings_CB.IsChecked == true && PTVListForRings_LV.SelectedItems.Count == 0)
+      {
+        MessageBox.Show("Oops, it appears you'd like to create ring structures but haven't selected any targets to create rings for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+      }
+
+      #endregion validation
 
       // NOTE: various other validation can be done. To reduce the need for some validation, when user input for margins is invalid, a warning will show informing the user of the invalid entry and that the default value will instead be used. 
 
@@ -217,6 +233,7 @@ namespace OptiAssistant
       {
 
         patient.BeginModifications();
+        
 
         // find body
         Structure body = null;
@@ -240,7 +257,7 @@ namespace OptiAssistant
         {
           string zoptiTotalId = "zopti total";
           // add empty zopti total structure
-          zoptiTotal = ss.AddStructure(AVOIDANCE_DICOM_TYPE, zoptiTotalId);
+          zoptiTotal = ss.AddStructure(OPTI_DICOM_TYPE, zoptiTotalId);
           zoptiTotal.SegmentVolume = Helpers.BooleanStructures(sorted_ptvList);
           if (body != null)
           {
@@ -259,10 +276,10 @@ namespace OptiAssistant
           int avCropMargin;
 
           // set prefix
-          if (AvoidPrefix_TextBox.Text == "") { avPrefix = DEFAULT_AVOIDANCE_PREFIX; } else { avPrefix = AvoidPrefix_TextBox.Text; }
+          if (AvoidPrefix_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidPrefix_TextBox.Text)) { avPrefix = DEFAULT_AVOIDANCE_PREFIX; } else { avPrefix = AvoidPrefix_TextBox.Text; }
 
           // set grow margin
-          if (AvoidGrowMargin_TextBox.Text == "") { avGrowMargin = DEFAULT_AVOIDANCE_GROW_MARGIN; }
+          if (AvoidGrowMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidGrowMargin_TextBox.Text)) { avGrowMargin = DEFAULT_AVOIDANCE_GROW_MARGIN; }
           else
           {
             if (int.TryParse(AvoidGrowMargin_TextBox.Text, out avGrowMargin))
@@ -279,7 +296,7 @@ namespace OptiAssistant
           }
 
           // set crop margin
-          if (AvoidCropMargin_TextBox.Text == "") { avCropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+          if (AvoidCropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidCropMargin_TextBox.Text)) { avCropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
           else
           {
             if (int.TryParse(AvoidCropMargin_TextBox.Text, out avCropMargin))
@@ -298,7 +315,8 @@ namespace OptiAssistant
           foreach (var s in avStructuresToMake)
           {
 
-            var oar = (Structure)s;
+            var tempOAR = (Structure)s;
+            var oar = ss.Structures.Single(st => st.Id == tempOAR.Id);
             var avId = string.Format("{0} {1}", avPrefix, oar.Id.ToString());
 
             // remove structure if present in ss
@@ -342,13 +360,13 @@ namespace OptiAssistant
           Structure opti4 = null;
 
           // set prefix
-          if (OptiPrefix_TextBox.Text == "") { optiPrefix = DEFAULT_OPTI_PREFIX; } 
+          if (OptiPrefix_TextBox.Text == "" || string.IsNullOrWhiteSpace(OptiPrefix_TextBox.Text)) { optiPrefix = DEFAULT_OPTI_PREFIX; } 
           else { optiPrefix = OptiPrefix_TextBox.Text; }
 
           // set crop from body margin
           if (cropFromBody)
           {
-            if (BodyCropMargin_TextBox.Text == "") { optiCropFromBodyMargin = DEFAULT_OPTI_CROP_FROM_BODY_MARGIN; }
+            if (BodyCropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(BodyCropMargin_TextBox.Text)) { optiCropFromBodyMargin = DEFAULT_OPTI_CROP_FROM_BODY_MARGIN; }
             else
             {
               if (int.TryParse(BodyCropMargin_TextBox.Text, out optiCropFromBodyMargin))
@@ -380,7 +398,7 @@ namespace OptiAssistant
           if (MultipleDoseLevels_CB.IsChecked == true)
           {
             // set opti crop margin
-            if (OptiCropMargin_TextBox.Text == "")
+            if (OptiCropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(OptiCropMargin_TextBox.Text))
             {
               optiCropMargin = DEFAULT_OPTI_CROP_MARGIN;
             }
@@ -432,7 +450,8 @@ namespace OptiAssistant
           // create optis
           foreach (var s in optiStructuresToMake)
           {
-            var ptv = (Structure)s;
+            var tempPTV = (Structure)s;
+            var ptv = ss.Structures.Single(st => st.Id == tempPTV.Id);
             var optiId = string.Format("{0} {1}", optiPrefix, ptv.Id.ToString());
 
             // remove structure if present in ss
@@ -536,8 +555,100 @@ namespace OptiAssistant
 
         if (CreateRings_CB.IsChecked == true)
         {
-          
+
           // TODO: add ring structure logic
+          var ringGrowMargin = DEFAULT_RING_GROW_MARGIN;
+          var ringCropMargin = DEFAULT_RING_CROP_MARGIN;
+          var ringCount = DEFAULT_RING_COUNT;
+          var ringPrefix = DEFAULT_RING_PREFIX;
+          List<Structure> ringStructures = new List<Structure>();
+
+          if (RingPrefix_TextBox.Text == "" || string.IsNullOrWhiteSpace(RingPrefix_TextBox.Text)) { ringPrefix = DEFAULT_RING_PREFIX; }
+          else { ringPrefix = RingPrefix_TextBox.Text; }
+
+          // set number of rings to be created
+          if (RingCount_TextBox.Text == "" || string.IsNullOrWhiteSpace(RingCount_TextBox.Text))
+          {
+            ringCount = DEFAULT_RING_COUNT;
+          }
+          else
+          {
+            if (int.TryParse(RingCount_TextBox.Text, out ringCount))
+            {
+              //parsing successful 
+            }
+            else
+            {
+              //parsing failed. 
+              ringCount = DEFAULT_RING_COUNT;
+              //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
+              MessageBox.Show(string.Format("Oops, an invalid value was used for the ring count ({0}). The DEFAULT of {1} will be used.", RingCount_TextBox.Text, DEFAULT_RING_COUNT));
+            }
+          }
+
+          // set ring grow margin
+          if (RingGrowMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(RingGrowMargin_TextBox.Text))
+          {
+            ringGrowMargin = DEFAULT_RING_GROW_MARGIN;
+          }
+          else
+          {
+            if (int.TryParse(RingGrowMargin_TextBox.Text, out ringGrowMargin))
+            {
+              //parsing successful 
+            }
+            else
+            {
+              //parsing failed. 
+              ringGrowMargin = DEFAULT_RING_GROW_MARGIN;
+              //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
+              MessageBox.Show(string.Format("Oops, an invalid value was used for the ring count ({0}). The DEFAULT of {1} will be used.", RingGrowMargin_TextBox.Text, DEFAULT_RING_GROW_MARGIN));
+            }
+          }
+          foreach (var ptv in PTVListForRings_LV.SelectedItems)
+          {
+            var tempPTV = (Structure)ptv;
+            var target = ss.Structures.Single(st=> st.Id == tempPTV.Id);
+            for (var i = 0; i < ringCount + 1; i++)
+            {
+              var ringNum = i + 1;
+              var ringId = string.Format("{0} {1}", ringPrefix, ringNum);
+
+              // remove ring structure if present in ss
+              Helpers.RemoveStructure(ss, ringId);
+
+              // add empty ring structure
+              var ringStructure = ss.AddStructure(RING_DICOM_TYPE, ringId);
+
+              // copy target with defined margin
+              ringStructure.SegmentVolume = Helpers.AddMargin(target, (double)ringGrowMargin);
+
+              // crop ring from target (prevents having to loop through again later)
+              ringStructure.SegmentVolume = Helpers.CropStructure(ringStructure, target, cropMargin: ringCropMargin);
+
+              // crop ring outside body
+              if (body != null)
+              {
+                ringStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(ringStructure, body, cropMargin: 0);
+              }
+
+              ringStructures.Add(ringStructure);
+
+            }
+
+            for (var i = ringStructures.Count + 1; i > 1; --i)
+            {
+              var currentRingId = string.Format("{0} {1}", ringPrefix, i);
+              var currentRing = ss.Structures.Single(st => st.Id == currentRingId);
+
+              var nextLargestRingId = string.Format("{0} {1}", ringPrefix, i - 1);
+              var nextLargestRing = ss.Structures.Single(st => st.Id == nextLargestRingId);
+
+              currentRing.SegmentVolume = Helpers.CropStructure(currentRing, nextLargestRing, ringCropMargin);
+            }
+
+          }
+          
 
         }
 
@@ -736,11 +847,20 @@ namespace OptiAssistant
       #endregion
     }
 
-  
+
 
 
 
     #endregion miscelaneous events
+
+    #region highlight text on tab focus
+    void SelectAllText(object sender, RoutedEventArgs e)
+    {
+      var textBox = e.OriginalSource as TextBox;
+      if (textBox != null)
+        textBox.SelectAll();
+    }
+    #endregion highlight text on tab focus
 
     #endregion helper methods
     //---------------------------------------------------------------------------------
