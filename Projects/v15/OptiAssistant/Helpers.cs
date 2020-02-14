@@ -40,6 +40,23 @@ namespace OptiAssistant
       #endregion
     }
 
+    /// <summary>
+    /// Process a given Structure Id in order to prevent a newly created structure id from exceeding the character limit of 17 set by Eclipse
+    /// </summary>
+    /// <param name="structureId"></param>
+    /// <param name="maxLength"></param>
+    /// <returns></returns>
+    public static string ProcessStructureId(string structureId, int maxLength)
+    {
+      if (string.IsNullOrEmpty(structureId)) return structureId;
+      return structureId.Length <= maxLength ? structureId : structureId.Substring(0, maxLength);
+    }
+
+    /// <summary>
+    /// Get the Body Structure in the StructureSet
+    /// </summary>
+    /// <param name="ss"></param>
+    /// <returns></returns>
     public static Structure GetBody(StructureSet ss)
     {
       return ss.Structures.Single(st => st.DicomType == "EXTERNAL");

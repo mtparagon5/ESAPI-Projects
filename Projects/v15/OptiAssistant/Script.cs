@@ -161,12 +161,17 @@ namespace VMS.TPS
         mainControl.hasMultiplePTVs = true;
         mainControl.DoseLevel1_Radio.IsChecked = true;
 
+        mainControl.DoseLevel1_Combo.Items.Add("");
+        mainControl.DoseLevel2_Combo.Items.Add("");
+        mainControl.DoseLevel3_Combo.Items.Add("");
+        mainControl.DoseLevel4_Combo.Items.Add("");
+
         foreach (var s in mainControl.sorted_ptvList)
         {
-          mainControl.DoseLevel1_LB.Items.Add(s.Id);
-          mainControl.DoseLevel2_LB.Items.Add(s.Id);
-          mainControl.DoseLevel3_LB.Items.Add(s.Id);
-          mainControl.DoseLevel4_LB.Items.Add(s.Id);
+          mainControl.DoseLevel1_Combo.Items.Add(s.Id);
+          mainControl.DoseLevel2_Combo.Items.Add(s.Id);
+          mainControl.DoseLevel3_Combo.Items.Add(s.Id);
+          mainControl.DoseLevel4_Combo.Items.Add(s.Id);
         }
       }
 

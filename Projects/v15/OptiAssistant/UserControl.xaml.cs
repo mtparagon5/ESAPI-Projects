@@ -30,8 +30,49 @@ namespace OptiAssistant
     }
 
     //---------------------------------------------------------------------------------
+    #region default constants
+
+    // MAX STRING LENGTH DEFAULTS
+    const int MAX_PREFIX_LENGTH = 7;
+    const int MAX_ID_LENGTH = 15;
+
+    // AVOIDANCE STRUCTURE DEFAULTS
+    const string DEFAULT_AVOIDANCE_PREFIX = "zav";
+    const int DEFAULT_AVOIDANCE_GROW_MARGIN = 2;
+    const int DEFAULT_AVOIDANCE_CROP_MARGIN = 2;
+    const int DEFAULT_AVOID_CROP_FROM_BODY_MARGIN = 0;
+    const string AVOIDANCE_DICOM_TYPE = "AVOIDANCE";
+
+    // OPTI STRUCTURE DEFAULTS
+    const string DEFAULT_OPTI_PREFIX = "zopti";
+    const int DEFAULT_OPTI_GROW_MARGIN = 1;
+    const int DEFAULT_OPTI_CROP_MARGIN = 2;
+    const int DEFAULT_OPTI_CROP_FROM_BODY_MARGIN = 4;
+    const string OPTI_DICOM_TYPE = "PTV";
+
+    // RING STRUCTURE DEFAULTS
+    const string DEFAULT_RING_PREFIX = "zring";
+    const int DEFAULT_RING_GROW_MARGIN = 10;
+    const int DEFAULT_RING_COUNT = 3;
+    const int DEFAULT_RING_CROP_MARGIN = 0;
+    const string RING_DICOM_TYPE = "CONTROL";
+
+    // MISC DICOM TYPE DEFAULTS
+    const string CONTROL_DICOM_TYPE = "CONTROL";
+
+    // CI STRUCTURE DEFAULTS
+    const string DEFAULT_CI_PREFIX = "zCI";
+    const int DEFAULT_CI_GROW_MARGIN = 5;
+
+    // R50 STRUCTURE DEFAULTS
+    const string DEFAULT_R50_PREFIX = "zR50";
+    const int DEFAULT_R50_GROW_MARGIN = 30;
+
+    #endregion default constants
+    //---------------------------------------------------------------------------------
     #region public variables
 
+    // PUBLIC VARIABLES
     //public Window Window;
     public string script = "OptiAssistant";
     public Patient patient;
@@ -80,36 +121,15 @@ namespace OptiAssistant
     public bool needHRStructures = false;
     private string MESSAGES = string.Empty;
     private int counter = 1;
-
-
+    public bool createCI = false;
+    public bool createR50 = false;
+    public int doseLevel1CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+    public int doseLevel2CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+    public int doseLevel3CropMargin = DEFAULT_OPTI_CROP_MARGIN;
     //public bool createOptiGTVForSingleLesion = false;
     //public bool createOptiTotal = false;
 
-    // DEFAULTS
-    const string DEFAULT_AVOIDANCE_PREFIX = "zav";
-    const int DEFAULT_AVOIDANCE_GROW_MARGIN = 2;
-    const int DEFAULT_AVOIDANCE_CROP_MARGIN = 2;
-    const int DEFAULT_AVOID_CROP_FROM_BODY_MARGIN = 0;
-    const string AVOIDANCE_DICOM_TYPE = "AVOIDANCE";
-
-    const string DEFAULT_OPTI_PREFIX = "zopti";
-    const int DEFAULT_OPTI_GROW_MARGIN = 1;
-    const int DEFAULT_OPTI_CROP_MARGIN = 2;
-    const int DEFAULT_OPTI_CROP_FROM_BODY_MARGIN = 4;
-    const string OPTI_DICOM_TYPE = "PTV";
-
-
-    const string DEFAULT_RING_PREFIX = "zring";
-    const int DEFAULT_RING_GROW_MARGIN = 10;
-    const int DEFAULT_RING_COUNT = 0;
-    const int DEFAULT_RING_CROP_MARGIN = 0;
-    const string RING_DICOM_TYPE = "CONTROL";
-
-    const string CONTROL_DICOM_TYPE = "CONTROL";
-
-
-
-    #endregion
+    #endregion public variables
     //---------------------------------------------------------------------------------
     #region objects used for binding
 
@@ -238,31 +258,26 @@ namespace OptiAssistant
       }
       if (CreateOptis_CB.IsChecked == true && MultipleDoseLevels_CB.IsChecked == true)
       {
-        if (PTVList_LV.SelectedItems.Count < 1)
-        {
-          MessageBox.Show("Oops, it appears you'd like to create opti ptv structures but haven't selected any targets to create optis for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-          continueToCreateStructures = false;
-        }
         if (DoseLevel1_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 1) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
         if (DoseLevel2_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 2) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
         if (DoseLevel3_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 3) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
         if (DoseLevel4_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 4) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
-        if (DoseLevel1_Radio.IsChecked == true && DoseLevel1_LB.SelectedIndex < 0)
+        if (DoseLevel1_Radio.IsChecked == true && DoseLevel1_Combo.SelectedIndex <= 0)
         {
           MessageBox.Show("One Dose Level has been selected:\n\n\t- At least one target should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
           continueToCreateStructures = false;
         }
-        if (DoseLevel2_Radio.IsChecked == true && (DoseLevel1_LB.SelectedIndex < 0 || DoseLevel2_LB.SelectedIndex < 0))
+        if (DoseLevel2_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex <= 0 || DoseLevel2_Combo.SelectedIndex <= 0))
         {
           MessageBox.Show("Two Dose Levels have been selected:\n\n\t- Targets for at least two dose levels should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
           continueToCreateStructures = false;
         }
-        if (DoseLevel3_Radio.IsChecked == true && (DoseLevel1_LB.SelectedIndex < 0 || DoseLevel2_LB.SelectedIndex < 0 || DoseLevel3_LB.SelectedIndex < 0))
+        if (DoseLevel3_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex <= 0 || DoseLevel2_Combo.SelectedIndex <= 0 || DoseLevel3_Combo.SelectedIndex <= 0))
         {
           MessageBox.Show("Three Dose Levels have been selected:\n\n\t- Targets for at least three dose levels should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
           continueToCreateStructures = false;
         }
-        if (DoseLevel4_Radio.IsChecked == true && (DoseLevel1_LB.SelectedIndex < 0 || DoseLevel2_LB.SelectedIndex < 0 || DoseLevel3_LB.SelectedIndex < 0 || DoseLevel4_LB.SelectedIndex < 0))
+        if (DoseLevel4_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex <= 0 || DoseLevel2_Combo.SelectedIndex <= 0 || DoseLevel3_Combo.SelectedIndex <= 0 || DoseLevel4_Combo.SelectedIndex <= 0))
         {
           MessageBox.Show("Four Dose Levels have been selected:\n\n\t- Targets for at least four dose levels should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
           continueToCreateStructures = false;
@@ -283,7 +298,22 @@ namespace OptiAssistant
         MessageBox.Show("Oops, it appears you'd like to create ring structures but haven't selected any targets to create rings for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         continueToCreateStructures = false;
       }
-
+      if (AvoidPrefix_TextBox.Text.Length > MAX_PREFIX_LENGTH) 
+      {
+        MessageBox.Show(string.Format("Oops, it appears you've chosen a Prefix for your Avoid Structures that is {0} characters in length:\r\n\r\n\t- Please limit your prefix to a max of {1} characters", AvoidPrefix_TextBox.Text.Length, MAX_PREFIX_LENGTH), "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+        continueToCreateStructures = false;
+      }
+      if (OptiPrefix_TextBox.Text.Length > MAX_PREFIX_LENGTH)
+      {
+        MessageBox.Show(string.Format("Oops, it appears you've chosen a Prefix for your Opti Structures that is {0} in length:\r\n\r\n\t- Please limit your prefix to a max of {1} characters", OptiPrefix_TextBox.Text.Length, MAX_PREFIX_LENGTH), "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+        continueToCreateStructures = false;
+      }
+      if (RingPrefix_TextBox.Text.Length > MAX_PREFIX_LENGTH)
+      {
+        MessageBox.Show(string.Format("Oops, it appears you've chosen a Prefix for your Ring Structures that is {0} in length:\r\n\r\n\t- Please limit your prefix to a max of {1} characters", RingPrefix_TextBox.Text.Length, MAX_PREFIX_LENGTH), "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+        continueToCreateStructures = false;
+      }
+      
       #endregion validation
 
       // NOTE: various other validation can be done. To reduce the need for some validation, when user input for margins is invalid, a warning will show informing the user of the invalid entry and that the default value will instead be used. 
@@ -291,7 +321,9 @@ namespace OptiAssistant
       {
         using (new WaitCursor())
         {
-
+          // DUBUG: samle message for debugging -- rest have been removed
+          //MessageBox.Show(string.Format("{0}", tempCounter));
+          //tempCounter += 1;
 
           // add messages description
           MESSAGES += string.Format("Some General Tasks/Issues during script run: {0}", counter);
@@ -302,6 +334,8 @@ namespace OptiAssistant
 
           // allow modifications
           patient.BeginModifications();
+
+          #region find body
 
           // find body
           Structure body = null;
@@ -329,8 +363,9 @@ namespace OptiAssistant
             MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Warning);
           }
 
-          //MessageBox.Show(string.Format("{0}", tempCounter));
-          //tempCounter += 1;
+          #endregion find body
+
+          #region get high res structures
 
           // create high res body for cropping
           Structure bodyHR = null;
@@ -361,7 +396,7 @@ namespace OptiAssistant
               foreach (var t in sorted_ptvList)
               {
                 Structure hrTarget = null;
-                var hrId = string.Format("zz{0}_HR", t.Id);
+                var hrId = string.Format("zz{0}_HR", Helpers.ProcessStructureId(t.Id.ToString(), MAX_ID_LENGTH - 5));
                 // remove if already there
                 Helpers.RemoveStructure(ss, hrId);
 
@@ -377,8 +412,9 @@ namespace OptiAssistant
             }
           }
 
-          //MessageBox.Show(string.Format("{0}", tempCounter));
-          //tempCounter += 1;
+          #endregion get high res structures
+
+          #region create zopti total
 
           // create zopti total if ptv(s) present
           Structure zoptiTotal = null;
@@ -420,8 +456,8 @@ namespace OptiAssistant
 
 
           }
-          //MessageBox.Show(string.Format("{0}", tempCounter));
-          //tempCounter += 1;
+
+          #endregion create zopti total
 
           #region avoidance structures
 
@@ -473,7 +509,7 @@ namespace OptiAssistant
               var oar = ss.Structures.Single(st => st.Id == s.ToString());
               //MessageBox.Show(string.Format("Structure Matched: {0}", oar.Id));
 
-              var avId = string.Format("{0} {1}", avPrefix, oar.Id.ToString());
+              var avId = string.Format("{0} {1}", avPrefix, Helpers.ProcessStructureId(oar.Id.ToString(), MAX_ID_LENGTH - avPrefix.Length));
 
               // remove structure if present in ss
               Helpers.RemoveStructure(ss, avId);
@@ -486,8 +522,6 @@ namespace OptiAssistant
               avoidStructure.SegmentVolume = Helpers.AddMargin(oar, (double)avGrowMargin);
               MESSAGES += string.Format("\r\n\t- {1} mm Margin Added: {0}", avoidStructure.Id, avGrowMargin);
 
-              //MessageBox.Show(string.Format("{0}", tempCounter));
-              //tempCounter += 1;
 
               // crop from body
               try
@@ -507,8 +541,6 @@ namespace OptiAssistant
                   MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", avoidStructure.Id);
                 }
               }
-              //MessageBox.Show(string.Format("{0}", tempCounter));
-              //tempCounter += 1;
 
               // crop avoid structure from ptv total (if ptvs are found)
               //MessageBox.Show(string.Format("Attempting to crop {0} from target", avoidStructure.Id));
@@ -557,8 +589,19 @@ namespace OptiAssistant
           if (CreateOptis_CB.IsChecked == true)
           {
 
-            if (CropFromBody_CB.IsChecked == true) { cropFromBody = true; }
-            else { cropFromBody = false; }
+            //if (CropFromBody_CB.IsChecked == true) { cropFromBody = true; }
+            //else { cropFromBody = false; }
+
+            //if (CreateCI_CB.IsChecked == true) { createCI = true; }
+            //else { createCI = false; }
+
+            //if (CreateR50_CB.IsChecked == true) { createR50 = true; }
+            //else { createR50 = false; }
+            
+            cropFromBody = (bool)CropFromBody_CB.IsChecked;
+            createCI = (bool)CreateCI_CB.IsChecked;
+            createR50 = (bool)CreateR50_CB.IsChecked;
+
 
             var optiStructuresToMake = PTVList_LV.SelectedItems;
             string optiPrefix = DEFAULT_OPTI_PREFIX;
@@ -636,30 +679,30 @@ namespace OptiAssistant
 
               if (DoseLevel1_Radio.IsChecked == true)
               {
-                doseLevel1Target = Helpers.GetStructure(ss, DoseLevel1_LB.SelectedItem.ToString());
+                doseLevel1Target = Helpers.GetStructure(ss, DoseLevel1_Combo.SelectedItem.ToString());
                 MessageBox.Show(string.Format("Dose Level 1 Set to: {0}", doseLevel1Target.Id));
               }
               else if (DoseLevel2_Radio.IsChecked == true)
               {
-                doseLevel1Target = Helpers.GetStructure(ss, DoseLevel1_LB.SelectedItem.ToString());
-                doseLevel2Target = Helpers.GetStructure(ss, DoseLevel2_LB.SelectedItem.ToString());
+                doseLevel1Target = Helpers.GetStructure(ss, DoseLevel1_Combo.SelectedItem.ToString());
+                doseLevel2Target = Helpers.GetStructure(ss, DoseLevel2_Combo.SelectedItem.ToString());
 
                 hasTwoDoseLevels = true;
               }
               else if (DoseLevel3_Radio.IsChecked == true)
               {
-                doseLevel1Target = Helpers.GetStructure(ss, DoseLevel1_LB.SelectedItem.ToString());
-                doseLevel2Target = Helpers.GetStructure(ss, DoseLevel2_LB.SelectedItem.ToString());
-                doseLevel3Target = Helpers.GetStructure(ss, DoseLevel3_LB.SelectedItem.ToString());
+                doseLevel1Target = Helpers.GetStructure(ss, DoseLevel1_Combo.SelectedItem.ToString());
+                doseLevel2Target = Helpers.GetStructure(ss, DoseLevel2_Combo.SelectedItem.ToString());
+                doseLevel3Target = Helpers.GetStructure(ss, DoseLevel3_Combo.SelectedItem.ToString());
 
                 hasThreeDoseLevels = true;
               }
               else if (DoseLevel4_Radio.IsChecked == true)
               {
-                doseLevel1Target = Helpers.GetStructure(ss, DoseLevel1_LB.SelectedItem.ToString());
-                doseLevel2Target = Helpers.GetStructure(ss, DoseLevel2_LB.SelectedItem.ToString());
-                doseLevel3Target = Helpers.GetStructure(ss, DoseLevel3_LB.SelectedItem.ToString());
-                doseLevel4Target = Helpers.GetStructure(ss, DoseLevel4_LB.SelectedItem.ToString());
+                doseLevel1Target = Helpers.GetStructure(ss, DoseLevel1_Combo.SelectedItem.ToString());
+                doseLevel2Target = Helpers.GetStructure(ss, DoseLevel2_Combo.SelectedItem.ToString());
+                doseLevel3Target = Helpers.GetStructure(ss, DoseLevel3_Combo.SelectedItem.ToString());
+                doseLevel4Target = Helpers.GetStructure(ss, DoseLevel4_Combo.SelectedItem.ToString());
 
                 hasFourDoseLevels = true;
               }
@@ -669,7 +712,7 @@ namespace OptiAssistant
             foreach (var s in optiStructuresToMake)
             {
               var ptv = ss.Structures.Single(st => st.Id == s.ToString());
-              var optiId = string.Format("{0} {1}", optiPrefix, ptv.Id.ToString());
+              var optiId = string.Format("{0} {1}", optiPrefix, Helpers.ProcessStructureId(ptv.Id.ToString(), MAX_ID_LENGTH - optiPrefix.Length));
 
               if (needHRStructures && ptv.CanConvertToHighResolution())
               {
@@ -681,11 +724,6 @@ namespace OptiAssistant
 
               // add empty avoid structure
               var optiStructure = ss.AddStructure(OPTI_DICOM_TYPE, optiId);
-
-              //if (needHRStructures && optiStructure.CanConvertToHighResolution())
-              //{
-              //  optiStructure.ConvertToHighResolution();
-              //}
 
               // copy ptv with defined margin
               optiStructure.SegmentVolume = Helpers.AddMargin(ptv, (double)optiGrowMargin);
@@ -710,6 +748,78 @@ namespace OptiAssistant
                   {
                     MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", optiStructure.Id);
                   }
+                }
+              }
+
+              if (createCI)
+              {
+                try
+                {
+                  // ci structure id
+                  var ciId = string.Format("{0} {1}", DEFAULT_CI_PREFIX, Helpers.ProcessStructureId(ptv.Id.ToString(), MAX_ID_LENGTH - DEFAULT_CI_PREFIX.Length));
+
+                  // set ci grow margin
+                  var ciGrowMargin = DEFAULT_CI_GROW_MARGIN;
+                  if (int.TryParse(CIMargin_TextBox.Text, out ciGrowMargin))
+                  {
+                    //parsing successful 
+                  }
+                  else
+                  {
+                    //parsing failed. 
+                    ciGrowMargin = DEFAULT_OPTI_GROW_MARGIN;
+                    MessageBox.Show(string.Format("Oops, an invalid value was used for the CI structure grow margin ({0}). The DEFAULT of {1}mm will be used.", CIMargin_TextBox.Text, DEFAULT_CI_GROW_MARGIN));
+                  }
+
+                  // remove structure if present in ss
+                  Helpers.RemoveStructure(ss, ciId);
+
+                  // add empty avoid structure
+                  var ciStructure = ss.AddStructure(CONTROL_DICOM_TYPE, ciId);
+
+                  // copy ptv with defined margin
+                  ciStructure.SegmentVolume = Helpers.AddMargin(ptv, (double)ciGrowMargin);
+                  MESSAGES += string.Format("\r\n\t- {1} mm Margin Added: {0}", ciStructure.Id, ciGrowMargin);
+                }
+                catch
+                {
+                  MESSAGES += string.Format("\r\n\t- ***Trouble Creating CI Structure***");
+                }
+              }
+
+              if (createR50)
+              {
+                try
+                {
+                  // r50 structure id
+                  var r50Id = string.Format("{0} {1}", DEFAULT_R50_PREFIX, Helpers.ProcessStructureId(ptv.Id.ToString(), MAX_ID_LENGTH - DEFAULT_R50_PREFIX.Length));
+
+                  // set r50 grow margin
+                  var r50GrowMargin = DEFAULT_R50_GROW_MARGIN;
+                  if (int.TryParse(R50Margin_TextBox.Text, out r50GrowMargin))
+                  {
+                    //parsing successful 
+                  }
+                  else
+                  {
+                    //parsing failed. 
+                    r50GrowMargin = DEFAULT_OPTI_GROW_MARGIN;
+                    MessageBox.Show(string.Format("Oops, an invalid value was used for the CI structure grow margin ({0}). The DEFAULT of {1}mm will be used.", R50Margin_TextBox.Text, DEFAULT_R50_GROW_MARGIN));
+                  }
+
+                  // remove structure if present in ss
+                  Helpers.RemoveStructure(ss, r50Id);
+
+                  // add empty avoid structure
+                  var r50Structure = ss.AddStructure(CONTROL_DICOM_TYPE, r50Id);
+
+                  // copy ptv with defined margin
+                  r50Structure.SegmentVolume = Helpers.AddMargin(ptv, (double)r50GrowMargin);
+                  MESSAGES += string.Format("\r\n\t- {1} mm Margin Added: {0}", r50Structure.Id, r50GrowMargin);
+                }
+                catch
+                {
+                  MESSAGES += string.Format("\r\n\t- ***Trouble Creating CI Structure***");
                 }
               }
 
@@ -740,71 +850,262 @@ namespace OptiAssistant
             // crop optis from one another when there are multiple dose levels
             if (MultipleDoseLevels_CB.IsChecked == true)
             {
-              // loop through the optis that were made
-              foreach (var opti in optisMade)
+              try
               {
-                // if two dose levels defined
+                // if multiple dose levels need to set opti crop margin as well as determine which targets correspond to which dose levels
                 if (hasTwoDoseLevels)
                 {
-                  if (opti1 != null && opti2 != null)
+                  // set opti crop margins for the dose levels
+                  
+                  // 1
+                  if (DoseLevel1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(DoseLevel1CropMargin_TextBox.Text))
                   {
-                    // crop opti 1 from opti 2
-                    if (opti.Id == opti1.Id)
+                    doseLevel1CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                  }
+                  else
+                  {
+                    if (int.TryParse(DoseLevel1CropMargin_TextBox.Text, out doseLevel1CropMargin))
                     {
-                      opti.SegmentVolume = Helpers.CropOpti(opti, opti2, optiCropMargin);
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      doseLevel1CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                      //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel1CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
                     }
                   }
+
+                  // 2
+                  if (DoseLevel2CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(DoseLevel2CropMargin_TextBox.Text))
+                  {
+                    doseLevel2CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                  }
+                  else
+                  {
+                    if (int.TryParse(DoseLevel2CropMargin_TextBox.Text, out doseLevel2CropMargin))
+                    {
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      doseLevel2CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                      //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel2CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
+                    }
+                  }
+
                 }
-                // if three dose levels defined
+
                 else if (hasThreeDoseLevels)
                 {
-                  if (opti1 != null && opti2 != null && opti3 != null)
+                  // set opti crop margins for the dose levels
+
+                  // 1
+                  if (DoseLevel1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(DoseLevel1CropMargin_TextBox.Text))
                   {
-                    // crop opti 1 from optis 2 and 3
-                    if (opti.Id == opti1.Id)
+                    doseLevel1CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                  }
+                  else
+                  {
+                    if (int.TryParse(DoseLevel1CropMargin_TextBox.Text, out doseLevel1CropMargin))
                     {
-                      opti.SegmentVolume = Helpers.CropOpti(opti, opti2, optiCropMargin);
-                      opti.SegmentVolume = Helpers.CropOpti(opti, opti3, optiCropMargin);
+                      //parsing successful 
                     }
-                    // crop opti 2 from opti 3
-                    if (opti.Id == opti2.Id)
+                    else
                     {
-                      opti.SegmentVolume = Helpers.CropOpti(opti, opti3, optiCropMargin);
+                      //parsing failed. 
+                      doseLevel1CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                      //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel1CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
                     }
                   }
-                }
-                // if four dose levels defined
-                else if (hasFourDoseLevels)
-                {
-                  if (opti1 != null && opti2 != null && opti3 != null && opti4 != null)
+                  // 2
+                  if (DoseLevel2CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(DoseLevel2CropMargin_TextBox.Text))
                   {
-                    // crop opti 1 from optis 2, 3, and 4
-                    if (opti.Id == opti1.Id)
+                    doseLevel2CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                  }
+                  else
+                  {
+                    if (int.TryParse(DoseLevel2CropMargin_TextBox.Text, out doseLevel2CropMargin))
                     {
-                      opti.SegmentVolume = Helpers.CropOpti(opti, opti2, optiCropMargin);
-                      opti.SegmentVolume = Helpers.CropOpti(opti, opti3, optiCropMargin);
-                      opti.SegmentVolume = Helpers.CropOpti(opti, opti4, optiCropMargin);
+                      //parsing successful 
                     }
-                    // crop opti 2 from optis 3 and 4
-                    if (opti.Id == opti2.Id)
+                    else
                     {
-                      opti.SegmentVolume = Helpers.CropOpti(opti, opti3, optiCropMargin);
-                      opti.SegmentVolume = Helpers.CropOpti(opti, opti4, optiCropMargin);
+                      //parsing failed. 
+                      doseLevel2CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                      //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel2CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
                     }
-                    // crop opti 3 from opti 4
-                    if (opti.Id == opti3.Id)
+                  }
+                  // 3
+                  if (DoseLevel3CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(DoseLevel3CropMargin_TextBox.Text))
+                  {
+                    doseLevel3CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                  }
+                  else
+                  {
+                    if (int.TryParse(DoseLevel3CropMargin_TextBox.Text, out doseLevel3CropMargin))
                     {
-                      opti.SegmentVolume = Helpers.CropOpti(opti, opti4, optiCropMargin);
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      doseLevel3CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                      //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel3CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
                     }
                   }
                 }
 
-                else
+                else if (hasFourDoseLevels)
                 {
-                  MessageBox.Show("Oops, something went wrong while Cropping Opti PTVs");
+                  // set opti crop margins for the dose levels
+                  
+                  // 1
+                  if (DoseLevel1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(DoseLevel1CropMargin_TextBox.Text))
+                  {
+                    doseLevel1CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                  }
+                  else
+                  {
+                    if (int.TryParse(DoseLevel1CropMargin_TextBox.Text, out doseLevel1CropMargin))
+                    {
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      doseLevel1CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                      //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel1CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
+                    }
+                  }
+                  // 2
+                  if (DoseLevel2CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(DoseLevel2CropMargin_TextBox.Text))
+                  {
+                    doseLevel2CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                  }
+                  else
+                  {
+                    if (int.TryParse(DoseLevel2CropMargin_TextBox.Text, out doseLevel2CropMargin))
+                    {
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      doseLevel2CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                      //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel2CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
+                    }
+                  }
+                  // 3
+                  if (DoseLevel3CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(DoseLevel3CropMargin_TextBox.Text))
+                  {
+                    doseLevel3CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                  }
+                  else
+                  {
+                    if (int.TryParse(DoseLevel3CropMargin_TextBox.Text, out doseLevel3CropMargin))
+                    {
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      doseLevel3CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                      //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel3CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
+                    }
+                  }
+                }
+
+              }
+              catch
+              {
+                MESSAGES += string.Format("\r\n\t- ***Trouble Parsing Dose Level Crop Margins -- Default Values of {0} mm used***", DEFAULT_OPTI_CROP_MARGIN);
+                doseLevel1CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                doseLevel2CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+                doseLevel3CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+              }
+              try
+              {
+                // loop through the optis that were made
+                foreach (var opti in optisMade)
+                {
+                  // if two dose levels defined
+                  if (hasTwoDoseLevels)
+                  {
+                    if (opti1 != null && opti2 != null)
+                    {
+                      // crop opti 1 from opti 2
+                      if (opti.Id == opti1.Id)
+                      {
+                        opti.SegmentVolume = Helpers.CropOpti(opti, opti2, doseLevel1CropMargin);
+                      }
+                    }
+                  }
+                  // if three dose levels defined
+                  else if (hasThreeDoseLevels)
+                  {
+                    if (opti1 != null && opti2 != null && opti3 != null)
+                    {
+                      // crop opti 1 from optis 2 and 3
+                      if (opti.Id == opti1.Id)
+                      {
+                        opti.SegmentVolume = Helpers.CropOpti(opti, opti2, doseLevel1CropMargin);
+                        opti.SegmentVolume = Helpers.CropOpti(opti, opti3, doseLevel1CropMargin);
+                      }
+                      // crop opti 2 from opti 3
+                      if (opti.Id == opti2.Id)
+                      {
+                        opti.SegmentVolume = Helpers.CropOpti(opti, opti3, doseLevel2CropMargin);
+                      }
+                    }
+                  }
+                  // if four dose levels defined
+                  else if (hasFourDoseLevels)
+                  {
+                    if (opti1 != null && opti2 != null && opti3 != null && opti4 != null)
+                    {
+                      // crop opti 1 from optis 2, 3, and 4
+                      if (opti.Id == opti1.Id)
+                      {
+                        opti.SegmentVolume = Helpers.CropOpti(opti, opti2, doseLevel1CropMargin);
+                        opti.SegmentVolume = Helpers.CropOpti(opti, opti3, doseLevel1CropMargin);
+                        opti.SegmentVolume = Helpers.CropOpti(opti, opti4, doseLevel1CropMargin);
+                      }
+                      // crop opti 2 from optis 3 and 4
+                      if (opti.Id == opti2.Id)
+                      {
+                        opti.SegmentVolume = Helpers.CropOpti(opti, opti3, doseLevel2CropMargin);
+                        opti.SegmentVolume = Helpers.CropOpti(opti, opti4, doseLevel2CropMargin);
+                      }
+                      // crop opti 3 from opti 4
+                      if (opti.Id == opti3.Id)
+                      {
+                        opti.SegmentVolume = Helpers.CropOpti(opti, opti4, doseLevel3CropMargin);
+                      }
+                    }
+                  }
+
+                  else
+                  {
+                    MessageBox.Show("Oops, something went wrong while Cropping Opti PTVs");
+                  }
                 }
               }
-            }
+              catch
+              {
+                MESSAGES += string.Format("\r\n\t- ***Trouble Cropping Multiple Dose Level Opti Structures***");
+              }
+
+              }
 
           }
 
@@ -870,7 +1171,7 @@ namespace OptiAssistant
               for (var i = 0; i < ringCount; i++)
               {
                 var ringNum = i + 1;
-                var ringId = string.Format("{0} {1} {2}", ringPrefix, target.Id, ringNum);
+                var ringId = string.Format("{0} {1} {2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - ringPrefix.Length), ringNum);
 
                 // remove ring structure if present in ss
                 Helpers.RemoveStructure(ss, ringId);
@@ -913,8 +1214,8 @@ namespace OptiAssistant
 
               for (var i = ringCount; i > 1; i--)
               {
-                var currentRingId = string.Format("{0} {1} {2}", ringPrefix, target.Id, i);
-                var nextLargestRingId = string.Format("{0} {1} {2}", ringPrefix, target.Id, i - 1);
+                var currentRingId = string.Format("{0} {1} {2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - ringPrefix.Length), i);
+                var nextLargestRingId = string.Format("{0} {1} {2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - ringPrefix.Length), i - 1);
                 try
                 {
                   var currentRing = ss.Structures.Single(st => st.Id == currentRingId);
@@ -941,12 +1242,12 @@ namespace OptiAssistant
           Helpers.RemoveStructure(ss, "zzzTEMP");
           foreach (var t in sorted_ptvList)
           {
-            Helpers.RemoveStructure(ss, string.Format("zz{0}_HR", t.Id));
+            Helpers.RemoveStructure(ss, string.Format("zz{0}_HR", Helpers.ProcessStructureId(t.Id.ToString(), MAX_ID_LENGTH - 5)));
           }
 
           #endregion clean up structure set
 
-          MESSAGES += "\r\n\r\n\tNOTE: *** Denotes there was an issue occur during the tasks process\r\n\r\n";
+          MESSAGES += "\r\n\r\n\tNOTE: *** Denotes an issue occured during the task's process\r\n\r\n";
 
           MessageBox.Show(MESSAGES, "General Steps Completed");
         }
@@ -958,6 +1259,13 @@ namespace OptiAssistant
     // event fired when opti option selected/unselected - crop from body option || multiple dose levels option
     private void HandleOptiOptionsSelection(object sender, RoutedEventArgs e)
     {
+      // if any opti structure options checked : show the options section
+      if (CropFromBody_CB.IsChecked == true || MultipleDoseLevels_CB.IsChecked == true || CreateCI_CB.IsChecked == true || CreateR50_CB.IsChecked == true)
+      {
+        if (OptiOptions_SP.Visibility == Visibility.Collapsed) { OptiOptions_SP.Visibility = Visibility.Visible; }
+      }
+
+      // if crop or multi dose levels checked
       if (CropFromBody_CB.IsChecked == true || MultipleDoseLevels_CB.IsChecked == true)
       {
 
@@ -967,12 +1275,35 @@ namespace OptiAssistant
         MultiDoseLevelOptions_SP.Visibility = MultipleDoseLevels_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
 
         // show options if either is checked
-        if (OptiOptions_SP.Visibility == Visibility.Collapsed) { OptiOptions_SP.Visibility = Visibility.Visible; }
-
-        cropFromBody = CropFromBody_CB.IsChecked == true ? true : false;
+        if (CropOptions_SP.Visibility == Visibility.Collapsed) { CropOptions_SP.Visibility = Visibility.Visible; }
 
       }
+
+      // if crop and multi dose levels unchecked
       if (CropFromBody_CB.IsChecked == false && MultipleDoseLevels_CB.IsChecked == false)
+      {
+        if (CropOptions_SP.Visibility == Visibility.Visible) { CropOptions_SP.Visibility = Visibility.Collapsed; }
+
+        // collapese sections
+        CropFromBody_SP.Visibility = Visibility.Collapsed;
+        CropFromOptis_SP.Visibility = Visibility.Collapsed;
+        MultiDoseLevelOptions_SP.Visibility = Visibility.Collapsed;
+      }
+
+      // if create ci or r50 structure checked
+      if (CreateCI_CB.IsChecked == true || CreateR50_CB.IsChecked == true)
+      {
+        // reveal/hide options first
+        CI_R50_SP.Visibility = CreateCI_CB.IsChecked == true || CreateR50_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        CIMargin_SP.Visibility = CreateCI_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        R50Margin_SP.Visibility = CreateR50_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+
+        // then show options if either is checked
+        if (OptiOptions_SP.Visibility == Visibility.Collapsed) { OptiOptions_SP.Visibility = Visibility.Visible; }
+      }
+
+      // if none of the options are checked
+      if (CropFromBody_CB.IsChecked == false && MultipleDoseLevels_CB.IsChecked == false && CreateCI_CB.IsChecked == false && CreateR50_CB.IsChecked == false)
       {
         // show options if either is checked
         OptiOptions_SP.Visibility = Visibility.Collapsed;
@@ -981,7 +1312,9 @@ namespace OptiAssistant
         CropFromBody_SP.Visibility = Visibility.Collapsed;
         CropFromOptis_SP.Visibility = Visibility.Collapsed;
         MultiDoseLevelOptions_SP.Visibility = Visibility.Collapsed;
-
+        CI_R50_SP.Visibility = Visibility.Collapsed;
+        CIMargin_SP.Visibility = Visibility.Collapsed;
+        R50Margin_SP.Visibility = Visibility.Collapsed;
       }
     }
 
