@@ -42,9 +42,20 @@ namespace OptiAssistant
 
     public static Structure GetBody(StructureSet ss)
     {
-      return ss.Structures.Single(st => st.DicomType == "BODY");
+      return ss.Structures.Single(st => st.DicomType == "EXTERNAL");
 
       //return ss.Structures.Single(x => x.Id.ToLower() == "body" || x.Id.ToLower() == "external");
+    }
+
+    /// <summary>
+    /// Return a structure from a given StructureSet and its Id
+    /// </summary>
+    /// <param name="ss"></param>
+    /// <param name="structureId"></param>
+    /// <returns></returns>
+    public static Structure GetStructure(StructureSet ss, string structureId)
+    {
+      return ss.Structures.Single(st => st.Id == structureId);
     }
 
     /// <summary>
@@ -95,9 +106,9 @@ namespace OptiAssistant
     /// <param name="StructureToCropFrom"></param>
     /// <param name="cropMargin"></param>
     /// <returns></returns>
-    public static SegmentVolume CropStructure(Structure structureToCrop, Structure StructureToCropFrom, double cropMargin)
+    public static SegmentVolume CropStructure(SegmentVolume structureToCrop, SegmentVolume structureToCropFrom, double cropMargin)
     {
-      return structureToCrop.SegmentVolume.Sub(StructureToCropFrom.SegmentVolume.Margin(cropMargin));
+      return structureToCrop.Sub(structureToCropFrom.Margin(cropMargin));
     }
 
     /// <summary>
@@ -121,7 +132,8 @@ namespace OptiAssistant
     /// <returns></returns>
     public static SegmentVolume CropOutsideBodyWithMargin(Structure structure, Structure body, double cropMargin = -4)
     {
-      return structure.SegmentVolume.And(body.SegmentVolume.Margin(cropMargin));
+      if (cropMargin == 0) { return structure.SegmentVolume.And(body.SegmentVolume); }
+      else { return structure.SegmentVolume.And(body.SegmentVolume.Margin(cropMargin)); }
     }
 
     /// <summary>
@@ -154,9 +166,17 @@ namespace OptiAssistant
     public static Structure BooleanStructures(List<Structure> structuresToBoolean)
     {
       Structure combinedStructure = structuresToBoolean[0];
-      foreach (var s in structuresToBoolean)
+      combinedStructure.SegmentVolume = structuresToBoolean[0].SegmentVolume;
+      if (structuresToBoolean.Count() > 1)
       {
-        combinedStructure.SegmentVolume = combinedStructure.SegmentVolume.Or(s.SegmentVolume);
+        foreach (var s in structuresToBoolean)
+        {
+          if (s.IsHighResolution)
+          {
+            MessageBox.Show(string.Format("The {0} is a High Resolution Structure and may not be booleaned. Please make sure all Targets are either High Res or Not.", s.Id));
+          }
+          combinedStructure.SegmentVolume = combinedStructure.SegmentVolume.Or(s.SegmentVolume);
+        }
       }
       return combinedStructure;
     }
@@ -166,12 +186,45 @@ namespace OptiAssistant
    /// </summary>
    /// <param name="structuresToBoolean"></param>
    /// <returns>Returns a booleaned structure</returns>
-    public static Structure BooleanStructures(IEnumerable<Structure> structuresToBoolean)
+    public static SegmentVolume BooleanStructures(StructureSet ss, IEnumerable<Structure> structuresToBoolean)
     {
-      Structure combinedStructure = structuresToBoolean.First();
+      Structure combinedStructure = ss.AddStructure("CONTROL", "zzzTEMP");
+      combinedStructure.SegmentVolume = structuresToBoolean.First().SegmentVolume;
+
       foreach (var s in structuresToBoolean)
       {
         combinedStructure.SegmentVolume = combinedStructure.SegmentVolume.Or(s.SegmentVolume);
+      }
+      
+      return combinedStructure.SegmentVolume;
+    }
+
+    /// <summary>
+    /// Boolean a list of Structure Ids
+    /// </summary>
+    /// <param name="structureIdsToBoolean"></param>
+    /// <returns>Returns a booleaned structure</returns>
+    public static Structure BooleanStructures(StructureSet ss, List<string> structureIdsToBoolean)
+    {
+      Structure combinedStructure = ss.Structures.Single(st => st.Id == structureIdsToBoolean[0].ToString());
+      foreach (var s in structureIdsToBoolean)
+      {
+        combinedStructure.SegmentVolume = combinedStructure.SegmentVolume.Or(ss.Structures.Single(st => st.Id == s.ToString()).SegmentVolume);
+      }
+      return combinedStructure;
+    }
+
+    /// <summary>
+    /// Boolean an IEnumerable collection of Structure Ids
+    /// </summary>
+    /// <param name="structureIdsToBoolean"></param>
+    /// <returns>Returns a booleaned structure</returns>
+    public static Structure BooleanStructures(StructureSet ss, IEnumerable<string> structureIdsToBoolean)
+    {
+      Structure combinedStructure = ss.Structures.Single(st => st.Id == structureIdsToBoolean.First().ToString());
+      foreach (var s in structureIdsToBoolean)
+      {
+        combinedStructure.SegmentVolume = combinedStructure.SegmentVolume.Or(ss.Structures.Single(st => st.Id == s.ToString()).SegmentVolume);
       }
       return combinedStructure;
     }

@@ -7,7 +7,7 @@
     <ProjectGuid>{29B1C5C4-4662-4451-86F4-D74D680A4BA7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>VMS.TPS</RootNamespace>
-    <AssemblyName>OptiAssistant_v15_TEST_10000000000000000.esapi</AssemblyName>
+    <AssemblyName>OptiAssistant_v15_PEER-REVIEW_001.esapi</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>

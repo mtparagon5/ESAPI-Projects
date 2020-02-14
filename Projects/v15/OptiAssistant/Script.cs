@@ -1,10 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using VMS.TPS.Common.Model.API;
+
+// TODO: Replace the following version attributes by creating AssemblyInfo.cs. You can do this in the properties of the Visual Studio project.
+//[assembly: AssemblyVersion("1.0.0.1")]
+//[assembly: AssemblyFileVersion("1.0.0.1")]
+//[assembly: AssemblyInformationalVersion("1.0")]
+
+// TODO: Uncomment the following line if the script requires write access.
+[assembly: ESAPIScript(IsWriteable = true)]
+
 
 namespace VMS.TPS
 {
@@ -22,6 +32,18 @@ namespace VMS.TPS
 
       #region context variable definitions
 
+      if (context.StructureSet == null)
+      {
+        throw new ApplicationException("Oops, there doesn't seem to be an active structureset.");
+      }
+
+      StructureSet structureSet = context.StructureSet;
+      string pId = context.Patient.Id;
+      ProcessIdName.getRandomId(pId, out string rId);
+      string course = context.Course != null ? context.Course.Id.ToString().Replace(" ", "_") : "NA";
+      string pName = ProcessIdName.processPtName(context.Patient.Name);
+
+      #region unused
       //PlanningItem selectedPlanningItem;
       //PlanSetup planSetup;
       //if (context.PlanSetup == null)
@@ -34,17 +56,7 @@ namespace VMS.TPS
       //  selectedPlanningItem = (PlanningItem)planSetup;
       //  structureSet = planSetup?.StructureSet;
       //}
-
-      if (context.StructureSet == null)
-      {
-        throw new ApplicationException("Oops, there doesn't seem to be an active structureset.");
-      }
-
-      StructureSet structureSet = context.StructureSet;
-      string pId = context.Patient.Id;
-      ProcessIdName.getRandomId(pId, out string rId);
-      string course = context.Course != null ? context.Course.Id.ToString().Replace(" ", "_") : "NA";
-      string pName = ProcessIdName.processPtName(context.Patient.Name);
+      #endregion unused
 
       #endregion
       //---------------------------------------------------------------------------------
@@ -57,7 +69,7 @@ namespace VMS.TPS
       window.Content = mainControl;
       window.SizeToContent = SizeToContent.WidthAndHeight;
       window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-      window.Title = "Opti Structure Assistant";
+      window.Title = "Opti Assistant - Create Optimization Structures With Ease";
 
       #endregion
       //---------------------------------------------------------------------------------
@@ -84,7 +96,7 @@ namespace VMS.TPS
       mainControl.courseName = course;
 
       // isGrady -- they don't have direct access to S Drive (to write files)
-      var is_grady = MessageBox.Show("Are you accessing this script from the Grady Campus?", "Direct $S Drive Access", MessageBoxButton.YesNo, MessageBoxImage.Question);
+      var is_grady = MessageBox.Show("Are you accessing this script from the Grady Campus AND/OR from an Eclipse TBox?", "Direct $S Drive Access", MessageBoxButton.YesNo, MessageBoxImage.Question);
       if (is_grady == MessageBoxResult.Yes)
       {
         mainControl.isGrady = true;
@@ -114,6 +126,22 @@ namespace VMS.TPS
       #endregion structure organization and ordering
       //---------------------------------------------------------------------------------
       #region populate listviews
+
+      // warn user if there are High Res Structures
+      mainControl.highresMessage = string.Empty;
+      foreach (var s in mainControl.sorted_structureList)
+      {
+        if (s.IsHighResolution) { mainControl.highresMessage += string.Format("- {0}\r\n\t", s.Id); mainControl.hasHighRes = true; }
+      }
+      foreach (var t in mainControl.sorted_ptvList)
+      {
+        if (t.IsHighResolution) { mainControl.needHRStructures = true; }
+      }
+
+      if (mainControl.hasHighRes)
+      {
+        MessageBox.Show(string.Format("The Following Are High Res Structures:\r\n\t{0}\r\n\r\nVerify accuracy of any avoidance, opti, or ring structures you create involving these structures.\r\n\r\nSometimes there can be issues when High Res Structures are involved.", mainControl.highresMessage));
+      }
 
       if (mainControl.sorted_ptvList.Count() < 1)
       {

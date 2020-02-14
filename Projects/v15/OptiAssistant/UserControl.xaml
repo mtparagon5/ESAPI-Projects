@@ -50,7 +50,7 @@
               </Grid.ColumnDefinitions>
 
               <Label  Grid.Column="1"
-                      Content="Opti Assistant - Create Optimization Structures With Ease"
+                      Content="Opti Assistant"
                       Foreground="White"
                       Background="Transparent"
                       BorderThickness="0"
@@ -167,6 +167,20 @@
                                 Margin="5,0"
                                 Foreground="#034f84"/>
                   </StackPanel>
+
+                  <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
+                    <Label Content="Margin Options"
+                             VerticalAlignment="Center"
+                             FontSize="13"
+                             Foreground="#034f84"/>
+                  </StackPanel>
+                  <Label Content="____________________________________________________________________________"
+                            Margin="0,-20,0,0"
+                            HorizontalAlignment="Center"
+                            VerticalContentAlignment="Top"
+                            FontSize="13"
+                            Foreground="#034f84"/>
                   <!--Grow Margin-->
                   <StackPanel Orientation="Horizontal"
                               HorizontalAlignment="Center"
@@ -196,8 +210,8 @@
                               HorizontalAlignment="Center"
                               Width="315"
                               x:Name="CropAvoidsFromPTVs"
-                              Visibility="Collapsed">
-                    <Label Content="Crop Margin [mm]:"
+                              Visibility="Visible">
+                    <Label Content="From Target [mm]:"
                             Width="120"
                             FontSize="13"
                             Foreground="#034f84"/>
