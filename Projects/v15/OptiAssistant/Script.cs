@@ -143,17 +143,23 @@ namespace VMS.TPS
         MessageBox.Show(string.Format("The Following Are High Res Structures:\r\n\t{0}\r\n\r\nVerify accuracy of any avoidance, opti, or ring structures you create involving these structures.\r\n\r\nSometimes there can be issues when High Res Structures are involved.", mainControl.highresMessage));
       }
 
+      // populate option listviews
       if (mainControl.sorted_ptvList.Count() < 1)
       {
         MessageBox.Show("There are no PTVs detected. The tools for Opti PTV and Ring Creation are disabled.");
         mainControl.CreateOptis_CB.IsEnabled = false;
         mainControl.CreateRings_CB.IsEnabled = false;
         mainControl.hasNoPTV = true;
+
+        mainControl.BooleanAllTargets_CB.IsEnabled = false;
+        mainControl.MultipleAvoidTargets_CB.IsEnabled = false;
       }
       else if (mainControl.sorted_ptvList.Count() == 1)
       {
         mainControl.MultipleDoseLevels_CB.IsEnabled = false;
         mainControl.hasSinglePTV  = true;
+
+        mainControl.MultipleAvoidTargets_CB.IsEnabled = false;
       }
       else
       {
@@ -161,24 +167,18 @@ namespace VMS.TPS
         mainControl.hasMultiplePTVs = true;
         mainControl.DoseLevel1_Radio.IsChecked = true;
 
-        mainControl.DoseLevel1_Combo.Items.Add("");
-        mainControl.DoseLevel2_Combo.Items.Add("");
-        mainControl.DoseLevel3_Combo.Items.Add("");
-        mainControl.DoseLevel4_Combo.Items.Add("");
-
         foreach (var s in mainControl.sorted_ptvList)
         {
-          mainControl.DoseLevel1_Combo.Items.Add(s.Id);
-          mainControl.DoseLevel2_Combo.Items.Add(s.Id);
-          mainControl.DoseLevel3_Combo.Items.Add(s.Id);
-          mainControl.DoseLevel4_Combo.Items.Add(s.Id);
+          mainControl.DoseLevel1_Combo.Items.Add(s.Id); mainControl.AvoidTarget1_Combo.Items.Add(s.Id);
+          mainControl.DoseLevel2_Combo.Items.Add(s.Id); mainControl.AvoidTarget2_Combo.Items.Add(s.Id);
+          mainControl.DoseLevel3_Combo.Items.Add(s.Id); mainControl.AvoidTarget3_Combo.Items.Add(s.Id);
+          mainControl.DoseLevel4_Combo.Items.Add(s.Id); mainControl.AvoidTarget4_Combo.Items.Add(s.Id);
         }
       }
 
       // populate listviews with structures on startup
       if (mainControl.sorted_oarList != null) { foreach (Structure s in mainControl.sorted_oarList) { mainControl.OarList_LV.Items.Add(s.Id); } }
-      if (mainControl.sorted_ptvList != null) { foreach (Structure t in mainControl.sorted_ptvList) { mainControl.PTVList_LV.Items.Add(t.Id); } }
-      if (mainControl.sorted_ptvList != null) { foreach (Structure t in mainControl.sorted_ptvList) { mainControl.PTVListForRings_LV.Items.Add(t.Id); } }
+      if (mainControl.sorted_ptvList != null) { foreach (Structure t in mainControl.sorted_ptvList) { mainControl.PTVList_LV.Items.Add(t.Id); mainControl.PTVListForRings_LV.Items.Add(t.Id); } }
      
       #endregion
       //---------------------------------------------------------------------------------

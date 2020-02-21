@@ -34,7 +34,7 @@ namespace OptiAssistant
 
     // MAX STRING LENGTH DEFAULTS
     const int MAX_PREFIX_LENGTH = 7;
-    const int MAX_ID_LENGTH = 15;
+    const int MAX_ID_LENGTH = 15; // reduced from 16 to 15 to account for space bw prefix and id
 
     // AVOIDANCE STRUCTURE DEFAULTS
     const string DEFAULT_AVOIDANCE_PREFIX = "zav";
@@ -126,6 +126,13 @@ namespace OptiAssistant
     public int doseLevel1CropMargin = DEFAULT_OPTI_CROP_MARGIN;
     public int doseLevel2CropMargin = DEFAULT_OPTI_CROP_MARGIN;
     public int doseLevel3CropMargin = DEFAULT_OPTI_CROP_MARGIN;
+
+    public bool boolAllTargetsForAvoids = false;
+    public bool createAvoidsForMultipleTargets = false;
+    public int avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+    public int avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+    public int avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+    public int avoidTarget4CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
     //public bool createOptiGTVForSingleLesion = false;
     //public bool createOptiTotal = false;
 
@@ -210,7 +217,111 @@ namespace OptiAssistant
     }
 
     // temp create structures function to allow for design testing
-    //public void CreateStructures_Btn_Click(object sender, RoutedEventArgs e) { }
+    public void CreateStructures_Btn_Click_DEV(object sender, RoutedEventArgs e) 
+    {
+      #region validation
+
+      // validation
+      if (CreateAvoids_CB.IsChecked == false && CreateOptis_CB.IsChecked == false && CreateRings_CB.IsChecked == false)
+      {
+        MessageBox.Show("Oops, it seems no tasks were selected.\n\nPlease select which structures you would like assistance in creating.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+        
+      }
+      if (CreateAvoids_CB.IsChecked == true && MultipleAvoidTargets_CB.IsChecked == true)
+      {
+        // if avoid targets aren't selected
+        if (AvoidTarget1_Radio.IsChecked == true && AvoidTarget1_Combo.SelectedIndex < 0)
+        {
+          MessageBox.Show("It appears you'd like to create unique avoidance structures for one target:\n\n\t- At least one target should be specified.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+          
+        }
+        if (AvoidTarget2_Radio.IsChecked == true && (AvoidTarget1_Combo.SelectedIndex < 0 || AvoidTarget2_Combo.SelectedIndex < 0))
+        {
+          MessageBox.Show("It appears you'd like to create unique avoidance structures for two targets:\n\n\t- At least two targets should be specified.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+          
+        }
+        if (AvoidTarget3_Radio.IsChecked == true && (AvoidTarget1_Combo.SelectedIndex < 0 || AvoidTarget2_Combo.SelectedIndex < 0 || AvoidTarget3_Combo.SelectedIndex < 0))
+        {
+          MessageBox.Show("It appears you'd like to create unique avoidance structures for three targets:\n\n\t- At least three targets should be specified.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+          
+        }
+        if (AvoidTarget4_Radio.IsChecked == true && (AvoidTarget1_Combo.SelectedIndex < 0 || AvoidTarget2_Combo.SelectedIndex < 0 || AvoidTarget3_Combo.SelectedIndex < 0 || AvoidTarget4_Combo.SelectedIndex < 0))
+        {
+          MessageBox.Show("It appears you'd like to create unique avoidance structures for four targets:\n\n\t- At least four targets should be specified.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+          
+        }
+        // if selected dose level targets are the same
+        if (AvoidTarget2_Radio.IsChecked == true && (AvoidTarget1_Combo.SelectedIndex == AvoidTarget2_Combo.SelectedIndex)) { MessageBox.Show("The selected Avoid Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+        if (AvoidTarget3_Radio.IsChecked == true && ((AvoidTarget1_Combo.SelectedIndex == AvoidTarget2_Combo.SelectedIndex) || (AvoidTarget1_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex) || (AvoidTarget2_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Avoid Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+        if (AvoidTarget4_Radio.IsChecked == true && ((AvoidTarget1_Combo.SelectedIndex == AvoidTarget2_Combo.SelectedIndex) || (AvoidTarget1_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex) || (AvoidTarget1_Combo.SelectedIndex == AvoidTarget4_Combo.SelectedIndex) || (AvoidTarget2_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex) || (AvoidTarget2_Combo.SelectedIndex == AvoidTarget4_Combo.SelectedIndex) || (AvoidTarget3_Combo.SelectedIndex == AvoidTarget4_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Avoid Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+      }
+      if (CreateOptis_CB.IsChecked == true && MultipleDoseLevels_CB.IsChecked == true)
+      {
+        // if selected counts don't match
+        if (DoseLevel1_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 1) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+        if (DoseLevel2_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 2) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+        if (DoseLevel3_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 3) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+        if (DoseLevel4_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 4) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+        // dose level targets aren't selected
+        if (DoseLevel1_Radio.IsChecked == true && DoseLevel1_Combo.SelectedIndex < 0)
+        {
+          MessageBox.Show("One Dose Level has been selected:\n\n\t- At least one target should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+          
+        }
+        if (DoseLevel2_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex < 0 || DoseLevel2_Combo.SelectedIndex < 0))
+        {
+          MessageBox.Show("Two Dose Levels have been selected:\n\n\t- Targets for at least two dose levels should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+          
+        }
+        if (DoseLevel3_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex < 0 || DoseLevel2_Combo.SelectedIndex < 0 || DoseLevel3_Combo.SelectedIndex < 0))
+        {
+          MessageBox.Show("Three Dose Levels have been selected:\n\n\t- Targets for at least three dose levels should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+          
+        }
+        if (DoseLevel4_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex < 0 || DoseLevel2_Combo.SelectedIndex < 0 || DoseLevel3_Combo.SelectedIndex < 0 || DoseLevel4_Combo.SelectedIndex < 0))
+        {
+          MessageBox.Show("Four Dose Levels have been selected:\n\n\t- Targets for at least four dose levels should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+          
+        }
+        // if selected dose level targets are the same
+        if (DoseLevel2_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex == DoseLevel2_Combo.SelectedIndex)) { MessageBox.Show("The selected Dose Level Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+        if (DoseLevel3_Radio.IsChecked == true && ((DoseLevel1_Combo.SelectedIndex == DoseLevel2_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Dose Level Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+        if (DoseLevel4_Radio.IsChecked == true && ((DoseLevel1_Combo.SelectedIndex == DoseLevel2_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex) || (DoseLevel3_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Dose Level Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+
+      }
+      if (CreateAvoids_CB.IsChecked == true && OarList_LV.SelectedItems.Count == 0)
+      {
+        MessageBox.Show("Oops, it appears you'd like to create avoid structures but haven't selected any structures to create avoids for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+        
+      }
+      if (CreateOptis_CB.IsChecked == true && PTVList_LV.SelectedItems.Count == 0)
+      {
+        MessageBox.Show("Oops, it appears you'd like to create opti ptv structures but haven't selected any targets to create optis for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+        
+      }
+      if (CreateRings_CB.IsChecked == true && PTVListForRings_LV.SelectedItems.Count == 0)
+      {
+        MessageBox.Show("Oops, it appears you'd like to create ring structures but haven't selected any targets to create rings for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+        
+      }
+      if (AvoidPrefix_TextBox.Text.Length > MAX_PREFIX_LENGTH)
+      {
+        MessageBox.Show(string.Format("Oops, it appears you've chosen a Prefix for your Avoid Structures that is {0} characters in length:\r\n\r\n\t- Please limit your prefix to a max of {1} characters", AvoidPrefix_TextBox.Text.Length, MAX_PREFIX_LENGTH), "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+        
+      }
+      if (OptiPrefix_TextBox.Text.Length > MAX_PREFIX_LENGTH)
+      {
+        MessageBox.Show(string.Format("Oops, it appears you've chosen a Prefix for your Opti Structures that is {0} in length:\r\n\r\n\t- Please limit your prefix to a max of {1} characters", OptiPrefix_TextBox.Text.Length, MAX_PREFIX_LENGTH), "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+        
+      }
+      if (RingPrefix_TextBox.Text.Length > MAX_PREFIX_LENGTH)
+      {
+        MessageBox.Show(string.Format("Oops, it appears you've chosen a Prefix for your Ring Structures that is {0} in length:\r\n\r\n\t- Please limit your prefix to a max of {1} characters", RingPrefix_TextBox.Text.Length, MAX_PREFIX_LENGTH), "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+        
+      }
+
+      #endregion validation
+    }
 
     // create structures button
     public void CreateStructures_Btn_Click(object sender, RoutedEventArgs e)
@@ -256,32 +367,67 @@ namespace OptiAssistant
         MessageBox.Show("Oops, it seems no tasks were selected.\n\nPlease select which structures you would like assistance in creating.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         continueToCreateStructures = false;
       }
+      if (CreateAvoids_CB.IsChecked == true && MultipleAvoidTargets_CB.IsChecked == true)
+      {
+        // if avoid targets aren't selected
+        if (AvoidTarget1_Radio.IsChecked == true && AvoidTarget1_Combo.SelectedIndex < 0)
+        {
+          MessageBox.Show("It appears you'd like to create unique avoidance structures for one target:\n\n\t- At least one target should be specified.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+          continueToCreateStructures = false;
+        }
+        if (AvoidTarget2_Radio.IsChecked == true && (AvoidTarget1_Combo.SelectedIndex < 0 || AvoidTarget2_Combo.SelectedIndex < 0))
+        {
+          MessageBox.Show("It appears you'd like to create unique avoidance structures for two targets:\n\n\t- At least two targets should be specified.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+          continueToCreateStructures = false;
+        }
+        if (AvoidTarget3_Radio.IsChecked == true && (AvoidTarget1_Combo.SelectedIndex < 0 || AvoidTarget2_Combo.SelectedIndex < 0 || AvoidTarget3_Combo.SelectedIndex < 0))
+        {
+          MessageBox.Show("It appears you'd like to create unique avoidance structures for three targets:\n\n\t- At least three targets should be specified.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+          continueToCreateStructures = false;
+        }
+        if (AvoidTarget4_Radio.IsChecked == true && (AvoidTarget1_Combo.SelectedIndex < 0 || AvoidTarget2_Combo.SelectedIndex < 0 || AvoidTarget3_Combo.SelectedIndex < 0 || AvoidTarget4_Combo.SelectedIndex < 0))
+        {
+          MessageBox.Show("It appears you'd like to create unique avoidance structures for four targets:\n\n\t- At least four targets should be specified.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+          continueToCreateStructures = false;
+        }
+        // if selected dose level targets are the same
+        if (AvoidTarget2_Radio.IsChecked == true && (AvoidTarget1_Combo.SelectedIndex == AvoidTarget2_Combo.SelectedIndex)) { MessageBox.Show("The selected Avoid Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
+        if (AvoidTarget3_Radio.IsChecked == true && ((AvoidTarget1_Combo.SelectedIndex == AvoidTarget2_Combo.SelectedIndex) || (AvoidTarget1_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex) || (AvoidTarget2_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Avoid Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
+        if (AvoidTarget4_Radio.IsChecked == true && ((AvoidTarget1_Combo.SelectedIndex == AvoidTarget2_Combo.SelectedIndex) || (AvoidTarget1_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex) || (AvoidTarget1_Combo.SelectedIndex == AvoidTarget4_Combo.SelectedIndex) || (AvoidTarget2_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex) || (AvoidTarget2_Combo.SelectedIndex == AvoidTarget4_Combo.SelectedIndex) || (AvoidTarget3_Combo.SelectedIndex == AvoidTarget4_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Avoid Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
+      }
       if (CreateOptis_CB.IsChecked == true && MultipleDoseLevels_CB.IsChecked == true)
       {
+        // if selected counts don't match
         if (DoseLevel1_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 1) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
         if (DoseLevel2_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 2) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
         if (DoseLevel3_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 3) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
         if (DoseLevel4_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 4) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
-        if (DoseLevel1_Radio.IsChecked == true && DoseLevel1_Combo.SelectedIndex <= 0)
+        // dose level targets aren't selected
+        if (DoseLevel1_Radio.IsChecked == true && DoseLevel1_Combo.SelectedIndex < 0)
         {
           MessageBox.Show("One Dose Level has been selected:\n\n\t- At least one target should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
           continueToCreateStructures = false;
         }
-        if (DoseLevel2_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex <= 0 || DoseLevel2_Combo.SelectedIndex <= 0))
+        if (DoseLevel2_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex < 0 || DoseLevel2_Combo.SelectedIndex < 0))
         {
           MessageBox.Show("Two Dose Levels have been selected:\n\n\t- Targets for at least two dose levels should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
           continueToCreateStructures = false;
         }
-        if (DoseLevel3_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex <= 0 || DoseLevel2_Combo.SelectedIndex <= 0 || DoseLevel3_Combo.SelectedIndex <= 0))
+        if (DoseLevel3_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex < 0 || DoseLevel2_Combo.SelectedIndex < 0 || DoseLevel3_Combo.SelectedIndex < 0))
         {
           MessageBox.Show("Three Dose Levels have been selected:\n\n\t- Targets for at least three dose levels should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
           continueToCreateStructures = false;
         }
-        if (DoseLevel4_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex <= 0 || DoseLevel2_Combo.SelectedIndex <= 0 || DoseLevel3_Combo.SelectedIndex <= 0 || DoseLevel4_Combo.SelectedIndex <= 0))
+        if (DoseLevel4_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex < 0 || DoseLevel2_Combo.SelectedIndex < 0 || DoseLevel3_Combo.SelectedIndex < 0 || DoseLevel4_Combo.SelectedIndex < 0))
         {
           MessageBox.Show("Four Dose Levels have been selected:\n\n\t- Targets for at least four dose levels should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
           continueToCreateStructures = false;
         }
+        // if selected dose level targets are the same
+        if (DoseLevel2_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex == DoseLevel2_Combo.SelectedIndex)) { MessageBox.Show("The selected Dose Level Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
+        if (DoseLevel3_Radio.IsChecked == true && ((DoseLevel1_Combo.SelectedIndex == DoseLevel2_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Dose Level Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
+        if (DoseLevel4_Radio.IsChecked == true && ((DoseLevel1_Combo.SelectedIndex == DoseLevel2_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex) || (DoseLevel3_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Dose Level Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
+
       }
       if (CreateAvoids_CB.IsChecked == true && OarList_LV.SelectedItems.Count == 0)
       {
@@ -436,22 +582,20 @@ namespace OptiAssistant
             // crop from body
             try
             {
-              zoptiTotal.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zoptiTotal, body, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
-              MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From Body Surface", zoptiTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+              if (zoptiTotal.IsHighResolution)
+              {
+                zoptiTotal.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zoptiTotal, bodyHR, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From High Res Body Surface", zoptiTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+              }
+              else
+              {
+                zoptiTotal.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zoptiTotal, body, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From Body Surface", zoptiTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+              }
             }
             catch
             {
-              {
-                try
-                {
-                  zoptiTotal.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zoptiTotal, bodyHR, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
-                  MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From High Res Body Surface", zoptiTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
-                }
-                catch
-                {
-                  MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body Surface***", zoptiTotal.Id);
-                }
-              }
+              MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body Surface***", zoptiTotal.Id);
             }
 
 
@@ -463,11 +607,11 @@ namespace OptiAssistant
 
           if (CreateAvoids_CB.IsChecked == true)
           {
-
+            
             var avStructuresToMake = OarList_LV.SelectedItems;
             string avPrefix;
             int avGrowMargin;
-            int avCropMargin;
+            int avCropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
 
             // set prefix
             if (AvoidPrefix_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidPrefix_TextBox.Text)) { avPrefix = DEFAULT_AVOIDANCE_PREFIX; } else { avPrefix = AvoidPrefix_TextBox.Text; }
@@ -489,94 +633,473 @@ namespace OptiAssistant
             }
 
             // set crop margin
-            if (AvoidCropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidCropMargin_TextBox.Text)) { avCropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
-            else
+            if (hasSinglePTV || BooleanAllTargets_CB.IsChecked == true)
             {
-              if (int.TryParse(AvoidCropMargin_TextBox.Text, out avCropMargin))
-              {
-                //parsing successful 
-              }
+              if (AvoidCropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidCropMargin_TextBox.Text)) { avCropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
               else
               {
-                //parsing failed. 
-                avCropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-                MessageBox.Show(string.Format("Oops, an invalid value was used for the avoidance structure crop margin ({0}). The DEFAULT of {1}mm will be used.", AvoidCropMargin_TextBox.Text, DEFAULT_AVOIDANCE_CROP_MARGIN));
+                if (int.TryParse(AvoidCropMargin_TextBox.Text, out avCropMargin))
+                {
+                  //parsing successful 
+                }
+                else
+                {
+                  //parsing failed. 
+                  avCropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                  MessageBox.Show(string.Format("Oops, an invalid value was used for the avoidance structure crop margin ({0}). The DEFAULT of {1}mm will be used.", AvoidCropMargin_TextBox.Text, DEFAULT_AVOIDANCE_CROP_MARGIN));
+                }
               }
             }
 
             foreach (var s in avStructuresToMake)
             {
               var oar = ss.Structures.Single(st => st.Id == s.ToString());
-              //MessageBox.Show(string.Format("Structure Matched: {0}", oar.Id));
+              Structure avoidStructure = null;
+              var avId = string.Empty;
 
-              var avId = string.Format("{0} {1}", avPrefix, Helpers.ProcessStructureId(oar.Id.ToString(), MAX_ID_LENGTH - avPrefix.Length));
-
-              // remove structure if present in ss
-              Helpers.RemoveStructure(ss, avId);
-
-              // add empty avoid structure
-              var avoidStructure = ss.AddStructure(AVOIDANCE_DICOM_TYPE, avId);
-              MESSAGES += string.Format("\r\n\t- Structure Added: {0}", avoidStructure.Id);
-
-              // copy oar with defined margin
-              avoidStructure.SegmentVolume = Helpers.AddMargin(oar, (double)avGrowMargin);
-              MESSAGES += string.Format("\r\n\t- {1} mm Margin Added: {0}", avoidStructure.Id, avGrowMargin);
-
-
-              // crop from body
-              try
+              if (hasSinglePTV || BooleanAllTargets_CB.IsChecked == true)
               {
-                avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, bodyHR, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
-                MESSAGES += string.Format("\r\n\t- The {0} is a High Res Structure and has been cropped\r\n\t\tfrom the High Res Body Structure", avoidStructure.Id);
-              }
-              catch
-              {
+                avId = string.Format("{0} {1}", avPrefix, Helpers.ProcessStructureId(oar.Id.ToString(), MAX_ID_LENGTH - avPrefix.Length));
+
+                // remove structure if present in ss
+                Helpers.RemoveStructure(ss, avId);
+
+                // add empty avoid structure
+                avoidStructure = ss.AddStructure(AVOIDANCE_DICOM_TYPE, avId);
+
+                // copy oar with defined margin
+                avoidStructure.SegmentVolume = Helpers.AddMargin(oar, (double)avGrowMargin);
+                MESSAGES += string.Format("\r\n\t- {0} added w/ {1}mm margin",
+                                                        avoidStructure.Id,
+                                                        avGrowMargin
+                );
+
                 try
                 {
-                  avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, body, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
-                  MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From Body Surface", avoidStructure.Id, DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
-                }
-                catch
-                {
-                  MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", avoidStructure.Id);
-                }
-              }
 
-              // crop avoid structure from ptv total (if ptvs are found)
-              //MessageBox.Show(string.Format("Attempting to crop {0} from target", avoidStructure.Id));
-              try
-              {
-                avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotalHR.SegmentVolume, avCropMargin);
-                MESSAGES += string.Format("\r\n\t- {0} is a High Res Structure and has been cropped\r\n\t\tfrom the High Res Opti Target", avoidStructure.Id);
-              }
-              catch
-              {
-                try
-                {
-                  avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotal.SegmentVolume, avCropMargin);
-                  MESSAGES += string.Format("\r\n\t- {0} cropped {1} mm from {2}", avoidStructure.Id, avCropMargin, zoptiTotalId);
-                }
-                catch
-                {
+                  // crop avoid structure from ptv total (if ptvs are found)
                   try
                   {
-                    if (avoidStructure.CanConvertToHighResolution()) { avoidStructure.ConvertToHighResolution(); }
-                    MESSAGES += string.Format("\r\n\t- {0} had to be converted to a High Res Structure to be cropped", avoidStructure.Id);
-
-                    avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotalHR.SegmentVolume, avCropMargin);
-                    MESSAGES += string.Format("\r\n\t- {0} is a High Res Structure and has been cropped\r\n\t\tfrom the High Res Opti Target", avoidStructure.Id);
-                  }
-                  catch
-                  {
-                    if (sorted_ptvList.Count() >= 1)
+                    if (avoidStructure.IsHighResolution)
                     {
-                      MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Targets***", avoidStructure.Id);
+                      avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotalHR.SegmentVolume, avCropMargin);
                     }
                     else
                     {
-                      MESSAGES += string.Format("\r\n\t- ***No PTVs to crop avoid structures from***", avoidStructure.Id);
+                      avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotal.SegmentVolume, avCropMargin);
+                    }
+
+                    MESSAGES += string.Format(" & cropped {0}mm from {1}",
+                                                      avCropMargin,
+                                                      zoptiTotal.Id
+                    );
+                  }
+                  catch
+                  {
+                    try
+                    {
+                      if (avoidStructure.CanConvertToHighResolution()) { avoidStructure.ConvertToHighResolution(); }
+
+                      avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotalHR.SegmentVolume, avCropMargin);
+
+                      MESSAGES += string.Format(" & cropped {0}mm from {1}",
+                                                      avCropMargin,
+                                                      zoptiTotal.Id
+                      );
+                    }
+                    catch
+                    {
+                      if (sorted_ptvList.Count() >= 1)
+                      {
+                        MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Targets***", avoidStructure.Id);
+                      }
+                      else
+                      {
+                        MESSAGES += string.Format("\r\n\t- ***No PTVs to crop avoid structures from***", avoidStructure.Id);
+                      }
                     }
                   }
+
+
+                  // crop from body
+                  try
+                  {
+                    if (avoidStructure.IsHighResolution)
+                    {
+                      avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, bodyHR, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
+                    }
+                    else
+                    {
+                      avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, body, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
+                    }
+                  }
+                  catch
+                  {
+                    MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", avoidStructure.Id);
+                  }
+
+                }
+                catch
+                {
+                  MESSAGES += string.Format("\r\n\t- ***Trouble creating {0}***", avoidStructure.Id);
+                }
+
+
+
+              }
+              else if (MultipleAvoidTargets_CB.IsChecked == true)
+              {
+                string avoidTarget1 = null;
+                string avoidTarget2 = null;
+                string avoidTarget3 = null;
+                string avoidTarget4 = null;
+                Structure avoidTarget = null;
+                Structure avoidTarget_HR = null;
+
+                int avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                int avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                int avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                int avoidTarget4CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+
+                var targetNumber = 1;
+                var targetsToCreateAvoidsFor = new List<string>();
+
+                // define avoid targets
+                if (AvoidTarget1_Radio.IsChecked == true)
+                {
+                  targetsToCreateAvoidsFor.Add(AvoidTarget1_Combo.SelectedItem.ToString());
+                  avoidTarget1 = AvoidTarget1_Combo.SelectedItem.ToString();
+                }
+                else if (AvoidTarget2_Radio.IsChecked == true)
+                {
+                  targetsToCreateAvoidsFor.Add(AvoidTarget1_Combo.SelectedItem.ToString());
+                  targetsToCreateAvoidsFor.Add(AvoidTarget2_Combo.SelectedItem.ToString());
+                  avoidTarget1 = AvoidTarget1_Combo.SelectedItem.ToString();
+                  avoidTarget2 = AvoidTarget2_Combo.SelectedItem.ToString();
+                }
+                else if (AvoidTarget3_Radio.IsChecked == true)
+                {
+                  targetsToCreateAvoidsFor.Add(AvoidTarget1_Combo.SelectedItem.ToString());
+                  targetsToCreateAvoidsFor.Add(AvoidTarget2_Combo.SelectedItem.ToString());
+                  targetsToCreateAvoidsFor.Add(AvoidTarget3_Combo.SelectedItem.ToString());
+                  avoidTarget1 = AvoidTarget1_Combo.SelectedItem.ToString();
+                  avoidTarget2 = AvoidTarget2_Combo.SelectedItem.ToString();
+                  avoidTarget3 = AvoidTarget3_Combo.SelectedItem.ToString();
+                }
+                else if (AvoidTarget4_Radio.IsChecked == true)
+                {
+                  targetsToCreateAvoidsFor.Add(AvoidTarget1_Combo.SelectedItem.ToString());
+                  targetsToCreateAvoidsFor.Add(AvoidTarget2_Combo.SelectedItem.ToString());
+                  targetsToCreateAvoidsFor.Add(AvoidTarget3_Combo.SelectedItem.ToString());
+                  targetsToCreateAvoidsFor.Add(AvoidTarget4_Combo.SelectedItem.ToString());
+                  avoidTarget1 = AvoidTarget1_Combo.SelectedItem.ToString();
+                  avoidTarget2 = AvoidTarget2_Combo.SelectedItem.ToString();
+                  avoidTarget3 = AvoidTarget3_Combo.SelectedItem.ToString();
+                  avoidTarget4 = AvoidTarget4_Combo.SelectedItem.ToString();
+                }
+
+                // get crop margins
+                if (targetsToCreateAvoidsFor.Count == 1)
+                {
+                  // set crop margin
+                  if (AvoidTarget1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget1CropMargin_TextBox.Text)) { avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                  else
+                  {
+                    if (int.TryParse(AvoidTarget1CropMargin_TextBox.Text, out avoidTarget1CropMargin))
+                    {
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.", 
+                          AvoidTarget1CropMargin_TextBox.Text, 
+                          avoidTarget1, 
+                          DEFAULT_AVOIDANCE_CROP_MARGIN));
+                    }
+                  }
+                }
+                else if (targetsToCreateAvoidsFor.Count == 2)
+                {
+                  // set crop margin
+                  // 1
+                  if (AvoidTarget1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget1CropMargin_TextBox.Text)) { avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                  else
+                  {
+                    if (int.TryParse(AvoidTarget1CropMargin_TextBox.Text, out avoidTarget1CropMargin))
+                    {
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                          AvoidTarget1CropMargin_TextBox.Text,
+                          avoidTarget1,
+                          DEFAULT_AVOIDANCE_CROP_MARGIN));
+                    }
+                  }
+
+                  // 2
+                  if (AvoidTarget2CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget2CropMargin_TextBox.Text)) { avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                  else
+                  {
+                    if (int.TryParse(AvoidTarget2CropMargin_TextBox.Text, out avoidTarget2CropMargin))
+                    {
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                          AvoidTarget2CropMargin_TextBox.Text,
+                          avoidTarget2,
+                          DEFAULT_AVOIDANCE_CROP_MARGIN));
+                    }
+                  }
+                }
+                else if (targetsToCreateAvoidsFor.Count == 3)
+                {
+                  // set crop margin
+                  // 1
+                  if (AvoidTarget1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget1CropMargin_TextBox.Text)) { avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                  else
+                  {
+                    if (int.TryParse(AvoidTarget1CropMargin_TextBox.Text, out avoidTarget1CropMargin))
+                    {
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                          AvoidTarget1CropMargin_TextBox.Text,
+                          avoidTarget1,
+                          DEFAULT_AVOIDANCE_CROP_MARGIN));
+                    }
+                  }
+
+                  // 2
+                  if (AvoidTarget2CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget2CropMargin_TextBox.Text)) { avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                  else
+                  {
+                    if (int.TryParse(AvoidTarget2CropMargin_TextBox.Text, out avoidTarget2CropMargin))
+                    {
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                          AvoidTarget2CropMargin_TextBox.Text,
+                          avoidTarget2,
+                          DEFAULT_AVOIDANCE_CROP_MARGIN));
+                    }
+                  }
+
+                  // 3
+                  if (AvoidTarget3CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget3CropMargin_TextBox.Text)) { avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                  else
+                  {
+                    if (int.TryParse(AvoidTarget3CropMargin_TextBox.Text, out avoidTarget3CropMargin))
+                    {
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                          AvoidTarget3CropMargin_TextBox.Text,
+                          avoidTarget3,
+                          DEFAULT_AVOIDANCE_CROP_MARGIN));
+                    }
+                  }
+
+                }
+                else if (targetsToCreateAvoidsFor.Count == 4)
+                {
+                  // set crop margin
+                  // 1
+                  if (AvoidTarget1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget1CropMargin_TextBox.Text)) { avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                  else
+                  {
+                    if (int.TryParse(AvoidTarget1CropMargin_TextBox.Text, out avoidTarget1CropMargin))
+                    {
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                          AvoidTarget1CropMargin_TextBox.Text,
+                          avoidTarget1,
+                          DEFAULT_AVOIDANCE_CROP_MARGIN));
+                    }
+                  }
+
+                  // 2
+                  if (AvoidTarget2CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget2CropMargin_TextBox.Text)) { avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                  else
+                  {
+                    if (int.TryParse(AvoidTarget2CropMargin_TextBox.Text, out avoidTarget2CropMargin))
+                    {
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                          AvoidTarget2CropMargin_TextBox.Text,
+                          avoidTarget2,
+                          DEFAULT_AVOIDANCE_CROP_MARGIN));
+                    }
+                  }
+
+                  // 3
+                  if (AvoidTarget3CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget3CropMargin_TextBox.Text)) { avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                  else
+                  {
+                    if (int.TryParse(AvoidTarget3CropMargin_TextBox.Text, out avoidTarget3CropMargin))
+                    {
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                          AvoidTarget3CropMargin_TextBox.Text,
+                          avoidTarget3,
+                          DEFAULT_AVOIDANCE_CROP_MARGIN));
+                    }
+                  }
+
+                  // 4
+                  if (AvoidTarget4CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget4CropMargin_TextBox.Text)) { avoidTarget4CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                  else
+                  {
+                    if (int.TryParse(AvoidTarget4CropMargin_TextBox.Text, out avoidTarget4CropMargin))
+                    {
+                      //parsing successful 
+                    }
+                    else
+                    {
+                      //parsing failed. 
+                      avoidTarget4CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                          AvoidTarget4CropMargin_TextBox.Text,
+                          avoidTarget4,
+                          DEFAULT_AVOIDANCE_CROP_MARGIN));
+                    }
+                  }
+
+                }
+
+                foreach (var t in targetsToCreateAvoidsFor)
+                {
+                  avId = string.Format("{0} {1} {2}", 
+                                          avPrefix, 
+                                          targetNumber,
+                                          Helpers.ProcessStructureId(oar.Id.ToString(), MAX_ID_LENGTH - (avPrefix.Length + 2)) // +# to account for strongly typed characters/spaces beyond those already accounted for
+                  );
+
+                  var avoidTargetHRId = string.Format("zz{0}_HR", Helpers.ProcessStructureId(t, MAX_ID_LENGTH - 5));
+
+                  // match ptv in structure set
+                  avoidTarget = ss.Structures.Single(st => st.Id == t);
+                  avoidTarget_HR = ss.Structures.Single(st => st.Id == avoidTargetHRId);
+
+                  // match crop margin
+                  if (targetNumber == 1) { avCropMargin = avoidTarget1CropMargin; }
+                  else if (targetNumber == 2) { avCropMargin = avoidTarget2CropMargin; }
+                  else if (targetNumber == 3) { avCropMargin = avoidTarget3CropMargin; }
+                  else if (targetNumber == 4) { avCropMargin = avoidTarget4CropMargin; }
+
+                  // remove structure if present in ss
+                  Helpers.RemoveStructure(ss, avId);
+
+                  // add empty avoid structure
+                  avoidStructure = ss.AddStructure(AVOIDANCE_DICOM_TYPE, avId);
+                  
+
+                  // copy oar with defined margin
+                  avoidStructure.SegmentVolume = Helpers.AddMargin(oar, (double)avGrowMargin);
+                  MESSAGES += string.Format("\r\n\t- {0} added w/ {1}mm margin",
+                                                        avoidStructure.Id,
+                                                        avGrowMargin
+                  );
+
+                  try
+                  {
+
+                    // crop avoid structure from avoid ptv
+                    try
+                    {
+                      if (avoidStructure.IsHighResolution)
+                      {
+                        avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, avoidTarget_HR.SegmentVolume, avCropMargin);
+                      }
+                      else
+                      {
+                        avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, avoidTarget.SegmentVolume, avCropMargin);
+                      }
+
+                      MESSAGES += string.Format(" & cropped {0}mm from {1}",
+                                                        avCropMargin,
+                                                        avoidTarget.Id
+                      );
+                    }
+                    catch
+                    {
+                      try
+                      {
+                        if (avoidStructure.CanConvertToHighResolution()) { avoidStructure.ConvertToHighResolution(); }
+
+                        avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, avoidTarget_HR.SegmentVolume, avCropMargin);
+
+                        MESSAGES += string.Format(" & cropped {0}mm from {1}",
+                                                        avCropMargin,
+                                                        avoidTarget.Id
+                        );
+                      }
+                      catch
+                      {
+                        MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From {1}***", avoidStructure.Id, avoidTarget.Id);
+                      }
+                    }
+
+                    // crop from body
+                    try
+                    {
+                      if (avoidStructure.IsHighResolution)
+                      {
+                        avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, bodyHR, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
+                      }
+                      else
+                      {
+                        avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, body, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
+                      }
+                    }
+                    catch
+                    {
+                      MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", avoidStructure.Id);
+                    }
+                  }
+                  catch
+                  {
+                    MESSAGES += string.Format("\r\n\t- ***Trouble creating {0}***", avoidStructure.Id);
+                  }
+                  
+                  // increment target number for avoid structure naming/grouping by the target it's cropped away from
+                  targetNumber += 1;
                 }
               }
             }
@@ -718,7 +1241,7 @@ namespace OptiAssistant
 
               // copy ptv with defined margin
               optiStructure.SegmentVolume = Helpers.AddMargin(ptv, (double)optiGrowMargin);
-              MESSAGES += string.Format("\r\n\t- {1} mm Margin Added: {0}", optiStructure.Id, optiGrowMargin);
+              MESSAGES += string.Format("\r\n\t- {0} added w/ {1}mm margin", optiStructure.Id, optiGrowMargin);
 
               // crop OPTI structure from body surface (if body found)
               if (cropFromBody)
@@ -726,7 +1249,6 @@ namespace OptiAssistant
                 try
                 {
                   optiStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(optiStructure, bodyHR, -optiCropFromBodyMargin);
-                  MESSAGES += string.Format("\r\n\t- The {0} is a High Res Structure and has been cropped from\r\n\t\tthe High Res Body Structure", optiStructure.Id);
                 }
                 catch
                 {
@@ -770,7 +1292,7 @@ namespace OptiAssistant
 
                   // copy ptv with defined margin
                   ciStructure.SegmentVolume = Helpers.AddMargin(ptv, (double)ciGrowMargin);
-                  MESSAGES += string.Format("\r\n\t- {1} mm Margin Added: {0}", ciStructure.Id, ciGrowMargin);
+                  MESSAGES += string.Format("\r\n\t- {0} added with {1}mm margin", ciStructure.Id, ciGrowMargin);
                 }
                 catch
                 {
@@ -806,7 +1328,7 @@ namespace OptiAssistant
 
                   // copy ptv with defined margin
                   r50Structure.SegmentVolume = Helpers.AddMargin(ptv, (double)r50GrowMargin);
-                  MESSAGES += string.Format("\r\n\t- {1} mm Margin Added: {0}", r50Structure.Id, r50GrowMargin);
+                  MESSAGES += string.Format("\r\n\t- {0} added with {1}mm margin", r50Structure.Id, r50GrowMargin);
                 }
                 catch
                 {
@@ -1172,7 +1694,7 @@ namespace OptiAssistant
 
                 // copy target with defined margin
                 ringStructure.SegmentVolume = Helpers.AddMargin(target, (double)ringGrowMargin * ringNum);
-                MESSAGES += string.Format("\r\n\t- {0} Added with {1} mm margin to {2}", ringStructure.Id, ringGrowMargin * ringNum, target.Id);
+                MESSAGES += string.Format("\r\n\t- {0} added with {1} mm margin to {2}", ringStructure.Id, ringGrowMargin * ringNum, target.Id);
 
                 // crop ring from target (prevents having to loop through again later)
                 ringStructure.SegmentVolume = Helpers.CropStructure(ringStructure, target, cropMargin: ringCropMargin);
@@ -1230,7 +1752,7 @@ namespace OptiAssistant
           // remove temporary high res structures
           Helpers.RemoveStructure(ss, bodyHRId);
           Helpers.RemoveStructure(ss, zoptiTotalHRId);
-          Helpers.RemoveStructure(ss, "zzzTEMP");
+          //Helpers.RemoveStructure(ss, "zzzTEMP"); // don't remember why this was used?
           foreach (var t in sorted_ptvList)
           {
             Helpers.RemoveStructure(ss, string.Format("zz{0}_HR", Helpers.ProcessStructureId(t.Id.ToString(), MAX_ID_LENGTH - 5)));
@@ -1244,6 +1766,81 @@ namespace OptiAssistant
         }
       }
     }
+
+    #region avoid structure option events
+
+    // event fired when avoid option selected/unselected - boolean all targets || create avoids for multiple targets
+    private void HandleAvoidOptionsSelection(object sender, RoutedEventArgs e)
+    {
+      var cb = sender as CheckBox;
+
+      var booleanAll = "BooleanAllTargets_CB";
+      var multipleAvoidTargets = "MultipleAvoidTargets_CB";
+
+      if (cb.IsChecked == true)
+      {
+        if (cb.Name == booleanAll)
+        {
+          MultipleAvoidTargets_CB.IsChecked = false;
+          MultipleAvoidTargets_SP.Visibility = Visibility.Collapsed;
+        }
+        if (cb.Name == multipleAvoidTargets)
+        {
+          BooleanAllTargets_CB.IsChecked = false;
+          MultipleAvoidTargets_SP.Visibility = Visibility.Visible;
+
+        }
+      }
+      if (cb.IsChecked == false)
+      {
+        if (cb.Name == multipleAvoidTargets)
+        {
+          MultipleAvoidTargets_SP.Visibility = Visibility.Collapsed;
+        }
+      }
+
+    }
+
+    // event fired when different number of dose levels is defined
+    private void HandleAvoidTargetCount(object sender, RoutedEventArgs e)
+    {
+      var radio1 = AvoidTarget1_Radio;
+      var radio2 = AvoidTarget2_Radio;
+      var radio3 = AvoidTarget3_Radio;
+      var radio4 = AvoidTarget4_Radio;
+
+      if (radio1.IsChecked == true)
+      {
+        AvoidTarget1_SP.Visibility = Visibility.Visible;
+        AvoidTarget2_SP.Visibility = Visibility.Collapsed;
+        AvoidTarget3_SP.Visibility = Visibility.Collapsed;
+        AvoidTarget4_SP.Visibility = Visibility.Collapsed;
+      }
+      else if (radio2.IsChecked == true)
+      {
+        AvoidTarget1_SP.Visibility = Visibility.Visible;
+        AvoidTarget2_SP.Visibility = Visibility.Visible;
+        AvoidTarget3_SP.Visibility = Visibility.Collapsed;
+        AvoidTarget4_SP.Visibility = Visibility.Collapsed;
+      }
+      else if (radio3.IsChecked == true)
+      {
+        AvoidTarget1_SP.Visibility = Visibility.Visible;
+        AvoidTarget2_SP.Visibility = Visibility.Visible;
+        AvoidTarget3_SP.Visibility = Visibility.Visible;
+        AvoidTarget4_SP.Visibility = Visibility.Collapsed;
+      }
+      else if (radio4.IsChecked == true)
+      {
+        AvoidTarget1_SP.Visibility = Visibility.Visible;
+        AvoidTarget2_SP.Visibility = Visibility.Visible;
+        AvoidTarget3_SP.Visibility = Visibility.Visible;
+        AvoidTarget4_SP.Visibility = Visibility.Visible;
+      }
+    }
+
+
+    #endregion avoid structure option events
 
     #region opti structure section events
 

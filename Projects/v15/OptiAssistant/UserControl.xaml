@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VMS.TPS"
         mc:Ignorable="d"
-        Height="auto" Width="auto" Background="#efefef"  FontFamily="Lucida Sans" FontWeight="Thin">
+        Height="auto" Width="auto" Background="#efefef" FontFamily="Lucida Sans" FontWeight="Thin">
 
   <!--Styles-->
   <UserControl.Resources>
@@ -16,7 +16,7 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Border CornerRadius="10"
+            <Border CornerRadius="12"
                     Background="{TemplateBinding Background}"
                     BorderThickness="1">
               <ContentPresenter HorizontalAlignment="Center" 
@@ -36,7 +36,7 @@
   </UserControl.Resources>
   
   <!--Main-->
-  <Border CornerRadius="0" BorderBrush="#034f84" BorderThickness="1" Margin="50">
+  <Border CornerRadius="5" BorderBrush="#b1cbbb" BorderThickness="2" Margin="35">
     <Grid>
       <StackPanel Margin="0">
         <!--Heading-->
@@ -82,7 +82,7 @@
           <!-- Opti Structure Parameters -->
           <StackPanel Orientation="Vertical"
                       VerticalAlignment="Center"
-                      Margin="50">
+                      Margin="35,15,35,25">
             <!-- row 1 -->
             <StackPanel Orientation="Horizontal"
                         Margin="5"
@@ -124,25 +124,263 @@
                           x:Name="AvoidanceStructure_SP"
                           Visibility="Collapsed">
                 <StackPanel Width="350">
-                  <Label x:Name="OarAvoid_Label"
-                          Content="OAR Avoids To Create"
-                          HorizontalAlignment="Center"
-                          Foreground="#034f84"/>
-                  <TextBlock Text="Select OARs you'd like to create avoidance structures for (not required)"
-                            TextWrapping="Wrap"
-                            FontSize="11"
-                            FontStyle="Italic"
+                  <!--Which OARs-->
+                  <StackPanel>
+                    <Label x:Name="OarAvoid_Label"
+                            Content="OAR Avoids To Create"
                             HorizontalAlignment="Center"
-                             Foreground="#034f84"/>
-                  <ListView x:Name="OarList_LV"
+                            Foreground="#034f84"/>
+                    <TextBlock Text="Select OARs you'd like to create avoidance structures for:"
+                              TextWrapping="Wrap"
+                              FontSize="11"
+                              FontStyle="Italic"
+                              HorizontalAlignment="Center"
+                              Foreground="#034f84"/>
+                    <ListView x:Name="OarList_LV"
                               Margin="5"
                               Width="auto"
-                              MinHeight="100" 
+                              MinHeight="100"
+                              MaxHeight="300"
                               SelectionMode="Multiple" 
                               Height="auto" 
                               HorizontalContentAlignment="Center"
                               VerticalContentAlignment="Center"
                               BorderBrush="White"/>
+                  </StackPanel>
+
+                  <!--Which Targets-->
+                  <StackPanel>
+                    <!--Checkboxes For Avoid Targets-->
+                    <StackPanel Orientation="Vertical"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,5">
+
+                      <CheckBox Content="Boolean All Targets"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                Background="#b1cbbb"
+                                FontSize="12"
+                                Margin="5,3"                                x:Name="BooleanAllTargets_CB"
+                                Click="HandleAvoidOptionsSelection"/>
+
+                      <CheckBox Content="Create Avoids For Multiple Targets"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                Background="#b1cbbb"
+                                FontSize="12"
+                                Margin="5,3"                                x:Name="MultipleAvoidTargets_CB"
+                                Click="HandleAvoidOptionsSelection"/>
+
+                    </StackPanel>
+                    <StackPanel x:Name="MultipleAvoidTargets_SP"
+                                Visibility="Collapsed">
+                      <!--Label-->
+                      <!--<TextBlock Text="Select the PTV(s) you'd like to crop your avoidance structures from:"
+                                TextWrapping="Wrap"
+                                FontSize="11"
+                                FontStyle="Italic"
+                                HorizontalAlignment="Center"
+                                 Foreground="#034f84"/>-->
+                      <!--Multiple Avoid Target Options-->
+                      <StackPanel x:Name="AvoidMultiTargetOptions_SP">
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center">
+                          <Label Content="# Targets To Create Unique Avoidance Structures For:"
+                                 VerticalAlignment="Center"
+                                 FontSize="13"
+                                 Foreground="#034f84"/>
+                        </StackPanel>
+                        <Label Content="_________________________________________________________________________________________________________________"
+                                Margin="0,-20,0,0"
+                                HorizontalAlignment="Center"
+                                VerticalContentAlignment="Top"
+                                FontSize="13"
+                                Foreground="#034f84"/>
+                        <!--Radios-->
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center">
+
+                          <RadioButton  x:Name="AvoidTarget1_Radio"
+                                        GroupName="AvoidTargets"
+                                        Content="1"
+                                        VerticalContentAlignment="Bottom"
+                                        Margin="5"
+                                        Checked="HandleAvoidTargetCount"/>
+                          <RadioButton  x:Name="AvoidTarget2_Radio"
+                                        GroupName="AvoidTargets"
+                                        Content="2"
+                                        VerticalContentAlignment="Bottom"
+                                        Margin="5"
+                                        Checked="HandleAvoidTargetCount"/>
+                          <RadioButton  x:Name="AvoidTarget3_Radio"
+                                        GroupName="AvoidTargets"
+                                        Content="3"
+                                        VerticalContentAlignment="Bottom"
+                                        Margin="5"
+                                        Checked="HandleAvoidTargetCount"/>
+                          <RadioButton  x:Name="AvoidTarget4_Radio"
+                                        GroupName="AvoidTargets"
+                                        Content="4"
+                                        VerticalContentAlignment="Bottom"
+                                        Margin="5"
+                                        Checked="HandleAvoidTargetCount"/>
+
+                        </StackPanel>
+
+                        <!--PTV : Dose Level Selectors-->
+                        <StackPanel Margin="0,10">
+
+                          <StackPanel Orientation="Horizontal"
+                                      HorizontalAlignment="Center"
+                                      Width="350"
+                                      Margin="0,0,0,5"
+                                      x:Name="AvoidTarget1_SP"
+                                      Visibility="Collapsed">
+
+                            <Label Content="Av Target 1:"
+                                    Width="85"
+                                    FontSize="13"
+                                    Foreground="#034f84"/>
+
+                            <ComboBox x:Name="AvoidTarget1_Combo"
+                                      Width="125"
+                                      Background="#b1cbbb"
+                                      HorizontalContentAlignment="Left"
+                                      VerticalContentAlignment="Center"/>
+
+                            <Label Content="Crop Margin [mm]:"
+                                Width="105"
+                                FontSize="12"
+                                Foreground="#034f84"/>
+
+                            <TextBox Width="30"
+                                  x:Name="AvoidTarget1CropMargin_TextBox"
+                                  Background="#b1cbbb"
+                                  GotFocus="SelectAllText"
+                                  TextAlignment="Center"
+                                  Margin="0,3"
+                                  FontSize="11"
+                                  VerticalContentAlignment="Center"
+                                  Text="2"/>
+
+                          </StackPanel>
+
+                          <StackPanel Orientation="Horizontal"
+                                      HorizontalAlignment="Center"
+                                      Width="350"
+                                      Margin="0,0,0,5"
+                                      x:Name="AvoidTarget2_SP"
+                                      Visibility="Collapsed">
+
+                            <Label Content="Av Target 2:"
+                                    Width="85"
+                                    FontSize="13"
+                                    Foreground="#034f84"/>
+
+                            <ComboBox x:Name="AvoidTarget2_Combo"
+                                      Width="125"
+                                      Background="#b1cbbb"
+                                      HorizontalContentAlignment="Left"
+                                      VerticalContentAlignment="Center"/>
+
+                            <Label Content="Crop Margin [mm]:"
+                                Width="105"
+                                FontSize="12"
+                                Foreground="#034f84"/>
+
+                            <TextBox Width="30"
+                                  x:Name="AvoidTarget2CropMargin_TextBox"
+                                  Background="#b1cbbb"
+                                  GotFocus="SelectAllText"
+                                  TextAlignment="Center"
+                                  Margin="0,3"
+                                  FontSize="11"
+                                  VerticalContentAlignment="Center"
+                                  Text="2"/>
+
+                          </StackPanel>
+
+                          <StackPanel Orientation="Horizontal"
+                                      HorizontalAlignment="Center"
+                                      Width="350"
+                                      Margin="0,0,0,5"
+                                      x:Name="AvoidTarget3_SP"
+                                      Visibility="Collapsed">
+
+                            <Label Content="Av Target 3:"
+                                    Width="85"
+                                    FontSize="13"
+                                    Foreground="#034f84"/>
+
+                            <ComboBox x:Name="AvoidTarget3_Combo"
+                                      Width="125"
+                                      Background="#b1cbbb"
+                                      HorizontalContentAlignment="Left"
+                                      VerticalContentAlignment="Center"/>
+
+                            <Label Content="Crop Margin [mm]:"
+                                Width="105"
+                                FontSize="12"
+                                Foreground="#034f84"/>
+
+                            <TextBox Width="30"
+                                  x:Name="AvoidTarget3CropMargin_TextBox"
+                                  Background="#b1cbbb"
+                                  GotFocus="SelectAllText"
+                                  TextAlignment="Center"
+                                  Margin="0,3"
+                                  FontSize="11"
+                                  VerticalContentAlignment="Center"
+                                  Text="2"/>
+
+                          </StackPanel>
+
+                          <StackPanel Orientation="Horizontal"
+                                      HorizontalAlignment="Center"
+                                      Width="350"
+                                      Margin="0,0,0,5"
+                                      x:Name="AvoidTarget4_SP"
+                                      Visibility="Collapsed">
+
+                            <Label Content="Av Target 4:"
+                                    Width="85"
+                                    FontSize="13"
+                                    Foreground="#034f84"/>
+
+                            <ComboBox x:Name="AvoidTarget4_Combo"
+                                      Width="125"
+                                      Background="#b1cbbb"
+                                      HorizontalContentAlignment="Left"
+                                      VerticalContentAlignment="Center"/>
+
+                            <Label Content="Crop Margin [mm]:"
+                                Width="105"
+                                FontSize="12"
+                                Foreground="#034f84"/>
+
+                            <TextBox Width="30"
+                                  x:Name="AvoidTarget4CropMargin_TextBox"
+                                  Background="#b1cbbb"
+                                  GotFocus="SelectAllText"
+                                  TextAlignment="Center"
+                                  Margin="0,3"
+                                  FontSize="11"
+                                  VerticalContentAlignment="Center"
+                                  Text="2"/>
+
+                          </StackPanel>
+
+                        </StackPanel>
+
+                      </StackPanel>
+
+                    </StackPanel>
+                  </StackPanel>
+
                   <!--Prefix-->
                   <StackPanel Orientation="Horizontal"
                               HorizontalAlignment="Center"
@@ -169,6 +407,7 @@
                                 Foreground="#034f84"/>
                   </StackPanel>
 
+                  <!--Margin Options-->
                   <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Center">
                     <Label Content="Margin Options"
@@ -248,7 +487,7 @@
                         Content="Opti PTVs To Create"
                         HorizontalAlignment="Center" 
                         Foreground="#034f84"/>
-                  <TextBlock Text="Select PTVs you'd like to create opti structures for (not required)"
+                  <TextBlock Text="Select the PTV(s) you'd like to create opti structures for:"
                             TextWrapping="Wrap"
                             FontSize="11"
                             FontStyle="Italic"
@@ -286,6 +525,7 @@
                                 VerticalAlignment="Center"
                                 Margin="5,0"/>
                   </StackPanel>
+                  
                   <!--PTV Margin-->
                   <StackPanel Orientation="Horizontal"
                               HorizontalAlignment="Center"
@@ -309,89 +549,94 @@
                                 Margin="5,0"/>
                   </StackPanel>
 
-                  <!--Option CheckBoxes-->
-                  <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
-                    <Label Content="Options"
-                           VerticalAlignment="Center"
-                           FontSize="13"
-                           Foreground="#034f84"/>
-                  </StackPanel>
-                  <Label Content="__________________________________________________________"
-                            Margin="0,-20,0,0"
-                            HorizontalAlignment="Center"
-                            VerticalContentAlignment="Top"
-                            FontSize="13"
-                            Foreground="#034f84"/>
-                  <StackPanel Orientation="Vertical"
+                    <!--Option CheckBoxes-->
+                    <StackPanel>
+                    <!--Label-->
+                    <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center">
+                      <Label Content="Options"
+                             VerticalAlignment="Center"
+                             FontSize="13"
+                             Foreground="#034f84"/>
+                    </StackPanel>
+                    <!--Divider-->
+                    <Label Content="__________________________________________________________"
+                              Margin="0,-20,0,0"
                               HorizontalAlignment="Center"
-                              Margin="0,0,0,5">
+                              VerticalContentAlignment="Top"
+                              FontSize="13"
+                              Foreground="#034f84"/>
+                    <!--Checkboxes-->
+                    <StackPanel Orientation="Vertical"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,5">
 
-                    <CheckBox Content="Crop Outside Body"
-                              VerticalAlignment="Center"
-                              VerticalContentAlignment="Bottom"
-                              HorizontalAlignment="Left"
-                              HorizontalContentAlignment="Left"
-                              Background="#b1cbbb"
-                              FontSize="12"
-                              Margin="5,3"                              x:Name="CropFromBody_CB"
-                              Click="HandleOptiOptionsSelection"/>
+                      <CheckBox Content="Crop Outside Body"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                Background="#b1cbbb"
+                                FontSize="12"
+                                Margin="5,3"                                x:Name="CropFromBody_CB"
+                                Click="HandleOptiOptionsSelection"/>
 
-                    <CheckBox Content="Create CI Structure"
-                              VerticalAlignment="Center"
-                              VerticalContentAlignment="Bottom"
-                              HorizontalAlignment="Left"
-                              HorizontalContentAlignment="Left"
-                              Background="#b1cbbb"
-                              FontSize="12"
-                              Margin="5,3"                              x:Name="CreateCI_CB"
-                              Click="HandleOptiOptionsSelection"/>
+                      <CheckBox Content="Create CI Structure"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                Background="#b1cbbb"
+                                FontSize="12"
+                                Margin="5,3"                                x:Name="CreateCI_CB"
+                                Click="HandleOptiOptionsSelection"/>
 
-                    <CheckBox Content="Create R50 Structure"
-                              VerticalAlignment="Center"
-                              VerticalContentAlignment="Bottom"
-                              HorizontalAlignment="Left"
-                              HorizontalContentAlignment="Left"
-                              Background="#b1cbbb"
-                              FontSize="12"
-                              Margin="5,3"                              x:Name="CreateR50_CB"
-                              Click="HandleOptiOptionsSelection"/>
+                      <CheckBox Content="Create R50 Structure"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                Background="#b1cbbb"
+                                FontSize="12"
+                                Margin="5,3"                                x:Name="CreateR50_CB"
+                                Click="HandleOptiOptionsSelection"/>
 
-                    <CheckBox Content="Multiple Dose Levels"
-                              VerticalAlignment="Center"
-                              VerticalContentAlignment="Bottom"
-                              HorizontalAlignment="Left"
-                              HorizontalContentAlignment="Left"
-                              Background="#b1cbbb"
-                              FontSize="12"
-                              Margin="5,3"                              x:Name="MultipleDoseLevels_CB"
-                              Click="HandleOptiOptionsSelection"/>
+                      <CheckBox Content="Multiple Dose Levels"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                Background="#b1cbbb"
+                                FontSize="12"
+                                Margin="5,3"                                x:Name="MultipleDoseLevels_CB"
+                                Click="HandleOptiOptionsSelection"/>
 
-                    <!--<CheckBox Content="Opti GTV For Single Lesions"
-                              VerticalAlignment="Center"
-                              VerticalContentAlignment="Bottom"
-                              HorizontalAlignment="Left"
-                              HorizontalContentAlignment="Left"
-                              Background="#b1cbbb"
-                              FontSize="12"
-                              Margin="5,3"                              x:Name="CreateOptiGTV_CB"
-                              Click="CreateOptiGTV_CB_Click"/>
+                      <!--<CheckBox Content="Opti GTV For Single Lesions"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                Background="#b1cbbb"
+                                FontSize="12"
+                                Margin="5,3"                                x:Name="CreateOptiGTV_CB"
+                                Click="CreateOptiGTV_CB_Click"/>
                     
-                    <CheckBox Content="Opti Total"
-                              VerticalAlignment="Center"
-                              VerticalContentAlignment="Bottom"
-                              HorizontalAlignment="Left"
-                              HorizontalContentAlignment="Left"
-                              Background="#b1cbbb"
-                              FontSize="12"
-                              Margin="5,3"                              x:Name="CreateOptiTotal_CB"
-                              Click="CreateOptiTotal_CB_Click"/>-->
+                      <CheckBox Content="Opti Total"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                Background="#b1cbbb"
+                                FontSize="12"
+                                Margin="5,3"                                x:Name="CreateOptiTotal_CB"
+                                Click="CreateOptiTotal_CB_Click"/>-->
 
+                    </StackPanel>
+                      
                   </StackPanel>
-                  
                   <!--Options Section-->
                   <StackPanel x:Name="OptiOptions_SP"
-                              Visibility="Collapsed">
+                              Visibility="visible">
 
                     <StackPanel x:Name="CropOptions_SP"
                                 Visibility="Collapsed">
@@ -837,7 +1082,7 @@
                     FontSize="12"
                     Width="450"
                     Padding="5"
-                    Margin="0,0,0,50"
+                    Margin="0,0,0,35"
                     Style="{StaticResource GreenRoundButtonTemplate}"
                     VerticalContentAlignment="Center"
                     VerticalAlignment="Center"
