@@ -588,15 +588,6 @@ namespace OptiAssistant
 
           if (CreateOptis_CB.IsChecked == true)
           {
-
-            //if (CropFromBody_CB.IsChecked == true) { cropFromBody = true; }
-            //else { cropFromBody = false; }
-
-            //if (CreateCI_CB.IsChecked == true) { createCI = true; }
-            //else { createCI = false; }
-
-            //if (CreateR50_CB.IsChecked == true) { createR50 = true; }
-            //else { createR50 = false; }
             
             cropFromBody = (bool)CropFromBody_CB.IsChecked;
             createCI = (bool)CreateCI_CB.IsChecked;
@@ -1171,7 +1162,7 @@ namespace OptiAssistant
               for (var i = 0; i < ringCount; i++)
               {
                 var ringNum = i + 1;
-                var ringId = string.Format("{0} {1} {2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - ringPrefix.Length), ringNum);
+                var ringId = string.Format("{0} {1} {2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - (ringPrefix.Length + 1 + ringNum.ToString().Length)), ringNum);
 
                 // remove ring structure if present in ss
                 Helpers.RemoveStructure(ss, ringId);
@@ -1214,8 +1205,8 @@ namespace OptiAssistant
 
               for (var i = ringCount; i > 1; i--)
               {
-                var currentRingId = string.Format("{0} {1} {2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - ringPrefix.Length), i);
-                var nextLargestRingId = string.Format("{0} {1} {2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - ringPrefix.Length), i - 1);
+                var currentRingId = string.Format("{0} {1} {2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - (ringPrefix.Length + 1 + i.ToString().Length)), i);
+                var nextLargestRingId = string.Format("{0} {1} {2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - (ringPrefix.Length + 1 + (i-1).ToString().Length)), i - 1);
                 try
                 {
                   var currentRing = ss.Structures.Single(st => st.Id == currentRingId);
