@@ -133,6 +133,9 @@ namespace OptiAssistant
     public int avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
     public int avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
     public int avoidTarget4CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+
+    public bool createPTVEval = false;
+
     //public bool createOptiGTVForSingleLesion = false;
     //public bool createOptiTotal = false;
 
@@ -155,8 +158,6 @@ namespace OptiAssistant
     #endregion
     //---------------------------------------------------------------------------------
     #region event controls
-
-    #region input changed events
 
     #region button / checkbox events
 
@@ -438,6 +439,20 @@ namespace OptiAssistant
       {
         MessageBox.Show("Oops, it appears you'd like to create opti ptv structures but haven't selected any targets to create optis for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         continueToCreateStructures = false;
+      }
+      if (CreateOptis_CB.IsChecked == true && CreatePTVEval_CB.IsChecked == true && PTVList_LV.SelectedItems.Count != 0)
+      {
+        foreach (var t in PTVList_LV.SelectedItems)
+        {
+          var evalId = string.Format("{0}_Eval", Helpers.ProcessStructureId(t.ToString(), MAX_ID_LENGTH - 5));
+          var matchedEvalStructure = ss.Structures.SingleOrDefault(st => st.Id == evalId);
+          if (matchedEvalStructure != null)
+          {
+            MessageBox.Show(string.Format("Oops, it appears {0} already exists.\r\n\t- Please rename the PTV or delete the existing Eval\r\n\tstructure to continue.", evalId), "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            continueToCreateStructures = false;
+          }
+
+        }
       }
       if (CreateRings_CB.IsChecked == true && PTVListForRings_LV.SelectedItems.Count == 0)
       {
@@ -1115,6 +1130,7 @@ namespace OptiAssistant
             cropFromBody = (bool)CropFromBody_CB.IsChecked;
             createCI = (bool)CreateCI_CB.IsChecked;
             createR50 = (bool)CreateR50_CB.IsChecked;
+            createPTVEval = (bool)CreatePTVEval_CB.IsChecked;
 
 
             var optiStructuresToMake = PTVList_LV.SelectedItems;
@@ -1227,6 +1243,9 @@ namespace OptiAssistant
             {
               var ptv = ss.Structures.Single(st => st.Id == s.ToString());
               var optiId = string.Format("{0} {1}", optiPrefix, Helpers.ProcessStructureId(ptv.Id.ToString(), MAX_ID_LENGTH - optiPrefix.Length));
+              var evalId = string.Format("{0}_Eval", Helpers.ProcessStructureId(ptv.Id.ToString(), MAX_ID_LENGTH - 5));
+              Structure evalStructure = null;
+              var zztemp = 0;
 
               if (needHRStructures && ptv.CanConvertToHighResolution())
               {
@@ -1236,34 +1255,84 @@ namespace OptiAssistant
               // remove structure if present in ss
               Helpers.RemoveStructure(ss, optiId);
 
-              // add empty avoid structure
+              // add empty opti structure
               var optiStructure = ss.AddStructure(OPTI_DICOM_TYPE, optiId);
+
+              // eval ptv
+              if (createPTVEval)
+              {
+                Helpers.RemoveStructure(ss, evalId);
+                evalStructure = ss.AddStructure(OPTI_DICOM_TYPE, evalId);
+              }
 
               // copy ptv with defined margin
               optiStructure.SegmentVolume = Helpers.AddMargin(ptv, (double)optiGrowMargin);
               MESSAGES += string.Format("\r\n\t- {0} added w/ {1}mm margin", optiStructure.Id, optiGrowMargin);
+              
 
-              // crop OPTI structure from body surface (if body found)
+              // crop OPTI structure from body surface
               if (cropFromBody)
               {
                 try
                 {
-                  optiStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(optiStructure, bodyHR, -optiCropFromBodyMargin);
-                }
-                catch
-                {
-                  try
+                  if (optiStructure.IsHighResolution)
+                  {
+                    optiStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(optiStructure, bodyHR, -optiCropFromBodyMargin);
+                    MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From Body Surface", optiStructure.Id, optiCropFromBodyMargin);
+                  }
+                  else
                   {
                     optiStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(optiStructure, body, -optiCropFromBodyMargin);
                     MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From Body Surface", optiStructure.Id, optiCropFromBodyMargin);
                   }
-                  catch
+                  
+
+                  if (evalStructure != null)
                   {
-                    MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", optiStructure.Id);
+                    if (evalStructure.IsHighResolution)
+                    {
+                      evalStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(optiStructure, bodyHR, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                      MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From Body Surface", evalStructure.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                    }
                   }
+                }
+                catch
+                {
+                  MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", optiStructure.Id);
                 }
               }
 
+              zztemp += 1;
+              // PTV Eval structure
+              if (evalStructure != null)
+              {
+
+                // copy ptv to eval ptv
+                evalStructure.SegmentVolume = ptv.SegmentVolume;
+                MESSAGES += string.Format("\r\n\t- {0} added", evalStructure.Id);
+                zztemp += 1;
+
+                try
+                {
+                  if (evalStructure.IsHighResolution)
+                  {
+                    evalStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(evalStructure, bodyHR, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                    MESSAGES += string.Format(" and cropped {1} mm From Body Surface", evalStructure.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                  }
+                  else
+                  {
+                    evalStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(evalStructure, body, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                    MESSAGES += string.Format(" and cropped {1} mm From Body Surface", evalStructure.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                  }
+                }
+                catch
+                {
+                  MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", evalStructure.Id);
+                }
+              }
+              zztemp += 1;
+
+              // create CI structure
               if (createCI)
               {
                 try
@@ -1300,6 +1369,7 @@ namespace OptiAssistant
                 }
               }
 
+              // create CI structure
               if (createR50)
               {
                 try
@@ -1752,10 +1822,17 @@ namespace OptiAssistant
           // remove temporary high res structures
           Helpers.RemoveStructure(ss, bodyHRId);
           Helpers.RemoveStructure(ss, zoptiTotalHRId);
-          //Helpers.RemoveStructure(ss, "zzzTEMP"); // don't remember why this was used?
+          Helpers.RemoveStructure(ss, "zzzTEMP"); // keep!!! used when booleaning structures -- Helpers.BooleanStructures()
           foreach (var t in sorted_ptvList)
           {
-            Helpers.RemoveStructure(ss, string.Format("zz{0}_HR", Helpers.ProcessStructureId(t.Id.ToString(), MAX_ID_LENGTH - 5)));
+            try
+            {
+              Helpers.RemoveStructure(ss, string.Format("zz{0}_HR", Helpers.ProcessStructureId(t.Id.ToString(), MAX_ID_LENGTH - 5)));
+            }
+            catch
+            {
+            }
+
           }
 
           #endregion clean up structure set
@@ -1986,8 +2063,6 @@ namespace OptiAssistant
 
     #endregion button / checkbox events
 
-    #endregion input changed events
-
     #endregion event controls
     //---------------------------------------------------------------------------------
     #region helper methods
@@ -2080,8 +2155,5 @@ namespace OptiAssistant
 
     #endregion helper methods
     //---------------------------------------------------------------------------------
-
-
-
   }
 }

@@ -581,6 +581,15 @@
                                 Margin="5,3"                                x:Name="CropFromBody_CB"
                                 Click="HandleOptiOptionsSelection"/>
 
+                      <CheckBox Content="Create PTV__Eval"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                Background="#b1cbbb"
+                                FontSize="12"
+                                Margin="5,3"                                x:Name="CreatePTVEval_CB"/>
+
                       <CheckBox Content="Create CI Structure"
                                 VerticalAlignment="Center"
                                 VerticalContentAlignment="Bottom"
