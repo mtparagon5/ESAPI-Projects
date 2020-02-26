@@ -159,6 +159,9 @@ namespace VMS.TPS
         mainControl.MultipleDoseLevels_CB.IsEnabled = false;
         mainControl.hasSinglePTV  = true;
 
+        // check and disable boolean all targets cb && disable multiple avoid targets cb
+        mainControl.BooleanAllTargets_CB.IsChecked = true;
+        mainControl.BooleanAllTargets_CB.IsEnabled = false;
         mainControl.MultipleAvoidTargets_CB.IsEnabled = false;
       }
       else
@@ -166,6 +169,7 @@ namespace VMS.TPS
         mainControl.CropAvoidsFromPTVs.Visibility = Visibility.Visible;
         mainControl.hasMultiplePTVs = true;
         mainControl.DoseLevel1_Radio.IsChecked = true;
+        mainControl.BooleanAllTargets_CB.IsChecked = true;
 
         foreach (var s in mainControl.sorted_ptvList)
         {

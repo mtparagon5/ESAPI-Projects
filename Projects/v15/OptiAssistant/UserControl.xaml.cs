@@ -534,7 +534,7 @@ namespace OptiAssistant
 
           // create zopti total High Res for booleans/cropping
           Structure zoptiTotalHR = null;
-          string zoptiTotalHRId = "zzopti total_HR";
+          string zoptiTotalHRId = "zptv total_HR";
           if (needHRStructures)
           {
             // remove if already there
@@ -579,7 +579,7 @@ namespace OptiAssistant
 
           // create zopti total if ptv(s) present
           Structure zoptiTotal = null;
-          string zoptiTotalId = "zopti total";
+          string zoptiTotalId = "zptv total";
 
           if (hasSinglePTV || hasMultiplePTVs)
           {
@@ -671,8 +671,457 @@ namespace OptiAssistant
               var oar = ss.Structures.Single(st => st.Id == s.ToString());
               Structure avoidStructure = null;
               var avId = string.Empty;
+              // if one or more PTVs detected
+              if (hasSinglePTV || hasMultiplePTVs)
+              {
+                if (BooleanAllTargets_CB.IsChecked == true)
+                {
+                  avId = string.Format("{0} {1}", avPrefix, Helpers.ProcessStructureId(oar.Id.ToString(), MAX_ID_LENGTH - avPrefix.Length));
 
-              if (hasSinglePTV || BooleanAllTargets_CB.IsChecked == true)
+                  // remove structure if present in ss
+                  Helpers.RemoveStructure(ss, avId);
+
+                  // add empty avoid structure
+                  avoidStructure = ss.AddStructure(AVOIDANCE_DICOM_TYPE, avId);
+
+                  // copy oar with defined margin
+                  avoidStructure.SegmentVolume = Helpers.AddMargin(oar, (double)avGrowMargin);
+                  MESSAGES += string.Format("\r\n\t- {0} added w/ {1}mm margin",
+                                                          avoidStructure.Id,
+                                                          avGrowMargin
+                  );
+
+                  try
+                  {
+
+                    // crop avoid structure from ptv total (if ptvs are found)
+                    try
+                    {
+                      if (avoidStructure.IsHighResolution)
+                      {
+                        avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotalHR.SegmentVolume, avCropMargin);
+                      }
+                      else
+                      {
+                        avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotal.SegmentVolume, avCropMargin);
+                      }
+
+                      MESSAGES += string.Format(" & cropped {0}mm from {1}",
+                                                        avCropMargin,
+                                                        zoptiTotal.Id
+                      );
+                    }
+                    catch
+                    {
+                      try
+                      {
+                        if (avoidStructure.CanConvertToHighResolution()) { avoidStructure.ConvertToHighResolution(); }
+
+                        avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotalHR.SegmentVolume, avCropMargin);
+
+                        MESSAGES += string.Format(" & cropped {0}mm from {1}",
+                                                        avCropMargin,
+                                                        zoptiTotal.Id
+                        );
+                      }
+                      catch
+                      {
+                        if (sorted_ptvList.Count() >= 1)
+                        {
+                          MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Targets***", avoidStructure.Id);
+                        }
+                        else
+                        {
+                          MESSAGES += string.Format("\r\n\t- ***No PTVs to crop avoid structures from***", avoidStructure.Id);
+                        }
+                      }
+                    }
+
+
+                    // crop from body
+                    try
+                    {
+                      if (avoidStructure.IsHighResolution)
+                      {
+                        avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, bodyHR, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
+                      }
+                      else
+                      {
+                        avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, body, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
+                      }
+                    }
+                    catch
+                    {
+                      MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", avoidStructure.Id);
+                    }
+
+                  }
+                  catch
+                  {
+                    MESSAGES += string.Format("\r\n\t- ***Trouble creating {0}***", avoidStructure.Id);
+                  }
+
+
+
+                }
+                else if (MultipleAvoidTargets_CB.IsChecked == true)
+                {
+                  string avoidTarget1 = null;
+                  string avoidTarget2 = null;
+                  string avoidTarget3 = null;
+                  string avoidTarget4 = null;
+                  Structure avoidTarget = null;
+                  Structure avoidTarget_HR = null;
+
+                  int avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                  int avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                  int avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                  int avoidTarget4CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+
+                  var targetNumber = 1;
+                  var targetsToCreateAvoidsFor = new List<string>();
+
+                  // define avoid targets
+                  if (AvoidTarget1_Radio.IsChecked == true)
+                  {
+                    targetsToCreateAvoidsFor.Add(AvoidTarget1_Combo.SelectedItem.ToString());
+                    avoidTarget1 = AvoidTarget1_Combo.SelectedItem.ToString();
+                  }
+                  else if (AvoidTarget2_Radio.IsChecked == true)
+                  {
+                    targetsToCreateAvoidsFor.Add(AvoidTarget1_Combo.SelectedItem.ToString());
+                    targetsToCreateAvoidsFor.Add(AvoidTarget2_Combo.SelectedItem.ToString());
+                    avoidTarget1 = AvoidTarget1_Combo.SelectedItem.ToString();
+                    avoidTarget2 = AvoidTarget2_Combo.SelectedItem.ToString();
+                  }
+                  else if (AvoidTarget3_Radio.IsChecked == true)
+                  {
+                    targetsToCreateAvoidsFor.Add(AvoidTarget1_Combo.SelectedItem.ToString());
+                    targetsToCreateAvoidsFor.Add(AvoidTarget2_Combo.SelectedItem.ToString());
+                    targetsToCreateAvoidsFor.Add(AvoidTarget3_Combo.SelectedItem.ToString());
+                    avoidTarget1 = AvoidTarget1_Combo.SelectedItem.ToString();
+                    avoidTarget2 = AvoidTarget2_Combo.SelectedItem.ToString();
+                    avoidTarget3 = AvoidTarget3_Combo.SelectedItem.ToString();
+                  }
+                  else if (AvoidTarget4_Radio.IsChecked == true)
+                  {
+                    targetsToCreateAvoidsFor.Add(AvoidTarget1_Combo.SelectedItem.ToString());
+                    targetsToCreateAvoidsFor.Add(AvoidTarget2_Combo.SelectedItem.ToString());
+                    targetsToCreateAvoidsFor.Add(AvoidTarget3_Combo.SelectedItem.ToString());
+                    targetsToCreateAvoidsFor.Add(AvoidTarget4_Combo.SelectedItem.ToString());
+                    avoidTarget1 = AvoidTarget1_Combo.SelectedItem.ToString();
+                    avoidTarget2 = AvoidTarget2_Combo.SelectedItem.ToString();
+                    avoidTarget3 = AvoidTarget3_Combo.SelectedItem.ToString();
+                    avoidTarget4 = AvoidTarget4_Combo.SelectedItem.ToString();
+                  }
+
+                  // get crop margins
+                  if (targetsToCreateAvoidsFor.Count == 1)
+                  {
+                    // set crop margin
+                    if (AvoidTarget1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget1CropMargin_TextBox.Text)) { avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                    else
+                    {
+                      if (int.TryParse(AvoidTarget1CropMargin_TextBox.Text, out avoidTarget1CropMargin))
+                      {
+                        //parsing successful 
+                      }
+                      else
+                      {
+                        //parsing failed. 
+                        avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                        MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                            AvoidTarget1CropMargin_TextBox.Text,
+                            avoidTarget1,
+                            DEFAULT_AVOIDANCE_CROP_MARGIN));
+                      }
+                    }
+                  }
+                  else if (targetsToCreateAvoidsFor.Count == 2)
+                  {
+                    // set crop margin
+                    // 1
+                    if (AvoidTarget1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget1CropMargin_TextBox.Text)) { avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                    else
+                    {
+                      if (int.TryParse(AvoidTarget1CropMargin_TextBox.Text, out avoidTarget1CropMargin))
+                      {
+                        //parsing successful 
+                      }
+                      else
+                      {
+                        //parsing failed. 
+                        avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                        MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                            AvoidTarget1CropMargin_TextBox.Text,
+                            avoidTarget1,
+                            DEFAULT_AVOIDANCE_CROP_MARGIN));
+                      }
+                    }
+
+                    // 2
+                    if (AvoidTarget2CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget2CropMargin_TextBox.Text)) { avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                    else
+                    {
+                      if (int.TryParse(AvoidTarget2CropMargin_TextBox.Text, out avoidTarget2CropMargin))
+                      {
+                        //parsing successful 
+                      }
+                      else
+                      {
+                        //parsing failed. 
+                        avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                        MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                            AvoidTarget2CropMargin_TextBox.Text,
+                            avoidTarget2,
+                            DEFAULT_AVOIDANCE_CROP_MARGIN));
+                      }
+                    }
+                  }
+                  else if (targetsToCreateAvoidsFor.Count == 3)
+                  {
+                    // set crop margin
+                    // 1
+                    if (AvoidTarget1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget1CropMargin_TextBox.Text)) { avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                    else
+                    {
+                      if (int.TryParse(AvoidTarget1CropMargin_TextBox.Text, out avoidTarget1CropMargin))
+                      {
+                        //parsing successful 
+                      }
+                      else
+                      {
+                        //parsing failed. 
+                        avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                        MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                            AvoidTarget1CropMargin_TextBox.Text,
+                            avoidTarget1,
+                            DEFAULT_AVOIDANCE_CROP_MARGIN));
+                      }
+                    }
+
+                    // 2
+                    if (AvoidTarget2CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget2CropMargin_TextBox.Text)) { avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                    else
+                    {
+                      if (int.TryParse(AvoidTarget2CropMargin_TextBox.Text, out avoidTarget2CropMargin))
+                      {
+                        //parsing successful 
+                      }
+                      else
+                      {
+                        //parsing failed. 
+                        avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                        MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                            AvoidTarget2CropMargin_TextBox.Text,
+                            avoidTarget2,
+                            DEFAULT_AVOIDANCE_CROP_MARGIN));
+                      }
+                    }
+
+                    // 3
+                    if (AvoidTarget3CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget3CropMargin_TextBox.Text)) { avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                    else
+                    {
+                      if (int.TryParse(AvoidTarget3CropMargin_TextBox.Text, out avoidTarget3CropMargin))
+                      {
+                        //parsing successful 
+                      }
+                      else
+                      {
+                        //parsing failed. 
+                        avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                        MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                            AvoidTarget3CropMargin_TextBox.Text,
+                            avoidTarget3,
+                            DEFAULT_AVOIDANCE_CROP_MARGIN));
+                      }
+                    }
+
+                  }
+                  else if (targetsToCreateAvoidsFor.Count == 4)
+                  {
+                    // set crop margin
+                    // 1
+                    if (AvoidTarget1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget1CropMargin_TextBox.Text)) { avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                    else
+                    {
+                      if (int.TryParse(AvoidTarget1CropMargin_TextBox.Text, out avoidTarget1CropMargin))
+                      {
+                        //parsing successful 
+                      }
+                      else
+                      {
+                        //parsing failed. 
+                        avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                        MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                            AvoidTarget1CropMargin_TextBox.Text,
+                            avoidTarget1,
+                            DEFAULT_AVOIDANCE_CROP_MARGIN));
+                      }
+                    }
+
+                    // 2
+                    if (AvoidTarget2CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget2CropMargin_TextBox.Text)) { avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                    else
+                    {
+                      if (int.TryParse(AvoidTarget2CropMargin_TextBox.Text, out avoidTarget2CropMargin))
+                      {
+                        //parsing successful 
+                      }
+                      else
+                      {
+                        //parsing failed. 
+                        avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                        MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                            AvoidTarget2CropMargin_TextBox.Text,
+                            avoidTarget2,
+                            DEFAULT_AVOIDANCE_CROP_MARGIN));
+                      }
+                    }
+
+                    // 3
+                    if (AvoidTarget3CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget3CropMargin_TextBox.Text)) { avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                    else
+                    {
+                      if (int.TryParse(AvoidTarget3CropMargin_TextBox.Text, out avoidTarget3CropMargin))
+                      {
+                        //parsing successful 
+                      }
+                      else
+                      {
+                        //parsing failed. 
+                        avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                        MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                            AvoidTarget3CropMargin_TextBox.Text,
+                            avoidTarget3,
+                            DEFAULT_AVOIDANCE_CROP_MARGIN));
+                      }
+                    }
+
+                    // 4
+                    if (AvoidTarget4CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget4CropMargin_TextBox.Text)) { avoidTarget4CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
+                    else
+                    {
+                      if (int.TryParse(AvoidTarget4CropMargin_TextBox.Text, out avoidTarget4CropMargin))
+                      {
+                        //parsing successful 
+                      }
+                      else
+                      {
+                        //parsing failed. 
+                        avoidTarget4CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+                        MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
+                            AvoidTarget4CropMargin_TextBox.Text,
+                            avoidTarget4,
+                            DEFAULT_AVOIDANCE_CROP_MARGIN));
+                      }
+                    }
+
+                  }
+
+                  foreach (var t in targetsToCreateAvoidsFor)
+                  {
+                    avId = string.Format("{0} {1} {2}",
+                                            avPrefix,
+                                            targetNumber,
+                                            Helpers.ProcessStructureId(oar.Id.ToString(), MAX_ID_LENGTH - (avPrefix.Length + 2)) // +# to account for strongly typed characters/spaces beyond those already accounted for
+                    );
+
+                    var avoidTargetHRId = string.Format("zz{0}_HR", Helpers.ProcessStructureId(t, MAX_ID_LENGTH - 5));
+
+                    // match ptv in structure set
+                    avoidTarget = ss.Structures.Single(st => st.Id == t);
+                    avoidTarget_HR = ss.Structures.Single(st => st.Id == avoidTargetHRId);
+
+                    // match crop margin
+                    if (targetNumber == 1) { avCropMargin = avoidTarget1CropMargin; }
+                    else if (targetNumber == 2) { avCropMargin = avoidTarget2CropMargin; }
+                    else if (targetNumber == 3) { avCropMargin = avoidTarget3CropMargin; }
+                    else if (targetNumber == 4) { avCropMargin = avoidTarget4CropMargin; }
+
+                    // remove structure if present in ss
+                    Helpers.RemoveStructure(ss, avId);
+
+                    // add empty avoid structure
+                    avoidStructure = ss.AddStructure(AVOIDANCE_DICOM_TYPE, avId);
+
+
+                    // copy oar with defined margin
+                    avoidStructure.SegmentVolume = Helpers.AddMargin(oar, (double)avGrowMargin);
+                    MESSAGES += string.Format("\r\n\t- {0} added w/ {1}mm margin",
+                                                          avoidStructure.Id,
+                                                          avGrowMargin
+                    );
+
+                    try
+                    {
+
+                      // crop avoid structure from avoid ptv
+                      try
+                      {
+                        if (avoidStructure.IsHighResolution)
+                        {
+                          avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, avoidTarget_HR.SegmentVolume, avCropMargin);
+                        }
+                        else
+                        {
+                          avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, avoidTarget.SegmentVolume, avCropMargin);
+                        }
+
+                        MESSAGES += string.Format(" & cropped {0}mm from {1}",
+                                                          avCropMargin,
+                                                          avoidTarget.Id
+                        );
+                      }
+                      catch
+                      {
+                        try
+                        {
+                          if (avoidStructure.CanConvertToHighResolution()) { avoidStructure.ConvertToHighResolution(); }
+
+                          avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, avoidTarget_HR.SegmentVolume, avCropMargin);
+
+                          MESSAGES += string.Format(" & cropped {0}mm from {1}",
+                                                          avCropMargin,
+                                                          avoidTarget.Id
+                          );
+                        }
+                        catch
+                        {
+                          MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From {1}***", avoidStructure.Id, avoidTarget.Id);
+                        }
+                      }
+
+                      // crop from body
+                      try
+                      {
+                        if (avoidStructure.IsHighResolution)
+                        {
+                          avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, bodyHR, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
+                        }
+                        else
+                        {
+                          avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, body, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
+                        }
+                      }
+                      catch
+                      {
+                        MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", avoidStructure.Id);
+                      }
+                    }
+                    catch
+                    {
+                      MESSAGES += string.Format("\r\n\t- ***Trouble creating {0}***", avoidStructure.Id);
+                    }
+
+                    // increment target number for avoid structure naming/grouping by the target it's cropped away from
+                    targetNumber += 1;
+                  }
+                }
+              }
+              // if no PTVs detected (no structures that start with PTV)
+              else 
               {
                 avId = string.Format("{0} {1}", avPrefix, Helpers.ProcessStructureId(oar.Id.ToString(), MAX_ID_LENGTH - avPrefix.Length));
 
@@ -691,50 +1140,6 @@ namespace OptiAssistant
 
                 try
                 {
-
-                  // crop avoid structure from ptv total (if ptvs are found)
-                  try
-                  {
-                    if (avoidStructure.IsHighResolution)
-                    {
-                      avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotalHR.SegmentVolume, avCropMargin);
-                    }
-                    else
-                    {
-                      avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotal.SegmentVolume, avCropMargin);
-                    }
-
-                    MESSAGES += string.Format(" & cropped {0}mm from {1}",
-                                                      avCropMargin,
-                                                      zoptiTotal.Id
-                    );
-                  }
-                  catch
-                  {
-                    try
-                    {
-                      if (avoidStructure.CanConvertToHighResolution()) { avoidStructure.ConvertToHighResolution(); }
-
-                      avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotalHR.SegmentVolume, avCropMargin);
-
-                      MESSAGES += string.Format(" & cropped {0}mm from {1}",
-                                                      avCropMargin,
-                                                      zoptiTotal.Id
-                      );
-                    }
-                    catch
-                    {
-                      if (sorted_ptvList.Count() >= 1)
-                      {
-                        MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Targets***", avoidStructure.Id);
-                      }
-                      else
-                      {
-                        MESSAGES += string.Format("\r\n\t- ***No PTVs to crop avoid structures from***", avoidStructure.Id);
-                      }
-                    }
-                  }
-
 
                   // crop from body
                   try
@@ -761,361 +1166,6 @@ namespace OptiAssistant
 
 
 
-              }
-              else if (MultipleAvoidTargets_CB.IsChecked == true)
-              {
-                string avoidTarget1 = null;
-                string avoidTarget2 = null;
-                string avoidTarget3 = null;
-                string avoidTarget4 = null;
-                Structure avoidTarget = null;
-                Structure avoidTarget_HR = null;
-
-                int avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-                int avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-                int avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-                int avoidTarget4CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-
-                var targetNumber = 1;
-                var targetsToCreateAvoidsFor = new List<string>();
-
-                // define avoid targets
-                if (AvoidTarget1_Radio.IsChecked == true)
-                {
-                  targetsToCreateAvoidsFor.Add(AvoidTarget1_Combo.SelectedItem.ToString());
-                  avoidTarget1 = AvoidTarget1_Combo.SelectedItem.ToString();
-                }
-                else if (AvoidTarget2_Radio.IsChecked == true)
-                {
-                  targetsToCreateAvoidsFor.Add(AvoidTarget1_Combo.SelectedItem.ToString());
-                  targetsToCreateAvoidsFor.Add(AvoidTarget2_Combo.SelectedItem.ToString());
-                  avoidTarget1 = AvoidTarget1_Combo.SelectedItem.ToString();
-                  avoidTarget2 = AvoidTarget2_Combo.SelectedItem.ToString();
-                }
-                else if (AvoidTarget3_Radio.IsChecked == true)
-                {
-                  targetsToCreateAvoidsFor.Add(AvoidTarget1_Combo.SelectedItem.ToString());
-                  targetsToCreateAvoidsFor.Add(AvoidTarget2_Combo.SelectedItem.ToString());
-                  targetsToCreateAvoidsFor.Add(AvoidTarget3_Combo.SelectedItem.ToString());
-                  avoidTarget1 = AvoidTarget1_Combo.SelectedItem.ToString();
-                  avoidTarget2 = AvoidTarget2_Combo.SelectedItem.ToString();
-                  avoidTarget3 = AvoidTarget3_Combo.SelectedItem.ToString();
-                }
-                else if (AvoidTarget4_Radio.IsChecked == true)
-                {
-                  targetsToCreateAvoidsFor.Add(AvoidTarget1_Combo.SelectedItem.ToString());
-                  targetsToCreateAvoidsFor.Add(AvoidTarget2_Combo.SelectedItem.ToString());
-                  targetsToCreateAvoidsFor.Add(AvoidTarget3_Combo.SelectedItem.ToString());
-                  targetsToCreateAvoidsFor.Add(AvoidTarget4_Combo.SelectedItem.ToString());
-                  avoidTarget1 = AvoidTarget1_Combo.SelectedItem.ToString();
-                  avoidTarget2 = AvoidTarget2_Combo.SelectedItem.ToString();
-                  avoidTarget3 = AvoidTarget3_Combo.SelectedItem.ToString();
-                  avoidTarget4 = AvoidTarget4_Combo.SelectedItem.ToString();
-                }
-
-                // get crop margins
-                if (targetsToCreateAvoidsFor.Count == 1)
-                {
-                  // set crop margin
-                  if (AvoidTarget1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget1CropMargin_TextBox.Text)) { avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
-                  else
-                  {
-                    if (int.TryParse(AvoidTarget1CropMargin_TextBox.Text, out avoidTarget1CropMargin))
-                    {
-                      //parsing successful 
-                    }
-                    else
-                    {
-                      //parsing failed. 
-                      avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.", 
-                          AvoidTarget1CropMargin_TextBox.Text, 
-                          avoidTarget1, 
-                          DEFAULT_AVOIDANCE_CROP_MARGIN));
-                    }
-                  }
-                }
-                else if (targetsToCreateAvoidsFor.Count == 2)
-                {
-                  // set crop margin
-                  // 1
-                  if (AvoidTarget1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget1CropMargin_TextBox.Text)) { avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
-                  else
-                  {
-                    if (int.TryParse(AvoidTarget1CropMargin_TextBox.Text, out avoidTarget1CropMargin))
-                    {
-                      //parsing successful 
-                    }
-                    else
-                    {
-                      //parsing failed. 
-                      avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
-                          AvoidTarget1CropMargin_TextBox.Text,
-                          avoidTarget1,
-                          DEFAULT_AVOIDANCE_CROP_MARGIN));
-                    }
-                  }
-
-                  // 2
-                  if (AvoidTarget2CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget2CropMargin_TextBox.Text)) { avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
-                  else
-                  {
-                    if (int.TryParse(AvoidTarget2CropMargin_TextBox.Text, out avoidTarget2CropMargin))
-                    {
-                      //parsing successful 
-                    }
-                    else
-                    {
-                      //parsing failed. 
-                      avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
-                          AvoidTarget2CropMargin_TextBox.Text,
-                          avoidTarget2,
-                          DEFAULT_AVOIDANCE_CROP_MARGIN));
-                    }
-                  }
-                }
-                else if (targetsToCreateAvoidsFor.Count == 3)
-                {
-                  // set crop margin
-                  // 1
-                  if (AvoidTarget1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget1CropMargin_TextBox.Text)) { avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
-                  else
-                  {
-                    if (int.TryParse(AvoidTarget1CropMargin_TextBox.Text, out avoidTarget1CropMargin))
-                    {
-                      //parsing successful 
-                    }
-                    else
-                    {
-                      //parsing failed. 
-                      avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
-                          AvoidTarget1CropMargin_TextBox.Text,
-                          avoidTarget1,
-                          DEFAULT_AVOIDANCE_CROP_MARGIN));
-                    }
-                  }
-
-                  // 2
-                  if (AvoidTarget2CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget2CropMargin_TextBox.Text)) { avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
-                  else
-                  {
-                    if (int.TryParse(AvoidTarget2CropMargin_TextBox.Text, out avoidTarget2CropMargin))
-                    {
-                      //parsing successful 
-                    }
-                    else
-                    {
-                      //parsing failed. 
-                      avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
-                          AvoidTarget2CropMargin_TextBox.Text,
-                          avoidTarget2,
-                          DEFAULT_AVOIDANCE_CROP_MARGIN));
-                    }
-                  }
-
-                  // 3
-                  if (AvoidTarget3CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget3CropMargin_TextBox.Text)) { avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
-                  else
-                  {
-                    if (int.TryParse(AvoidTarget3CropMargin_TextBox.Text, out avoidTarget3CropMargin))
-                    {
-                      //parsing successful 
-                    }
-                    else
-                    {
-                      //parsing failed. 
-                      avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
-                          AvoidTarget3CropMargin_TextBox.Text,
-                          avoidTarget3,
-                          DEFAULT_AVOIDANCE_CROP_MARGIN));
-                    }
-                  }
-
-                }
-                else if (targetsToCreateAvoidsFor.Count == 4)
-                {
-                  // set crop margin
-                  // 1
-                  if (AvoidTarget1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget1CropMargin_TextBox.Text)) { avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
-                  else
-                  {
-                    if (int.TryParse(AvoidTarget1CropMargin_TextBox.Text, out avoidTarget1CropMargin))
-                    {
-                      //parsing successful 
-                    }
-                    else
-                    {
-                      //parsing failed. 
-                      avoidTarget1CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
-                          AvoidTarget1CropMargin_TextBox.Text,
-                          avoidTarget1,
-                          DEFAULT_AVOIDANCE_CROP_MARGIN));
-                    }
-                  }
-
-                  // 2
-                  if (AvoidTarget2CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget2CropMargin_TextBox.Text)) { avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
-                  else
-                  {
-                    if (int.TryParse(AvoidTarget2CropMargin_TextBox.Text, out avoidTarget2CropMargin))
-                    {
-                      //parsing successful 
-                    }
-                    else
-                    {
-                      //parsing failed. 
-                      avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
-                          AvoidTarget2CropMargin_TextBox.Text,
-                          avoidTarget2,
-                          DEFAULT_AVOIDANCE_CROP_MARGIN));
-                    }
-                  }
-
-                  // 3
-                  if (AvoidTarget3CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget3CropMargin_TextBox.Text)) { avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
-                  else
-                  {
-                    if (int.TryParse(AvoidTarget3CropMargin_TextBox.Text, out avoidTarget3CropMargin))
-                    {
-                      //parsing successful 
-                    }
-                    else
-                    {
-                      //parsing failed. 
-                      avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
-                          AvoidTarget3CropMargin_TextBox.Text,
-                          avoidTarget3,
-                          DEFAULT_AVOIDANCE_CROP_MARGIN));
-                    }
-                  }
-
-                  // 4
-                  if (AvoidTarget4CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(AvoidTarget4CropMargin_TextBox.Text)) { avoidTarget4CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN; }
-                  else
-                  {
-                    if (int.TryParse(AvoidTarget4CropMargin_TextBox.Text, out avoidTarget4CropMargin))
-                    {
-                      //parsing successful 
-                    }
-                    else
-                    {
-                      //parsing failed. 
-                      avoidTarget4CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-                      MessageBox.Show(string.Format("Oops, an invalid value ({0}) was used for cropping avoidance structures from {1}. The DEFAULT of {2}mm will be used.",
-                          AvoidTarget4CropMargin_TextBox.Text,
-                          avoidTarget4,
-                          DEFAULT_AVOIDANCE_CROP_MARGIN));
-                    }
-                  }
-
-                }
-
-                foreach (var t in targetsToCreateAvoidsFor)
-                {
-                  avId = string.Format("{0} {1} {2}", 
-                                          avPrefix, 
-                                          targetNumber,
-                                          Helpers.ProcessStructureId(oar.Id.ToString(), MAX_ID_LENGTH - (avPrefix.Length + 2)) // +# to account for strongly typed characters/spaces beyond those already accounted for
-                  );
-
-                  var avoidTargetHRId = string.Format("zz{0}_HR", Helpers.ProcessStructureId(t, MAX_ID_LENGTH - 5));
-
-                  // match ptv in structure set
-                  avoidTarget = ss.Structures.Single(st => st.Id == t);
-                  avoidTarget_HR = ss.Structures.Single(st => st.Id == avoidTargetHRId);
-
-                  // match crop margin
-                  if (targetNumber == 1) { avCropMargin = avoidTarget1CropMargin; }
-                  else if (targetNumber == 2) { avCropMargin = avoidTarget2CropMargin; }
-                  else if (targetNumber == 3) { avCropMargin = avoidTarget3CropMargin; }
-                  else if (targetNumber == 4) { avCropMargin = avoidTarget4CropMargin; }
-
-                  // remove structure if present in ss
-                  Helpers.RemoveStructure(ss, avId);
-
-                  // add empty avoid structure
-                  avoidStructure = ss.AddStructure(AVOIDANCE_DICOM_TYPE, avId);
-                  
-
-                  // copy oar with defined margin
-                  avoidStructure.SegmentVolume = Helpers.AddMargin(oar, (double)avGrowMargin);
-                  MESSAGES += string.Format("\r\n\t- {0} added w/ {1}mm margin",
-                                                        avoidStructure.Id,
-                                                        avGrowMargin
-                  );
-
-                  try
-                  {
-
-                    // crop avoid structure from avoid ptv
-                    try
-                    {
-                      if (avoidStructure.IsHighResolution)
-                      {
-                        avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, avoidTarget_HR.SegmentVolume, avCropMargin);
-                      }
-                      else
-                      {
-                        avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, avoidTarget.SegmentVolume, avCropMargin);
-                      }
-
-                      MESSAGES += string.Format(" & cropped {0}mm from {1}",
-                                                        avCropMargin,
-                                                        avoidTarget.Id
-                      );
-                    }
-                    catch
-                    {
-                      try
-                      {
-                        if (avoidStructure.CanConvertToHighResolution()) { avoidStructure.ConvertToHighResolution(); }
-
-                        avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, avoidTarget_HR.SegmentVolume, avCropMargin);
-
-                        MESSAGES += string.Format(" & cropped {0}mm from {1}",
-                                                        avCropMargin,
-                                                        avoidTarget.Id
-                        );
-                      }
-                      catch
-                      {
-                        MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From {1}***", avoidStructure.Id, avoidTarget.Id);
-                      }
-                    }
-
-                    // crop from body
-                    try
-                    {
-                      if (avoidStructure.IsHighResolution)
-                      {
-                        avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, bodyHR, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
-                      }
-                      else
-                      {
-                        avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, body, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
-                      }
-                    }
-                    catch
-                    {
-                      MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", avoidStructure.Id);
-                    }
-                  }
-                  catch
-                  {
-                    MESSAGES += string.Format("\r\n\t- ***Trouble creating {0}***", avoidStructure.Id);
-                  }
-                  
-                  // increment target number for avoid structure naming/grouping by the target it's cropped away from
-                  targetNumber += 1;
-                }
               }
             }
           }
@@ -1870,8 +1920,14 @@ namespace OptiAssistant
       }
       if (cb.IsChecked == false)
       {
+        if (cb.Name == booleanAll)
+        {
+          MultipleAvoidTargets_CB.IsChecked = true;
+          MultipleAvoidTargets_SP.Visibility = Visibility.Visible;
+        }
         if (cb.Name == multipleAvoidTargets)
         {
+          BooleanAllTargets_CB.IsChecked = true;
           MultipleAvoidTargets_SP.Visibility = Visibility.Collapsed;
         }
       }
