@@ -528,7 +528,7 @@ namespace OptiAssistant
           {
             body = Helpers.GetBody(ss);
             //MessageBox.Show(string.Format("{0}", body.IsHighResolution));
-            if (!body.HasSegment && !body.IsEmpty)
+            if (body.HasSegment && body.IsEmpty)
             {
               body = ss.CreateAndSearchBody(ss.GetDefaultSearchBodyParameters());
 
@@ -584,7 +584,7 @@ namespace OptiAssistant
                 // add empty zopti total structure
                 hrTarget = ss.AddStructure(OPTI_DICOM_TYPE, hrId);
                 hrTarget.SegmentVolume = t.SegmentVolume;
-                if (hrTarget.CanConvertToHighResolution()) { hrTarget.ConvertToHighResolution(); }
+                if (hrTarget.CanConvertToHighResolution()) { hrTarget.ConvertToHighResolution(); } // TODO: may need to check if t is HR and then convert hrTarget to HR first?
 
 
                 zptvTotalHR.SegmentVolume = zptvTotalHR.Or(hrTarget.SegmentVolume);
@@ -1457,6 +1457,8 @@ namespace OptiAssistant
               }
             }
 
+
+
             // create optis
             foreach (var s in optiStructuresToMake)
             {
@@ -1464,12 +1466,14 @@ namespace OptiAssistant
               var optiId = string.Format("{0} {1}", optiPrefix, Helpers.ProcessStructureId(ptv.Id.ToString(), MAX_ID_LENGTH - optiPrefix.Length));
               var evalId = string.Format("{0}_Eval", Helpers.ProcessStructureId(ptv.Id.ToString(), MAX_ID_LENGTH - 5));
               Structure evalStructure = null;
-              var zztemp = 0;
+              //var zztemp = 0;
 
               if (needHRStructures && ptv.CanConvertToHighResolution())
               {
                 ptv.ConvertToHighResolution();
               }
+
+
 
               // remove structure if present in ss
               Helpers.RemoveStructure(ss, optiId);
@@ -1477,17 +1481,34 @@ namespace OptiAssistant
               // add empty opti structure
               var optiStructure = ss.AddStructure(OPTI_DICOM_TYPE, optiId);
 
-              // eval ptv
-              if (createPTVEval)
+              if (needHRStructures && optiStructure.CanConvertToHighResolution())
               {
-                Helpers.RemoveStructure(ss, evalId);
-                evalStructure = ss.AddStructure(OPTI_DICOM_TYPE, evalId);
+                optiStructure.ConvertToHighResolution();
               }
 
               // copy ptv with defined margin
               optiStructure.SegmentVolume = Helpers.AddMargin(ptv, (double)optiGrowMargin);
               MESSAGES += string.Format("\r\n\t- {0} added w/ {1} mm margin", optiStructure.Id, optiGrowMargin);
+
+
+
+
+              // eval ptv
+              if (createPTVEval)
+              {
+                Helpers.RemoveStructure(ss, evalId);
+                evalStructure = ss.AddStructure(OPTI_DICOM_TYPE, evalId);
+
+                if (needHRStructures && evalStructure.CanConvertToHighResolution())
+                {
+                  evalStructure.ConvertToHighResolution();
+                }
+              }
+
               
+
+
+
 
               // crop OPTI structure from body surface
               if (cropFromBody)
@@ -1521,7 +1542,7 @@ namespace OptiAssistant
                 }
               }
 
-              zztemp += 1;
+              //zztemp += 1;
               // PTV Eval structure
               if (evalStructure != null)
               {
@@ -1529,7 +1550,7 @@ namespace OptiAssistant
                 // copy ptv to eval ptv
                 evalStructure.SegmentVolume = ptv.SegmentVolume;
                 MESSAGES += string.Format("\r\n\t- {0} added", evalStructure.Id);
-                zztemp += 1;
+                //zztemp += 1;
 
                 try
                 {
@@ -1549,7 +1570,7 @@ namespace OptiAssistant
                   MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", evalStructure.Id);
                 }
               }
-              zztemp += 1;
+              //zztemp += 1;
 
               // create CI structure
               if (createCI)
@@ -1577,6 +1598,11 @@ namespace OptiAssistant
 
                   // add empty avoid structure
                   var ciStructure = ss.AddStructure(CONTROL_DICOM_TYPE, ciId);
+
+                  if (ptv.IsHighResolution && ciStructure.CanConvertToHighResolution())
+                  {
+                    ciStructure.ConvertToHighResolution();
+                  }
 
                   // copy ptv with defined margin
                   ciStructure.SegmentVolume = Helpers.AddMargin(ptv, (double)ciGrowMargin);
@@ -1615,6 +1641,11 @@ namespace OptiAssistant
                   // add empty avoid structure
                   var r50Structure = ss.AddStructure(CONTROL_DICOM_TYPE, r50Id);
 
+                  if (ptv.IsHighResolution && r50Structure.CanConvertToHighResolution())
+                  {
+                    r50Structure.ConvertToHighResolution();
+                  }
+
                   // copy ptv with defined margin
                   r50Structure.SegmentVolume = Helpers.AddMargin(ptv, (double)r50GrowMargin);
                   MESSAGES += string.Format("\r\n\t- {0} added with {1} mm margin", r50Structure.Id, r50GrowMargin);
@@ -1625,7 +1656,7 @@ namespace OptiAssistant
                 }
               }
 
-              if (MultipleDoseLevels_CB.IsChecked == true)
+              if (MultipleDoseLevels_CB.IsChecked == true) // TODO: need to check to see if this area has issues when a target is already HR
               {
                 // NOTE: may not be necessary to convert these to HR since only cropping from one another...may be necessary tho if original target was high res
                 if (hasHighResTargets)
