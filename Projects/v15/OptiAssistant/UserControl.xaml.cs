@@ -488,10 +488,34 @@ namespace OptiAssistant
 
           // add messages description
           MESSAGES += string.Format("Some General Tasks/Issues during script run: {0}", counter);
-          if (needHRStructures) { MESSAGES += "\r\n\t- Some of the selected structures are High Res Structures so\r\n\t\ta High Res Body and High Res Opti Total will be created"; }
+          //if (needHRStructures) { MESSAGES += "\r\n\t- Some of the selected structures are High Res Structures so\r\n\t\ta High Res Body and High Res Opti Total will be created"; }
+
+          #region variables
 
           // progress counter in case user clicks Create Structures Button more than once during same instance of script
           counter += 1;
+
+          // for high res structures
+          // create high res body for cropping
+          Structure bodyHR = null;
+          string bodyHRId = "zzBODY_HR";
+
+          // create zopti total High Res for booleans/cropping
+          Structure zptvTotalHR = null;
+          Structure zoptiTotalHR = null;
+          string zptvTotalHRId = "zptv total_HR";
+          string zoptiTotalHRId = "zopti total_HR";
+
+          // create zptv/opti total if ptv(s) present
+          Structure zptvTotal = null;
+          Structure zoptiTotal = null;
+          string zptvTotalId = "zptv total";
+          string zoptiTotalId = "zopti total";
+
+          // for when optis are made
+          int zoptiGrowMargin = 0;
+
+          #endregion variables
 
           // allow modifications
           patient.BeginModifications();
@@ -528,29 +552,25 @@ namespace OptiAssistant
 
           #region get high res structures
 
-          // create high res body for cropping
-          Structure bodyHR = null;
-          string bodyHRId = "zzBODY_HR";
-
-          // create zopti total High Res for booleans/cropping
-          Structure zoptiTotalHR = null;
-          string zoptiTotalHRId = "zptv total_HR";
           if (needHRStructures)
           {
             // remove if already there
             Helpers.RemoveStructure(ss, bodyHRId);
+            Helpers.RemoveStructure(ss, zptvTotalHRId);
             Helpers.RemoveStructure(ss, zoptiTotalHRId);
 
             // add empty structures
             bodyHR = ss.AddStructure(CONTROL_DICOM_TYPE, bodyHRId);
+            zptvTotalHR = ss.AddStructure(OPTI_DICOM_TYPE, zptvTotalHRId);
             zoptiTotalHR = ss.AddStructure(OPTI_DICOM_TYPE, zoptiTotalHRId);
 
             // copy body to bodyHR
             bodyHR.SegmentVolume = body.SegmentVolume;
 
             // convert to high res
-            if (bodyHR.CanConvertToHighResolution() == true) { bodyHR.ConvertToHighResolution(); MESSAGES += "\r\n\t- High Res Body Created"; }
-            if (zoptiTotalHR.CanConvertToHighResolution() == true) { zoptiTotalHR.ConvertToHighResolution(); MESSAGES += "\r\n\t- High Res Target Created"; }
+            if (bodyHR.CanConvertToHighResolution() == true) { bodyHR.ConvertToHighResolution(); /*MESSAGES += "\r\n\t- High Res Body Created";*/ }
+            if (zptvTotalHR.CanConvertToHighResolution() == true) { zptvTotalHR.ConvertToHighResolution(); /*MESSAGES += "\r\n\t- High Res Target Created";*/ }
+            if (zoptiTotalHR.CanConvertToHighResolution() == true) { zoptiTotalHR.ConvertToHighResolution(); /*MESSAGES += "\r\n\t- High Res Target Created";*/ }
 
             if (hasSinglePTV || hasMultiplePTVs)
             {
@@ -567,9 +587,10 @@ namespace OptiAssistant
                 if (hrTarget.CanConvertToHighResolution()) { hrTarget.ConvertToHighResolution(); }
 
 
-                zoptiTotalHR.SegmentVolume = zoptiTotalHR.Or(hrTarget.SegmentVolume);
+                zptvTotalHR.SegmentVolume = zptvTotalHR.Or(hrTarget.SegmentVolume);
               }
-              zoptiTotalHR.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zoptiTotalHR, bodyHR, cropFromBodyMargin);
+              zptvTotalHR.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zptvTotalHR, bodyHR, cropFromBodyMargin);
+              zoptiTotalHR.SegmentVolume = zptvTotalHR.SegmentVolume;
             }
           }
 
@@ -577,24 +598,73 @@ namespace OptiAssistant
 
           #region create zopti total
 
-          // create zopti total if ptv(s) present
-          Structure zoptiTotal = null;
-          string zoptiTotalId = "zptv total";
-
           if (hasSinglePTV || hasMultiplePTVs)
           {
             // remove if already there
-            Helpers.RemoveStructure(ss, zoptiTotalId);
+            Helpers.RemoveStructure(ss, zptvTotalId);
 
             // add empty zopti total structure
-            zoptiTotal = ss.AddStructure(OPTI_DICOM_TYPE, zoptiTotalId);
-            MESSAGES += string.Format("\r\n\t- Structure Added: {0}", zoptiTotalId);
+            zptvTotal = ss.AddStructure(OPTI_DICOM_TYPE, zptvTotalId);
+            MESSAGES += string.Format("\r\n\t- Structure Added: {0}", zptvTotalId);
 
             // boolean ptvs into zopti total
-            zoptiTotal.SegmentVolume = sorted_ptvList.Count() > 1 ? Helpers.BooleanStructures(ss, sorted_ptvList) : sorted_ptvList.First().SegmentVolume;
-            MESSAGES += string.Format("\r\n\t- Structure Booleaned: {0}", zoptiTotalId);
+            zptvTotal.SegmentVolume = sorted_ptvList.Count() > 1 ? Helpers.BooleanStructures(ss, sorted_ptvList) : sorted_ptvList.First().SegmentVolume;
+            MESSAGES += string.Format("\r\n\t- Structure Booleaned: {0}", zptvTotalId);
 
-            // crop from body
+            // if user is creating opti ptvs, want to crop avoids from the opti ptv total (ptv total w/ margin specified by user)
+            if (CreateOptis_CB.IsChecked == true)
+            {
+              // set grow margin for otpti ptvs
+              if (int.TryParse(OptiGrowMargin_TextBox.Text, out zoptiGrowMargin))
+              {
+                //parsing successful 
+              }
+              else
+              {
+                //parsing failed. 
+                zoptiGrowMargin = DEFAULT_OPTI_GROW_MARGIN;
+                MessageBox.Show(string.Format("Oops, an invalid value was used for the opti structure grow margin ({0}). The DEFAULT of {1} mm will be used.", OptiGrowMargin_TextBox.Text, DEFAULT_OPTI_GROW_MARGIN));
+              }
+
+              // remove if already there
+              Helpers.RemoveStructure(ss, zoptiTotalId);
+
+              // add empty zopti total structure
+              zoptiTotal = ss.AddStructure(OPTI_DICOM_TYPE, zoptiTotalId);
+              MESSAGES += string.Format("\r\n\t- Structure Added: {0}", zoptiTotalId);
+
+              // zopti total
+              zoptiTotal.SegmentVolume = zptvTotal.SegmentVolume.Margin(zoptiGrowMargin);
+              MESSAGES += string.Format("\r\n\t- {0} mm margin added to {1}", zoptiGrowMargin, zoptiTotalId);
+
+              if (needHRStructures)
+              {
+                // zopti total HR
+                zoptiTotalHR.SegmentVolume = zptvTotalHR.SegmentVolume.Margin(zoptiGrowMargin);
+                MESSAGES += string.Format("\r\n\t- {0} mm margin added to {1}", zoptiGrowMargin, zoptiTotalId);
+              }
+            }
+
+            // crop zptvtotal from body
+            try
+            {
+              if (zptvTotal.IsHighResolution)
+              {
+                zptvTotal.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zptvTotal, bodyHR, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From High Res Body Surface", zptvTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+              }
+              else
+              {
+                zptvTotal.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zptvTotal, body, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From Body Surface", zptvTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+              }
+            }
+            catch
+            {
+              MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body Surface***", zptvTotal.Id);
+            }
+
+            // crop zopti total from body
             try
             {
               if (zoptiTotal.IsHighResolution)
@@ -613,6 +683,19 @@ namespace OptiAssistant
               MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body Surface***", zoptiTotal.Id);
             }
 
+            // crop zopti total HR from body
+            if (needHRStructures)
+            {
+              try
+              {
+                zoptiTotalHR.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zoptiTotalHR, bodyHR, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From High Res Body Surface", zoptiTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+              }
+              catch
+              {
+                MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body Surface***", zoptiTotalHR.Id);
+              }
+            }
 
           }
 
@@ -643,7 +726,7 @@ namespace OptiAssistant
               {
                 //parsing failed. 
                 avGrowMargin = DEFAULT_AVOIDANCE_GROW_MARGIN;
-                MessageBox.Show(string.Format("Oops, an invalid value was used for the avoidance structure grow margin ({0}). The DEFAULT of {1}mm will be used.", AvoidGrowMargin_TextBox.Text, DEFAULT_AVOIDANCE_GROW_MARGIN));
+                MessageBox.Show(string.Format("Oops, an invalid value was used for the avoidance structure grow margin ({0}). The DEFAULT of {1} mm will be used.", AvoidGrowMargin_TextBox.Text, DEFAULT_AVOIDANCE_GROW_MARGIN));
               }
             }
 
@@ -661,7 +744,7 @@ namespace OptiAssistant
                 {
                   //parsing failed. 
                   avCropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
-                  MessageBox.Show(string.Format("Oops, an invalid value was used for the avoidance structure crop margin ({0}). The DEFAULT of {1}mm will be used.", AvoidCropMargin_TextBox.Text, DEFAULT_AVOIDANCE_CROP_MARGIN));
+                  MessageBox.Show(string.Format("Oops, an invalid value was used for the avoidance structure crop margin ({0}). The DEFAULT of {1} mm will be used.", AvoidCropMargin_TextBox.Text, DEFAULT_AVOIDANCE_CROP_MARGIN));
                 }
               }
             }
@@ -686,73 +769,139 @@ namespace OptiAssistant
 
                   // copy oar with defined margin
                   avoidStructure.SegmentVolume = Helpers.AddMargin(oar, (double)avGrowMargin);
-                  MESSAGES += string.Format("\r\n\t- {0} added w/ {1}mm margin",
+                  MESSAGES += string.Format("\r\n\t- {0} added w/ {1} mm margin",
                                                           avoidStructure.Id,
                                                           avGrowMargin
                   );
 
                   try
                   {
-
-                    // crop avoid structure from ptv total (if ptvs are found)
-                    try
+                    // if user is creating optis, want to crop avoids from the zopti total that has the user specified margin on the ptv(s)
+                    if (CreateOptis_CB.IsChecked == true)
                     {
-                      if (avoidStructure.IsHighResolution)
-                      {
-                        avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotalHR.SegmentVolume, avCropMargin);
-                      }
-                      else
-                      {
-                        avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotal.SegmentVolume, avCropMargin);
-                      }
-
-                      MESSAGES += string.Format(" & cropped {0}mm from {1}",
-                                                        avCropMargin,
-                                                        zoptiTotal.Id
-                      );
-                    }
-                    catch
-                    {
+                      // crop avoid structure from opti total (if ptvs are found)
                       try
                       {
-                        if (avoidStructure.CanConvertToHighResolution()) { avoidStructure.ConvertToHighResolution(); }
+                        if (avoidStructure.IsHighResolution)
+                        {
+                          avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotalHR.SegmentVolume, avCropMargin);
+                        }
+                        else
+                        {
+                          avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotal.SegmentVolume, avCropMargin);
+                        }
 
-                        avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotalHR.SegmentVolume, avCropMargin);
-
-                        MESSAGES += string.Format(" & cropped {0}mm from {1}",
-                                                        avCropMargin,
-                                                        zoptiTotal.Id
+                        MESSAGES += string.Format(" & cropped {0} mm from {1}",
+                                                          avCropMargin,
+                                                          zoptiTotal.Id
                         );
                       }
                       catch
                       {
-                        if (sorted_ptvList.Count() >= 1)
+                        try
                         {
-                          MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Targets***", avoidStructure.Id);
+                          if (avoidStructure.CanConvertToHighResolution()) { avoidStructure.ConvertToHighResolution(); }
+
+                          avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zoptiTotalHR.SegmentVolume, avCropMargin);
+
+                          MESSAGES += string.Format(" & cropped {0} mm from {1}",
+                                                          avCropMargin,
+                                                          zoptiTotal.Id
+                          );
+                        }
+                        catch
+                        {
+                          if (sorted_ptvList.Count() >= 1)
+                          {
+                            MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Target(s)***", avoidStructure.Id);
+                          }
+                          else
+                          {
+                            MESSAGES += string.Format("\r\n\t- ***No PTVs to crop avoid structures from***", avoidStructure.Id);
+                          }
+                        }
+                      }
+
+
+                      // crop from body
+                      try
+                      {
+                        if (avoidStructure.IsHighResolution)
+                        {
+                          avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, bodyHR, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
                         }
                         else
                         {
-                          MESSAGES += string.Format("\r\n\t- ***No PTVs to crop avoid structures from***", avoidStructure.Id);
+                          avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, body, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
                         }
                       }
-                    }
-
-
-                    // crop from body
-                    try
-                    {
-                      if (avoidStructure.IsHighResolution)
+                      catch
                       {
-                        avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, bodyHR, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
-                      }
-                      else
-                      {
-                        avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, body, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
+                        MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", avoidStructure.Id);
                       }
                     }
-                    catch
+                    else
                     {
-                      MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", avoidStructure.Id);
+                      // crop avoid structure from ptv total (if ptvs are found)
+                      try
+                      {
+                        if (avoidStructure.IsHighResolution)
+                        {
+                          avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zptvTotalHR.SegmentVolume, avCropMargin);
+                        }
+                        else
+                        {
+                          avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zptvTotal.SegmentVolume, avCropMargin);
+                        }
+
+                        MESSAGES += string.Format(" & cropped {0} mm from {1}",
+                                                          avCropMargin,
+                                                          zptvTotal.Id
+                        );
+                      }
+                      catch
+                      {
+                        try
+                        {
+                          if (avoidStructure.CanConvertToHighResolution()) { avoidStructure.ConvertToHighResolution(); }
+
+                          avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, zptvTotalHR.SegmentVolume, avCropMargin);
+
+                          MESSAGES += string.Format(" & cropped {0} mm from {1}",
+                                                          avCropMargin,
+                                                          zptvTotal.Id
+                          );
+                        }
+                        catch
+                        {
+                          if (sorted_ptvList.Count() >= 1)
+                          {
+                            MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Targets***", avoidStructure.Id);
+                          }
+                          else
+                          {
+                            MESSAGES += string.Format("\r\n\t- ***No PTVs to crop avoid structures from***", avoidStructure.Id);
+                          }
+                        }
+                      }
+
+
+                      // crop from body
+                      try
+                      {
+                        if (avoidStructure.IsHighResolution)
+                        {
+                          avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, bodyHR, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
+                        }
+                        else
+                        {
+                          avoidStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(avoidStructure, body, -DEFAULT_AVOID_CROP_FROM_BODY_MARGIN);
+                        }
+                      }
+                      catch
+                      {
+                        MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", avoidStructure.Id);
+                      }
                     }
 
                   }
@@ -1029,10 +1178,30 @@ namespace OptiAssistant
                     );
 
                     var avoidTargetHRId = string.Format("zz{0}_HR", Helpers.ProcessStructureId(t, MAX_ID_LENGTH - 5));
+                    var avoidTargetId = string.Format("zz{0}", Helpers.ProcessStructureId(t, MAX_ID_LENGTH - 5)); // still minus 5 (same as hr structure) to allow only one id to be defined later when removing these two structures
 
                     // match ptv in structure set
-                    avoidTarget = ss.Structures.Single(st => st.Id == t);
-                    avoidTarget_HR = ss.Structures.Single(st => st.Id == avoidTargetHRId);
+                    avoidTarget = ss.AddStructure(OPTI_DICOM_TYPE, avoidTargetId);                    
+                    if (needHRStructures)
+                    {
+                      avoidTarget_HR = ss.Structures.Single(st => st.Id == avoidTargetHRId);
+                    }
+
+                    // if creating optis, need to add margin to the temp avoid target for when cropping avoid away
+                    if (CreateOptis_CB.IsChecked == true) 
+                    { 
+                      avoidTarget.SegmentVolume = ss.Structures.Single(st => st.Id == t).SegmentVolume.Margin(zoptiGrowMargin);
+                      if (needHRStructures)
+                      {
+                        avoidTarget_HR.SegmentVolume = avoidTarget_HR.SegmentVolume.Margin(zoptiGrowMargin);
+                      }
+                    }
+                    else 
+                    { 
+                      avoidTarget.SegmentVolume = ss.Structures.Single(st => st.Id == t).SegmentVolume; 
+                      //avoidTarget_HR.SegmentVolume = avoidTarget_HR.SegmentVolume.Margin(zoptiGrowMargin);
+                    }
+                    
 
                     // match crop margin
                     if (targetNumber == 1) { avCropMargin = avoidTarget1CropMargin; }
@@ -1049,7 +1218,7 @@ namespace OptiAssistant
 
                     // copy oar with defined margin
                     avoidStructure.SegmentVolume = Helpers.AddMargin(oar, (double)avGrowMargin);
-                    MESSAGES += string.Format("\r\n\t- {0} added w/ {1}mm margin",
+                    MESSAGES += string.Format("\r\n\t- {0} added w/ {1} mm margin",
                                                           avoidStructure.Id,
                                                           avGrowMargin
                     );
@@ -1069,7 +1238,7 @@ namespace OptiAssistant
                           avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, avoidTarget.SegmentVolume, avCropMargin);
                         }
 
-                        MESSAGES += string.Format(" & cropped {0}mm from {1}",
+                        MESSAGES += string.Format(" & cropped {0} mm from {1}",
                                                           avCropMargin,
                                                           avoidTarget.Id
                         );
@@ -1082,7 +1251,7 @@ namespace OptiAssistant
 
                           avoidStructure.SegmentVolume = Helpers.CropStructure(avoidStructure.SegmentVolume, avoidTarget_HR.SegmentVolume, avCropMargin);
 
-                          MESSAGES += string.Format(" & cropped {0}mm from {1}",
+                          MESSAGES += string.Format(" & cropped {0} mm from {1}",
                                                           avCropMargin,
                                                           avoidTarget.Id
                           );
@@ -1133,7 +1302,7 @@ namespace OptiAssistant
 
                 // copy oar with defined margin
                 avoidStructure.SegmentVolume = Helpers.AddMargin(oar, (double)avGrowMargin);
-                MESSAGES += string.Format("\r\n\t- {0} added w/ {1}mm margin",
+                MESSAGES += string.Format("\r\n\t- {0} added w/ {1} mm margin",
                                                         avoidStructure.Id,
                                                         avGrowMargin
                 );
@@ -1217,7 +1386,7 @@ namespace OptiAssistant
                 else
                 {
                   optiCropFromBodyMargin = DEFAULT_OPTI_CROP_FROM_BODY_MARGIN;
-                  MessageBox.Show(string.Format("Oops, an invalid value was used for the opti crop from body margin ({0}). The DEFAULT of {1}mm will be used.", BodyCropMargin_TextBox.Text, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN));
+                  MessageBox.Show(string.Format("Oops, an invalid value was used for the opti crop from body margin ({0}). The DEFAULT of {1} mm will be used.", BodyCropMargin_TextBox.Text, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN));
                 }
               }
             }
@@ -1231,7 +1400,7 @@ namespace OptiAssistant
             {
               //parsing failed. 
               optiGrowMargin = DEFAULT_OPTI_GROW_MARGIN;
-              MessageBox.Show(string.Format("Oops, an invalid value was used for the opti structure grow margin ({0}). The DEFAULT of {1}mm will be used.", OptiGrowMargin_TextBox.Text, DEFAULT_OPTI_GROW_MARGIN));
+              //MessageBox.Show(string.Format("Oops, an invalid value was used for the opti structure grow margin ({0}). The DEFAULT of {1} mm will be used.", OptiGrowMargin_TextBox.Text, DEFAULT_OPTI_GROW_MARGIN));
             }
 
             // if multiple dose levels need to set opti crop margin as well as determine which targets correspond to which dose levels
@@ -1253,7 +1422,7 @@ namespace OptiAssistant
                   //parsing failed. 
                   optiCropMargin = DEFAULT_OPTI_CROP_MARGIN;
                   //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
-                  MessageBox.Show(string.Format("Oops, an invalid value was used for the opti structure crop margin ({0}). The DEFAULT of {1}mm will be used.", OptiCropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
+                  MessageBox.Show(string.Format("Oops, an invalid value was used for the opti structure crop margin ({0}). The DEFAULT of {1} mm will be used.", OptiCropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
                 }
               }
 
@@ -1317,7 +1486,7 @@ namespace OptiAssistant
 
               // copy ptv with defined margin
               optiStructure.SegmentVolume = Helpers.AddMargin(ptv, (double)optiGrowMargin);
-              MESSAGES += string.Format("\r\n\t- {0} added w/ {1}mm margin", optiStructure.Id, optiGrowMargin);
+              MESSAGES += string.Format("\r\n\t- {0} added w/ {1} mm margin", optiStructure.Id, optiGrowMargin);
               
 
               // crop OPTI structure from body surface
@@ -1400,7 +1569,7 @@ namespace OptiAssistant
                   {
                     //parsing failed. 
                     ciGrowMargin = DEFAULT_OPTI_GROW_MARGIN;
-                    MessageBox.Show(string.Format("Oops, an invalid value was used for the CI structure grow margin ({0}). The DEFAULT of {1}mm will be used.", CIMargin_TextBox.Text, DEFAULT_CI_GROW_MARGIN));
+                    MessageBox.Show(string.Format("Oops, an invalid value was used for the CI structure grow margin ({0}). The DEFAULT of {1} mm will be used.", CIMargin_TextBox.Text, DEFAULT_CI_GROW_MARGIN));
                   }
 
                   // remove structure if present in ss
@@ -1411,7 +1580,7 @@ namespace OptiAssistant
 
                   // copy ptv with defined margin
                   ciStructure.SegmentVolume = Helpers.AddMargin(ptv, (double)ciGrowMargin);
-                  MESSAGES += string.Format("\r\n\t- {0} added with {1}mm margin", ciStructure.Id, ciGrowMargin);
+                  MESSAGES += string.Format("\r\n\t- {0} added with {1} mm margin", ciStructure.Id, ciGrowMargin);
                 }
                 catch
                 {
@@ -1437,7 +1606,7 @@ namespace OptiAssistant
                   {
                     //parsing failed. 
                     r50GrowMargin = DEFAULT_OPTI_GROW_MARGIN;
-                    MessageBox.Show(string.Format("Oops, an invalid value was used for the CI structure grow margin ({0}). The DEFAULT of {1}mm will be used.", R50Margin_TextBox.Text, DEFAULT_R50_GROW_MARGIN));
+                    MessageBox.Show(string.Format("Oops, an invalid value was used for the CI structure grow margin ({0}). The DEFAULT of {1} mm will be used.", R50Margin_TextBox.Text, DEFAULT_R50_GROW_MARGIN));
                   }
 
                   // remove structure if present in ss
@@ -1448,7 +1617,7 @@ namespace OptiAssistant
 
                   // copy ptv with defined margin
                   r50Structure.SegmentVolume = Helpers.AddMargin(ptv, (double)r50GrowMargin);
-                  MESSAGES += string.Format("\r\n\t- {0} added with {1}mm margin", r50Structure.Id, r50GrowMargin);
+                  MESSAGES += string.Format("\r\n\t- {0} added with {1} mm margin", r50Structure.Id, r50GrowMargin);
                 }
                 catch
                 {
@@ -1506,7 +1675,7 @@ namespace OptiAssistant
                       //parsing failed. 
                       doseLevel1CropMargin = DEFAULT_OPTI_CROP_MARGIN;
                       //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
-                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel1CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1} mm will be used.", DoseLevel1CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
                     }
                   }
 
@@ -1526,7 +1695,7 @@ namespace OptiAssistant
                       //parsing failed. 
                       doseLevel2CropMargin = DEFAULT_OPTI_CROP_MARGIN;
                       //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
-                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel2CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1} mm will be used.", DoseLevel2CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
                     }
                   }
 
@@ -1552,7 +1721,7 @@ namespace OptiAssistant
                       //parsing failed. 
                       doseLevel1CropMargin = DEFAULT_OPTI_CROP_MARGIN;
                       //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
-                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel1CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1} mm will be used.", DoseLevel1CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
                     }
                   }
                   // 2
@@ -1571,7 +1740,7 @@ namespace OptiAssistant
                       //parsing failed. 
                       doseLevel2CropMargin = DEFAULT_OPTI_CROP_MARGIN;
                       //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
-                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel2CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1} mm will be used.", DoseLevel2CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
                     }
                   }
                   // 3
@@ -1590,7 +1759,7 @@ namespace OptiAssistant
                       //parsing failed. 
                       doseLevel3CropMargin = DEFAULT_OPTI_CROP_MARGIN;
                       //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
-                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel3CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1} mm will be used.", DoseLevel3CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
                     }
                   }
                 }
@@ -1615,7 +1784,7 @@ namespace OptiAssistant
                       //parsing failed. 
                       doseLevel1CropMargin = DEFAULT_OPTI_CROP_MARGIN;
                       //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
-                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel1CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1} mm will be used.", DoseLevel1CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
                     }
                   }
                   // 2
@@ -1634,7 +1803,7 @@ namespace OptiAssistant
                       //parsing failed. 
                       doseLevel2CropMargin = DEFAULT_OPTI_CROP_MARGIN;
                       //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
-                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel2CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1} mm will be used.", DoseLevel2CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
                     }
                   }
                   // 3
@@ -1653,7 +1822,7 @@ namespace OptiAssistant
                       //parsing failed. 
                       doseLevel3CropMargin = DEFAULT_OPTI_CROP_MARGIN;
                       //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
-                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1}mm will be used.", DoseLevel3CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
+                      MessageBox.Show(string.Format("Oops, an invalid value was used for the Dose Level 1 crop margin ({0}). The DEFAULT of {1} mm will be used.", DoseLevel3CropMargin_TextBox.Text, DEFAULT_OPTI_CROP_MARGIN));
                     }
                   }
                 }
@@ -1871,13 +2040,22 @@ namespace OptiAssistant
 
           // remove temporary high res structures
           Helpers.RemoveStructure(ss, bodyHRId);
+          Helpers.RemoveStructure(ss, zptvTotalHRId);
           Helpers.RemoveStructure(ss, zoptiTotalHRId);
           Helpers.RemoveStructure(ss, "zzzTEMP"); // keep!!! used when booleaning structures -- Helpers.BooleanStructures()
           foreach (var t in sorted_ptvList)
           {
+            var tempId = Helpers.ProcessStructureId(t.Id.ToString(), MAX_ID_LENGTH - 5);
             try
             {
-              Helpers.RemoveStructure(ss, string.Format("zz{0}_HR", Helpers.ProcessStructureId(t.Id.ToString(), MAX_ID_LENGTH - 5)));
+              Helpers.RemoveStructure(ss, string.Format("zz{0}_HR", tempId));
+            }
+            catch
+            {
+            }
+            try
+            {
+              Helpers.RemoveStructure(ss, string.Format("zz{0}", tempId));
             }
             catch
             {
