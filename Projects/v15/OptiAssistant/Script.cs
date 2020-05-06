@@ -96,7 +96,7 @@ namespace VMS.TPS
       mainControl.courseName = course;
 
       // isGrady -- they don't have direct access to S Drive (to write files)
-      var is_grady = MessageBox.Show("Are you accessing this script from the Grady Campus AND/OR from an Eclipse TBox?", "Direct $S Drive Access", MessageBoxButton.YesNo, MessageBoxImage.Question);
+      var is_grady = MessageBox.Show("Are you accessing this script from Home, the Grady Campus AND/OR from an Eclipse TBox?", "Direct $S Drive Access", MessageBoxButton.YesNo, MessageBoxImage.Question);
       if (is_grady == MessageBoxResult.Yes)
       {
         mainControl.isGrady = true;

@@ -56,6 +56,7 @@ namespace OptiAssistant
     const int DEFAULT_RING_COUNT = 3;
     const int DEFAULT_RING_CROP_MARGIN = 0;
     const string RING_DICOM_TYPE = "CONTROL";
+    const int DEFAULT_RING_CROP_FROM_TARGET_MARGIN = 1;
 
     // MISC DICOM TYPE DEFAULTS
     const string CONTROL_DICOM_TYPE = "CONTROL";
@@ -1952,6 +1953,7 @@ namespace OptiAssistant
             // TODO: add ring structure logic
             var ringGrowMargin = DEFAULT_RING_GROW_MARGIN;
             var ringCropMargin = DEFAULT_RING_CROP_MARGIN;
+            var ringCropFromTargetMargin = DEFAULT_RING_CROP_FROM_TARGET_MARGIN;
             var ringCount = DEFAULT_RING_COUNT;
             var ringPrefix = DEFAULT_RING_PREFIX;
             List<Structure> ringStructures = new List<Structure>();
@@ -1998,6 +2000,27 @@ namespace OptiAssistant
                 MessageBox.Show(string.Format("Oops, an invalid value was used for the ring count ({0}). The DEFAULT of {1} will be used.", RingGrowMargin_TextBox.Text, DEFAULT_RING_GROW_MARGIN));
               }
             }
+
+            // set ring crop from target margin
+            if (RingCropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(RingCropMargin_TextBox.Text))
+            {
+              ringCropFromTargetMargin = DEFAULT_RING_CROP_FROM_TARGET_MARGIN;
+            }
+            else
+            {
+              if (int.TryParse(RingCropMargin_TextBox.Text, out ringCropFromTargetMargin))
+              {
+                //parsing successful 
+              }
+              else
+              {
+                //parsing failed. 
+                ringCropFromTargetMargin = DEFAULT_RING_CROP_FROM_TARGET_MARGIN;
+                //MessageBox.Show("Oops, please enter a valid Crop Margin for your opti structures.");
+                MessageBox.Show(string.Format("Oops, an invalid value was used for the ring count ({0}). The DEFAULT of {1} will be used.", RingCropMargin_TextBox.Text, DEFAULT_RING_CROP_FROM_TARGET_MARGIN));
+              }
+            }
+
             foreach (var ptv in PTVListForRings_LV.SelectedItems)
             {
               var target = ss.Structures.Single(st => st.Id == ptv.ToString());
@@ -2017,8 +2040,8 @@ namespace OptiAssistant
                 MESSAGES += string.Format("\r\n\t- {0} added with {1} mm margin to {2}", ringStructure.Id, ringGrowMargin * ringNum, target.Id);
 
                 // crop ring from target (prevents having to loop through again later)
-                ringStructure.SegmentVolume = Helpers.CropStructure(ringStructure, target, cropMargin: ringCropMargin);
-                MESSAGES += string.Format("\r\n\t- {0} Cropped from INSIDE {1} with {2} mm margin", ringStructure.Id, target.Id, ringCropMargin);
+                ringStructure.SegmentVolume = Helpers.CropStructure(ringStructure, target, cropMargin: ringCropFromTargetMargin);
+                MESSAGES += string.Format("\r\n\t- {0} Cropped from INSIDE {1} with {2} mm margin", ringStructure.Id, target.Id, ringCropFromTargetMargin);
 
                 // crop ring outside body
                 try

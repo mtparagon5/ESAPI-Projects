@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VMS.TPS"
         mc:Ignorable="d"
-        Height="auto" Width="auto" Background="#efefef" FontFamily="Lucida Sans" FontWeight="Thin">
+        Height="auto" Width="auto" Background="#F5F7FA" FontFamily="Lucida Sans" FontWeight="Thin">
 
   <!--Styles-->
   <UserControl.Resources>
-    <Style x:Key="GreenRoundButtonTemplate" TargetType="Button">
+    <Style x:Key="BlueRoundButtonTemplate" TargetType="Button">
       <Setter Property="Foreground" Value="White"></Setter>
-      <Setter Property="Background" Value="#b1cbbb"></Setter>
+      <Setter Property="Background" Value="#003E6B"></Setter>
       <Setter Property="Cursor" Value="Hand"></Setter>
       <Setter Property="Template">
         <Setter.Value>
@@ -29,18 +29,35 @@
       </Setter>
       <Style.Triggers>
         <Trigger Property="IsMouseOver" Value="True">
-          <Setter Property="Background" Value="#abc4b5"/>
+          <Setter Property="Background" Value="#0F609B"/>
         </Trigger>
       </Style.Triggers>
     </Style>
+
+    <Style x:Key="BlueComboBox" TargetType="{x:Type ComboBoxItem}">
+      <Style.Resources>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#0F609B"/>
+      </Style.Resources>
+
+      <Setter Property="Background" Value="#0A558C"/>
+      <Setter Property="BorderBrush" Value="#0A558C"/>
+
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="true">
+          <Setter Property="BorderBrush" Value="#0F609B" />
+          <Setter Property="BorderThickness" Value="1" />
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+
   </UserControl.Resources>
   
   <!--Main-->
-  <Border CornerRadius="5" BorderBrush="#b1cbbb" BorderThickness="2" Margin="35">
+  <Border CornerRadius="5" BorderBrush="#003E6B" BorderThickness="2" Margin="35">
     <Grid>
       <StackPanel Margin="0">
         <!--Heading-->
-        <StackPanel Background="#b1cbbb"
+        <StackPanel Background="#003E6B"
                     VerticalAlignment="Center">
             <Grid>
               <Grid.ColumnDefinitions>
@@ -150,6 +167,7 @@
 
                   <!--Which Targets-->
                   <StackPanel>
+                    
                     <!--Checkboxes For Avoid Targets-->
                     <StackPanel Orientation="Vertical"
                                 HorizontalAlignment="Center"
@@ -160,7 +178,7 @@
                                 VerticalContentAlignment="Bottom"
                                 HorizontalAlignment="Left"
                                 HorizontalContentAlignment="Left"
-                                Background="#b1cbbb"
+                                Background="#0A558C"
                                 FontSize="12"
                                 Margin="5,3"                                x:Name="BooleanAllTargets_CB"
                                 Click="HandleAvoidOptionsSelection"/>
@@ -170,12 +188,14 @@
                                 VerticalContentAlignment="Bottom"
                                 HorizontalAlignment="Left"
                                 HorizontalContentAlignment="Left"
-                                Background="#b1cbbb"
+                                Background="#0A558C"
                                 FontSize="12"
                                 Margin="5,3"                                x:Name="MultipleAvoidTargets_CB"
                                 Click="HandleAvoidOptionsSelection"/>
 
                     </StackPanel>
+                    
+                    <!--Multiple Targets-->
                     <StackPanel x:Name="MultipleAvoidTargets_SP"
                                 Visibility="Collapsed">
                       <!--Label-->
@@ -248,7 +268,7 @@
 
                             <ComboBox x:Name="AvoidTarget1_Combo"
                                       Width="125"
-                                      Background="#b1cbbb"
+                                      Background="#F5F7FA"
                                       HorizontalContentAlignment="Left"
                                       VerticalContentAlignment="Center"/>
 
@@ -257,9 +277,10 @@
                                 FontSize="12"
                                 Foreground="#034f84"/>
 
-                            <TextBox Width="30"
+                            <TextBox Width="40"
                                   x:Name="AvoidTarget1CropMargin_TextBox"
-                                  Background="#b1cbbb"
+                                  Background="#0A558C"
+                                  Foreground="White"
                                   GotFocus="SelectAllText"
                                   TextAlignment="Center"
                                   Margin="0,3"
@@ -283,7 +304,7 @@
 
                             <ComboBox x:Name="AvoidTarget2_Combo"
                                       Width="125"
-                                      Background="#b1cbbb"
+                                      Background="#F5F7FA"
                                       HorizontalContentAlignment="Left"
                                       VerticalContentAlignment="Center"/>
 
@@ -292,9 +313,10 @@
                                 FontSize="12"
                                 Foreground="#034f84"/>
 
-                            <TextBox Width="30"
+                            <TextBox Width="40"
                                   x:Name="AvoidTarget2CropMargin_TextBox"
-                                  Background="#b1cbbb"
+                                  Background="#0A558C"
+                                  Foreground="White"
                                   GotFocus="SelectAllText"
                                   TextAlignment="Center"
                                   Margin="0,3"
@@ -318,7 +340,7 @@
 
                             <ComboBox x:Name="AvoidTarget3_Combo"
                                       Width="125"
-                                      Background="#b1cbbb"
+                                      Background="#F5F7FA"
                                       HorizontalContentAlignment="Left"
                                       VerticalContentAlignment="Center"/>
 
@@ -327,9 +349,10 @@
                                 FontSize="12"
                                 Foreground="#034f84"/>
 
-                            <TextBox Width="30"
+                            <TextBox Width="40"
                                   x:Name="AvoidTarget3CropMargin_TextBox"
-                                  Background="#b1cbbb"
+                                  Background="#0A558C"
+                                  Foreground="White"
                                   GotFocus="SelectAllText"
                                   TextAlignment="Center"
                                   Margin="0,3"
@@ -353,7 +376,7 @@
 
                             <ComboBox x:Name="AvoidTarget4_Combo"
                                       Width="125"
-                                      Background="#b1cbbb"
+                                      Background="#F5F7FA"
                                       HorizontalContentAlignment="Left"
                                       VerticalContentAlignment="Center"/>
 
@@ -362,9 +385,10 @@
                                 FontSize="12"
                                 Foreground="#034f84"/>
 
-                            <TextBox Width="30"
+                            <TextBox Width="40"
                                   x:Name="AvoidTarget4CropMargin_TextBox"
-                                  Background="#b1cbbb"
+                                  Background="#0A558C"
+                                  Foreground="White"
                                   GotFocus="SelectAllText"
                                   TextAlignment="Center"
                                   Margin="0,3"
@@ -379,6 +403,7 @@
                       </StackPanel>
 
                     </StackPanel>
+                    
                   </StackPanel>
 
                   <!--Prefix-->
@@ -389,9 +414,10 @@
                             Width="120"
                             FontSize="13"
                             Foreground="#034f84"/>
-                    <TextBox Width="30"
+                    <TextBox Width="40"
                               x:Name="AvoidPrefix_TextBox"
-                              Background="#b1cbbb"
+                              Background="#0A558C"
+                            Foreground="White"
                               GotFocus="SelectAllText"
                               TextAlignment="Center"
                               VerticalContentAlignment="Center"
@@ -421,6 +447,7 @@
                             VerticalContentAlignment="Top"
                             FontSize="13"
                             Foreground="#034f84"/>
+                  
                   <!--Grow Margin-->
                   <StackPanel Orientation="Horizontal"
                               HorizontalAlignment="Center"
@@ -429,9 +456,10 @@
                             Width="120"
                             FontSize="13"
                             Foreground="#034f84"/>
-                    <TextBox Width="30"
+                    <TextBox Width="40"
                               x:Name="AvoidGrowMargin_TextBox"
-                              Background="#b1cbbb"
+                              Background="#0A558C"
+                            Foreground="White"
                               GotFocus="SelectAllText"
                               TextAlignment="Center"
                               Margin="0,3"
@@ -445,6 +473,7 @@
                                 Margin="5,0"
                                 Foreground="#034f84"/>
                   </StackPanel>
+                  
                   <!--Crop Margin-->
                   <StackPanel Orientation="Horizontal"
                               HorizontalAlignment="Center"
@@ -455,9 +484,10 @@
                             Width="120"
                             FontSize="13"
                             Foreground="#034f84"/>
-                    <TextBox Width="30"
+                    <TextBox Width="40"
                               x:Name="AvoidCropMargin_TextBox"
-                              Background="#b1cbbb"
+                              Background="#0A558C"
+                            Foreground="White"
                               GotFocus="SelectAllText"
                               TextAlignment="Center"
                               Margin="0,3"
@@ -509,10 +539,11 @@
                     <Label Content="Preferred Prefix:"
                             Width="120"
                             FontSize="13"/>
-                    <TextBox Width="30"
+                    <TextBox Width="40"
                               x:Name="OptiPrefix_TextBox"
                               GotFocus="SelectAllText"
-                              Background="#b1cbbb"
+                              Background="#0A558C"
+                            Foreground="White"
                               TextAlignment="Center"
                               Margin="0,3"
                               FontSize="11"
@@ -533,9 +564,10 @@
                     <Label Content="PTV Margin [mm]:"
                             Width="120"
                             FontSize="13"/>
-                    <TextBox Width="30"
+                    <TextBox Width="40"
                               x:Name="OptiGrowMargin_TextBox"
-                              Background="#b1cbbb"
+                              Background="#0A558C"
+                            Foreground="White"
                               GotFocus="SelectAllText"
                               TextAlignment="Center"
                               Margin="0,3"
@@ -576,7 +608,7 @@
                                 VerticalContentAlignment="Bottom"
                                 HorizontalAlignment="Left"
                                 HorizontalContentAlignment="Left"
-                                Background="#b1cbbb"
+                                Background="#0A558C"
                                 FontSize="12"
                                 Margin="5,3"                                x:Name="CropFromBody_CB"
                                 Click="HandleOptiOptionsSelection"/>
@@ -586,7 +618,7 @@
                                 VerticalContentAlignment="Bottom"
                                 HorizontalAlignment="Left"
                                 HorizontalContentAlignment="Left"
-                                Background="#b1cbbb"
+                                Background="#0A558C"
                                 FontSize="12"
                                 Margin="5,3"                                x:Name="CreatePTVEval_CB"/>
 
@@ -595,7 +627,7 @@
                                 VerticalContentAlignment="Bottom"
                                 HorizontalAlignment="Left"
                                 HorizontalContentAlignment="Left"
-                                Background="#b1cbbb"
+                                Background="#0A558C"
                                 FontSize="12"
                                 Margin="5,3"                                x:Name="CreateCI_CB"
                                 Click="HandleOptiOptionsSelection"/>
@@ -605,7 +637,7 @@
                                 VerticalContentAlignment="Bottom"
                                 HorizontalAlignment="Left"
                                 HorizontalContentAlignment="Left"
-                                Background="#b1cbbb"
+                                Background="#0A558C"
                                 FontSize="12"
                                 Margin="5,3"                                x:Name="CreateR50_CB"
                                 Click="HandleOptiOptionsSelection"/>
@@ -615,7 +647,7 @@
                                 VerticalContentAlignment="Bottom"
                                 HorizontalAlignment="Left"
                                 HorizontalContentAlignment="Left"
-                                Background="#b1cbbb"
+                                Background="#0A558C"
                                 FontSize="12"
                                 Margin="5,3"                                x:Name="MultipleDoseLevels_CB"
                                 Click="HandleOptiOptionsSelection"/>
@@ -625,7 +657,7 @@
                                 VerticalContentAlignment="Bottom"
                                 HorizontalAlignment="Left"
                                 HorizontalContentAlignment="Left"
-                                Background="#b1cbbb"
+                                Background="#003E6B"
                                 FontSize="12"
                                 Margin="5,3"                                x:Name="CreateOptiGTV_CB"
                                 Click="CreateOptiGTV_CB_Click"/>
@@ -635,7 +667,7 @@
                                 VerticalContentAlignment="Bottom"
                                 HorizontalAlignment="Left"
                                 HorizontalContentAlignment="Left"
-                                Background="#b1cbbb"
+                                Background="#003E6B"
                                 FontSize="12"
                                 Margin="5,3"                                x:Name="CreateOptiTotal_CB"
                                 Click="CreateOptiTotal_CB_Click"/>-->
@@ -645,8 +677,9 @@
                   </StackPanel>
                   <!--Options Section-->
                   <StackPanel x:Name="OptiOptions_SP"
-                              Visibility="visible">
+                              Visibility="Collapsed">
 
+                    <!--Crop Options-->
                     <StackPanel x:Name="CropOptions_SP"
                                 Visibility="Collapsed">
                       <StackPanel Orientation="Horizontal"
@@ -672,9 +705,10 @@
                                 Width="120"
                                 FontSize="13"
                                 Foreground="#034f84"/>
-                        <TextBox Width="30"
+                        <TextBox Width="40"
                                   x:Name="BodyCropMargin_TextBox"
-                                  Background="#b1cbbb"
+                                  Background="#0A558C"
+                                  Foreground="White"
                                   GotFocus="SelectAllText"
                                   TextAlignment="Center"
                                   Margin="0,3"
@@ -693,15 +727,16 @@
                       <StackPanel Orientation="Horizontal"
                                   HorizontalAlignment="Center"
                                   Width="315"
-                                  Visibility="Collapsed"
+                                  Visibility="Visible"
                                   x:Name="CropFromOptis_SP">
                         <Label Content="From Optis [mm]:"
                                 Width="120"
                                 FontSize="13"
                                 Foreground="#034f84"/>
-                        <TextBox Width="30"
+                        <TextBox Width="40"
                                   x:Name="OptiCropMargin_TextBox"
-                                  Background="#b1cbbb"
+                                  Background="#0A558C"
+                                  Foreground="White"
                                   GotFocus="SelectAllText"
                                   TextAlignment="Center"
                                   Margin="0,3"
@@ -746,9 +781,10 @@
                                 Width="120"
                                 FontSize="13"
                                 Foreground="#034f84"/>
-                        <TextBox Width="30"
+                        <TextBox Width="40"
                                   x:Name="CIMargin_TextBox"
-                                  Background="#b1cbbb"
+                                  Background="#0A558C"
+                                  Foreground="White"
                                   GotFocus="SelectAllText"
                                   TextAlignment="Center"
                                   Margin="0,3"
@@ -773,9 +809,10 @@
                                 Width="120"
                                 FontSize="13"
                                 Foreground="#034f84"/>
-                        <TextBox Width="30"
+                        <TextBox Width="40"
                                   x:Name="R50Margin_TextBox"
-                                  Background="#b1cbbb"
+                                  Background="#0A558C"
+                                  Foreground="White"
                                   GotFocus="SelectAllText"
                                   TextAlignment="Center"
                                   Margin="0,3"
@@ -858,21 +895,22 @@
                                   Width="85"
                                   FontSize="13"
                                   Foreground="#034f84"/>
-                          
+
                           <ComboBox x:Name="DoseLevel1_Combo"
                                     Width="125"
-                                    Background="#b1cbbb"
+                                    Background="#F5F7FA"
                                     HorizontalContentAlignment="Left"
                                     VerticalContentAlignment="Center"/>
-                          
+
                           <Label Content="Crop Margin [mm]:"
                               Width="105"
                               FontSize="12"
                               Foreground="#034f84"/>
                           
-                          <TextBox Width="30"
+                          <TextBox Width="40"
                                 x:Name="DoseLevel1CropMargin_TextBox"
-                                Background="#b1cbbb"
+                                Background="#0A558C"
+                                Foreground="White"
                                 GotFocus="SelectAllText"
                                 TextAlignment="Center"
                                 Margin="0,3"
@@ -896,7 +934,7 @@
                           
                           <ComboBox x:Name="DoseLevel2_Combo"
                                     Width="125"
-                                    Background="#b1cbbb"
+                                    Background="#F5F7FA"
                                     HorizontalContentAlignment="Left"
                                     VerticalContentAlignment="Center"/>
                           
@@ -905,9 +943,10 @@
                               FontSize="12"
                               Foreground="#034f84"/>
                           
-                          <TextBox Width="30"
+                          <TextBox Width="40"
                                 x:Name="DoseLevel2CropMargin_TextBox"
-                                Background="#b1cbbb"
+                                Background="#0A558C"
+                                Foreground="White"
                                 GotFocus="SelectAllText"
                                 TextAlignment="Center"
                                 Margin="0,3"
@@ -931,7 +970,7 @@
                           
                           <ComboBox x:Name="DoseLevel3_Combo"
                                     Width="125"
-                                    Background="#b1cbbb"
+                                    Background="#F5F7FA"
                                     HorizontalContentAlignment="Left"
                                     VerticalContentAlignment="Center"/>
                           
@@ -940,9 +979,10 @@
                               FontSize="12"
                               Foreground="#034f84"/>
                           
-                          <TextBox Width="30"
+                          <TextBox Width="40"
                                 x:Name="DoseLevel3CropMargin_TextBox"
-                                Background="#b1cbbb"
+                                Background="#0A558C"
+                                Foreground="White"
                                 GotFocus="SelectAllText"
                                 TextAlignment="Center"
                                 Margin="0,3"
@@ -965,10 +1005,10 @@
                                   Foreground="#034f84"/>
                           
                           <ComboBox x:Name="DoseLevel4_Combo"
-                                    Width="125"
-                                    Background="#b1cbbb"
-                                    HorizontalContentAlignment="Left"
-                                    VerticalContentAlignment="Center"/>
+                                   Width="125"
+                                    Background="#F5F7FA"
+                                   HorizontalContentAlignment="Left"
+                                   VerticalContentAlignment="Center"/>
                           
                         </StackPanel>
 
@@ -1015,14 +1055,16 @@
                     <Label Content="Preferred Prefix:"
                           Width="120"
                           FontSize="13"/>
-                    <TextBox Width="30"
+                    <TextBox Width="40"
                             x:Name="RingPrefix_TextBox"
-                            Background="#b1cbbb"
+                            Background="#0A558C"
+                            Foreground="White"
                             GotFocus="SelectAllText"
                             TextAlignment="Center"
                             Margin="0,3"
                             FontSize="11"
                             VerticalContentAlignment="Center"
+                            
                             Text="zring"/>
                     <TextBlock Text="(If left blank, the defalut is 'zring #')"
                               TextWrapping="Wrap"
@@ -1038,9 +1080,10 @@
                     <Label  Content="Number of Rings:"
                             Width="120"
                             FontSize="13"/>
-                    <TextBox  Width="30"
+                    <TextBox  Width="40"
                               x:Name="RingCount_TextBox"
-                              Background="#b1cbbb"
+                              Background="#0A558C"
+                              Foreground="White"
                               TextAlignment="Center"
                               Margin="0,3"
                               FontSize="11"
@@ -1059,9 +1102,10 @@
                     <Label Content="Ring Margin [mm]:"
                             Width="120"
                             FontSize="13"/>
-                    <TextBox Width="30"
+                    <TextBox Width="40"
                         x:Name="RingGrowMargin_TextBox"
-                        Background="#b1cbbb"
+                        Background="#0A558C"
+                        Foreground="White"
                         GotFocus="SelectAllText"
                         TextAlignment="Center"
                         Margin="0,3"
@@ -1074,7 +1118,50 @@
                                 VerticalAlignment="Center"
                                 Margin="5,0"/>
                   </StackPanel>
-                  
+
+                  <!--Label-->
+                  <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center">
+                    <Label Content="Innermost Ring Crop Options"
+                             VerticalAlignment="Center"
+                             FontSize="13"
+                             Foreground="#034f84"/>
+                  </StackPanel>
+                  <!--Divider-->
+                  <Label Content="__________________________________________________________"
+                              Margin="0,-20,0,0"
+                              HorizontalAlignment="Center"
+                              VerticalContentAlignment="Top"
+                              FontSize="13"
+                              Foreground="#034f84"/>
+
+                  <!--Ring Margin-->
+                  <StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal"
+                              HorizontalAlignment="Center"
+                              Width="315">
+                    <Label Content="From Target [mm]:"
+                            Width="120"
+                            FontSize="13"/>
+                    <TextBox Width="40"
+                        x:Name="RingCropMargin_TextBox"
+                        Background="#0A558C"
+                        Foreground="White"
+                        GotFocus="SelectAllText"
+                        TextAlignment="Center"
+                        Margin="0,3"
+                        FontSize="11"
+                        VerticalContentAlignment="Center"
+                        Text="1"/>
+                    <TextBlock Text="(If left blank, the defalut is 1mm)"
+                                FontSize="11"
+                                FontStyle="Italic"
+                                VerticalAlignment="Center"
+                                Margin="5,0"/>
+                  </StackPanel>
+                  </StackPanel>
+
                 </StackPanel>
               </StackPanel>
               
@@ -1092,7 +1179,7 @@
                     Width="450"
                     Padding="5"
                     Margin="0,0,0,35"
-                    Style="{StaticResource GreenRoundButtonTemplate}"
+                    Style="{StaticResource BlueRoundButtonTemplate}"
                     VerticalContentAlignment="Center"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center"
