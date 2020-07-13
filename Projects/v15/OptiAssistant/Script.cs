@@ -181,9 +181,13 @@ namespace VMS.TPS
       }
 
       // populate listviews with structures on startup
-      if (mainControl.sorted_oarList != null) { foreach (Structure s in mainControl.sorted_oarList) { mainControl.OarList_LV.Items.Add(s.Id); } }
-      if (mainControl.sorted_ptvList != null) { foreach (Structure t in mainControl.sorted_ptvList) { mainControl.PTVList_LV.Items.Add(t.Id); mainControl.PTVListForRings_LV.Items.Add(t.Id); } }
-     
+      if (mainControl.sorted_oarList != null) { foreach (Structure s in mainControl.sorted_oarList) { mainControl.oarListBoxItems.Add(new OptiAssistant.MainControl.ListBoxItem(s.Id)); /* mainControl.OarList_LV.Items.Add(s.Id);*/ } }
+      if (mainControl.sorted_ptvList != null) { foreach (Structure t in mainControl.sorted_ptvList) { mainControl.ptvListBoxItems.Add(new OptiAssistant.MainControl.ListBoxItem(t.Id)); mainControl.ringListBoxItems.Add(new OptiAssistant.MainControl.ListBoxItem(t.Id)); /*mainControl.PTVList_LV.Items.Add(t.Id); mainControl.PTVListForRings_LV.Items.Add(t.Id);*/ } }
+
+      mainControl.OarList_LV.ItemsSource = mainControl.oarListBoxItems;
+      mainControl.PTVList_LV.ItemsSource = mainControl.ptvListBoxItems;
+      mainControl.PTVListForRings_LV.ItemsSource = mainControl.ringListBoxItems;
+
       #endregion
       //---------------------------------------------------------------------------------
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -137,12 +138,30 @@ namespace OptiAssistant
 
     public bool createPTVEval = false;
 
+    // lists for objects in the oar, ptv, and ring listboxes (for binding) -- necessary for using checkboxes in listboxes
+    public ObservableCollection<ListBoxItem> oarListBoxItems = new ObservableCollection<ListBoxItem>();
+    public ObservableCollection<ListBoxItem> ptvListBoxItems = new ObservableCollection<ListBoxItem>();
+    public ObservableCollection<ListBoxItem> ringListBoxItems = new ObservableCollection<ListBoxItem>();
+    //public List<lboxItem> ringListBox = new List<lboxItem>();
+
     //public bool createOptiGTVForSingleLesion = false;
     //public bool createOptiTotal = false;
 
     #endregion public variables
     //---------------------------------------------------------------------------------
     #region objects used for binding
+
+    public class ListBoxItem
+    {
+      public ListBoxItem(string id, bool isSelected=false)
+      {
+        Id = id;
+        IsSelected = isSelected;
+      }
+      public string Id { get; set; }
+      public bool IsSelected{ get; set; }
+
+    }
 
     #endregion
     //---------------------------------------------------------------------------------
@@ -323,40 +342,84 @@ namespace OptiAssistant
       }
 
       #endregion validation
+
+      string msg = "Selected Items:\r\n\r\n\t";
+      foreach (var item in OarList_LV.Items)
+      {
+        var i = item as ListBoxItem;
+        if (i.IsSelected == true) { msg += i.Id + "\r\n\t"; }
+
+      }
+      foreach (var item in PTVList_LV.Items)
+      {
+        var i = item as ListBoxItem;
+        if (i.IsSelected == true) { msg += i.Id + "\r\n\t"; }
+
+      }
+      foreach (var item in PTVListForRings_LV.Items)
+      {
+        var i = item as ListBoxItem;
+        if (i.IsSelected == true) { msg += i.Id + "\r\n\t"; }
+
+      }
+      MessageBox.Show(msg);
     }
 
     // create structures button
     public void CreateStructures_Btn_Click(object sender, RoutedEventArgs e)
     {
+
+      List<string> selectedPTVs = new List<string>();
+      List<string> selectedOARs = new List<string>();
+      List<string> selectedPTVsForRings = new List<string>();
       // for debug messages
       //var tempCounter = 1;
-      
+
       // will be changed to false if any validation logic fails
       var continueToCreateStructures = true;
 
       // determine further whether High Res Structures are needed
-      foreach (var s in OarList_LV.SelectedItems)
+      foreach (var item in OarList_LV.Items)
       {
-        if (highresMessage.Contains(s.ToString()))
+        var s = item as ListBoxItem;
+
+        if (s.IsSelected == true)
         {
-          needHRStructures = true;
+          selectedOARs.Add(s.Id);
+
+          if (highresMessage.Contains(s.Id.ToString()))
+          {
+            needHRStructures = true;
+          }
+        }
+
+      }
+
+      foreach (var item in PTVListForRings_LV.Items)
+      {
+        var s = item as ListBoxItem;
+        if (s.IsSelected == true)
+        {
+          selectedPTVsForRings.Add(s.Id);
+
+          if (highresMessage.Contains(s.Id.ToString()))
+          {
+            needHRStructures = true;
+          }
         }
       }
 
-      foreach (var s in PTVListForRings_LV.SelectedItems)
+      foreach (var item in PTVList_LV.Items)
       {
-        if (highresMessage.Contains(s.ToString()))
+        var s = item as ListBoxItem;
+        if (s.IsSelected == true)
         {
-          needHRStructures = true;
-        }
-      }
+          selectedPTVs.Add(s.Id);
 
-      foreach (var s in PTVList_LV.SelectedItems)
-      {
-        if (highresMessage.Contains(s.ToString()))
-        {
-          needHRStructures = true;
-          hasHighResTargets = true;
+          if (highresMessage.Contains(s.Id.ToString()))
+          {
+            needHRStructures = true;
+          }
         }
       }
 
@@ -431,17 +494,17 @@ namespace OptiAssistant
         if (DoseLevel4_Radio.IsChecked == true && ((DoseLevel1_Combo.SelectedIndex == DoseLevel2_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex) || (DoseLevel3_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Dose Level Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
 
       }
-      if (CreateAvoids_CB.IsChecked == true && OarList_LV.SelectedItems.Count == 0)
+      if (CreateAvoids_CB.IsChecked == true && selectedOARs.Count == 0)
       {
         MessageBox.Show("Oops, it appears you'd like to create avoid structures but haven't selected any structures to create avoids for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         continueToCreateStructures = false;
       }
-      if (CreateOptis_CB.IsChecked == true && PTVList_LV.SelectedItems.Count == 0)
+      if (CreateOptis_CB.IsChecked == true && selectedPTVs.Count == 0)
       {
         MessageBox.Show("Oops, it appears you'd like to create opti ptv structures but haven't selected any targets to create optis for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         continueToCreateStructures = false;
       }
-      if (CreateOptis_CB.IsChecked == true && CreatePTVEval_CB.IsChecked == true && PTVList_LV.SelectedItems.Count != 0)
+      if (CreateOptis_CB.IsChecked == true && CreatePTVEval_CB.IsChecked == true && selectedPTVs.Count != 0)
       {
         foreach (var t in PTVList_LV.SelectedItems)
         {
@@ -455,7 +518,7 @@ namespace OptiAssistant
 
         }
       }
-      if (CreateRings_CB.IsChecked == true && PTVListForRings_LV.SelectedItems.Count == 0)
+      if (CreateRings_CB.IsChecked == true && selectedPTVsForRings.Count == 0)
       {
         MessageBox.Show("Oops, it appears you'd like to create ring structures but haven't selected any targets to create rings for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         continueToCreateStructures = false;
@@ -707,7 +770,8 @@ namespace OptiAssistant
           if (CreateAvoids_CB.IsChecked == true)
           {
             
-            var avStructuresToMake = OarList_LV.SelectedItems;
+            //var avStructuresToMake = OarList_LV.SelectedItems;
+            var avStructuresToMake = selectedOARs;
             string avPrefix;
             int avGrowMargin;
             int avCropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
@@ -1353,7 +1417,8 @@ namespace OptiAssistant
             createPTVEval = (bool)CreatePTVEval_CB.IsChecked;
 
 
-            var optiStructuresToMake = PTVList_LV.SelectedItems;
+            //var optiStructuresToMake = PTVList_LV.SelectedItems;
+            var optiStructuresToMake = selectedPTVs;
             string optiPrefix = DEFAULT_OPTI_PREFIX;
             int optiGrowMargin = DEFAULT_OPTI_GROW_MARGIN;
             int optiCropMargin = DEFAULT_OPTI_CROP_MARGIN;
@@ -2021,9 +2086,11 @@ namespace OptiAssistant
               }
             }
 
-            foreach (var ptv in PTVListForRings_LV.SelectedItems)
+            foreach (var item in PTVListForRings_LV.Items)
             {
-              var target = ss.Structures.Single(st => st.Id == ptv.ToString());
+              var ptv = item as ListBoxItem;
+
+              var target = ss.Structures.Single(st => st.Id == ptv.Id.ToString());
               for (var i = 0; i < ringCount; i++)
               {
                 var ringNum = i + 1;
@@ -2180,6 +2247,11 @@ namespace OptiAssistant
         AvoidTarget2_SP.Visibility = Visibility.Collapsed;
         AvoidTarget3_SP.Visibility = Visibility.Collapsed;
         AvoidTarget4_SP.Visibility = Visibility.Collapsed;
+
+        AvoidTarget1CropMargin_TextBox.Visibility = Visibility.Collapsed;
+        AvoidTarget2CropMargin_TextBox.Visibility = Visibility.Collapsed;
+        AvoidTarget3CropMargin_TextBox.Visibility = Visibility.Collapsed;
+        AvoidTarget4CropMargin_TextBox.Visibility = Visibility.Collapsed;
       }
       else if (radio2.IsChecked == true)
       {
@@ -2187,6 +2259,11 @@ namespace OptiAssistant
         AvoidTarget2_SP.Visibility = Visibility.Visible;
         AvoidTarget3_SP.Visibility = Visibility.Collapsed;
         AvoidTarget4_SP.Visibility = Visibility.Collapsed;
+
+        AvoidTarget1CropMargin_TextBox.Visibility = Visibility.Visible;
+        AvoidTarget2CropMargin_TextBox.Visibility = Visibility.Collapsed;
+        AvoidTarget3CropMargin_TextBox.Visibility = Visibility.Collapsed;
+        AvoidTarget4CropMargin_TextBox.Visibility = Visibility.Collapsed;
       }
       else if (radio3.IsChecked == true)
       {
@@ -2194,6 +2271,11 @@ namespace OptiAssistant
         AvoidTarget2_SP.Visibility = Visibility.Visible;
         AvoidTarget3_SP.Visibility = Visibility.Visible;
         AvoidTarget4_SP.Visibility = Visibility.Collapsed;
+
+        AvoidTarget1CropMargin_TextBox.Visibility = Visibility.Visible;
+        AvoidTarget2CropMargin_TextBox.Visibility = Visibility.Visible;
+        AvoidTarget3CropMargin_TextBox.Visibility = Visibility.Collapsed;
+        AvoidTarget4CropMargin_TextBox.Visibility = Visibility.Collapsed;
       }
       else if (radio4.IsChecked == true)
       {
@@ -2201,6 +2283,11 @@ namespace OptiAssistant
         AvoidTarget2_SP.Visibility = Visibility.Visible;
         AvoidTarget3_SP.Visibility = Visibility.Visible;
         AvoidTarget4_SP.Visibility = Visibility.Visible;
+
+        AvoidTarget1CropMargin_TextBox.Visibility = Visibility.Visible;
+        AvoidTarget2CropMargin_TextBox.Visibility = Visibility.Visible;
+        AvoidTarget3CropMargin_TextBox.Visibility = Visibility.Visible;
+        AvoidTarget4CropMargin_TextBox.Visibility = Visibility.Collapsed;
       }
     }
 
@@ -2285,6 +2372,8 @@ namespace OptiAssistant
         DoseLevel2_SP.Visibility = Visibility.Collapsed;
         DoseLevel3_SP.Visibility = Visibility.Collapsed;
         DoseLevel4_SP.Visibility = Visibility.Collapsed;
+
+        DoseLevel1CropMargin_TextBox.Visibility = Visibility.Collapsed;
       }
       else if (radio2.IsChecked == true)
       {
@@ -2292,6 +2381,9 @@ namespace OptiAssistant
         DoseLevel2_SP.Visibility = Visibility.Visible;
         DoseLevel3_SP.Visibility = Visibility.Collapsed;
         DoseLevel4_SP.Visibility = Visibility.Collapsed;
+        
+        DoseLevel1CropMargin_TextBox.Visibility = Visibility.Visible;
+        DoseLevel2CropMargin_TextBox.Visibility = Visibility.Collapsed;
       }
       else if (radio3.IsChecked == true)
       {
@@ -2299,6 +2391,10 @@ namespace OptiAssistant
         DoseLevel2_SP.Visibility = Visibility.Visible;
         DoseLevel3_SP.Visibility = Visibility.Visible;
         DoseLevel4_SP.Visibility = Visibility.Collapsed;
+
+        DoseLevel1CropMargin_TextBox.Visibility = Visibility.Visible;
+        DoseLevel2CropMargin_TextBox.Visibility = Visibility.Visible;
+        DoseLevel3CropMargin_TextBox.Visibility = Visibility.Collapsed;
       }
       else if (radio4.IsChecked == true)
       {
@@ -2306,6 +2402,10 @@ namespace OptiAssistant
         DoseLevel2_SP.Visibility = Visibility.Visible;
         DoseLevel3_SP.Visibility = Visibility.Visible;
         DoseLevel4_SP.Visibility = Visibility.Visible;
+
+        DoseLevel1CropMargin_TextBox.Visibility = Visibility.Visible;
+        DoseLevel2CropMargin_TextBox.Visibility = Visibility.Visible;
+        DoseLevel3CropMargin_TextBox.Visibility = Visibility.Visible;
       }
     }
 
