@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -57,7 +58,7 @@ namespace OptiAssistant
     const int DEFAULT_RING_COUNT = 3;
     const int DEFAULT_RING_CROP_MARGIN = 0;
     const string RING_DICOM_TYPE = "CONTROL";
-    const int DEFAULT_RING_CROP_FROM_TARGET_MARGIN = 1;
+    const int DEFAULT_RING_CROP_FROM_TARGET_MARGIN = 0;
 
     // MISC DICOM TYPE DEFAULTS
     const string CONTROL_DICOM_TYPE = "CONTROL";
@@ -139,9 +140,10 @@ namespace OptiAssistant
     public bool createPTVEval = false;
 
     // lists for objects in the oar, ptv, and ring listboxes (for binding) -- necessary for using checkboxes in listboxes
-    public ObservableCollection<ListBoxItem> oarListBoxItems = new ObservableCollection<ListBoxItem>();
-    public ObservableCollection<ListBoxItem> ptvListBoxItems = new ObservableCollection<ListBoxItem>();
-    public ObservableCollection<ListBoxItem> ringListBoxItems = new ObservableCollection<ListBoxItem>();
+    public ObservableCollection<StructureItem> oarListBoxItems = new ObservableCollection<StructureItem>();
+    public ObservableCollection<StructureItem> ptvListBoxItems = new ObservableCollection<StructureItem>();
+    public ObservableCollection<StructureItem> ringListBoxItems = new ObservableCollection<StructureItem>();
+    public ObservableCollection<StructureItem> booleanListBoxItems = new ObservableCollection<StructureItem>();
     //public List<lboxItem> ringListBox = new List<lboxItem>();
 
     //public bool createOptiGTVForSingleLesion = false;
@@ -151,9 +153,9 @@ namespace OptiAssistant
     //---------------------------------------------------------------------------------
     #region objects used for binding
 
-    public class ListBoxItem
+    public class StructureItem
     {
-      public ListBoxItem(string id, bool isSelected=false)
+      public StructureItem(string id, bool isSelected=false)
       {
         Id = id;
         IsSelected = isSelected;
@@ -240,6 +242,24 @@ namespace OptiAssistant
     // temp create structures function to allow for design testing
     public void CreateStructures_Btn_Click_DEV(object sender, RoutedEventArgs e) 
     {
+      // get selected structure items from oar, ptv, and ring lists
+      var selectedOarStructureItems = from StructureItem item in OarList_LV.Items
+                                      where item.IsSelected == true
+                                      select item;
+      var selectedPTVStructureItems = from StructureItem item in PTVList_LV.Items
+                                      where item.IsSelected == true
+                                      select item;
+      var selectedRingStructureItems = from StructureItem item in PTVListForRings_LV.Items
+                                      where item.IsSelected == true
+                                      select item;
+
+      var selectedOARs = from StructureItem item in selectedOarStructureItems.ToList()
+                         select item.Id;
+      var selectedPTVs = from StructureItem item in selectedPTVStructureItems.ToList()
+                         select item.Id;
+      var selectedPTVsForRings = from StructureItem item in selectedRingStructureItems.ToList()
+                         select item.Id;
+
       #region validation
 
       // validation
@@ -279,10 +299,10 @@ namespace OptiAssistant
       if (CreateOptis_CB.IsChecked == true && MultipleDoseLevels_CB.IsChecked == true)
       {
         // if selected counts don't match
-        if (DoseLevel1_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 1) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
-        if (DoseLevel2_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 2) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
-        if (DoseLevel3_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 3) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
-        if (DoseLevel4_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 4) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+        if (DoseLevel1_Radio.IsChecked == true && selectedPTVs.ToList().Count != 1) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+        if (DoseLevel2_Radio.IsChecked == true && selectedPTVs.ToList().Count != 2) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+        if (DoseLevel3_Radio.IsChecked == true && selectedPTVs.ToList().Count != 3) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+        if (DoseLevel4_Radio.IsChecked == true && selectedPTVs.ToList().Count != 4) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
         // dose level targets aren't selected
         if (DoseLevel1_Radio.IsChecked == true && DoseLevel1_Combo.SelectedIndex < 0)
         {
@@ -310,17 +330,17 @@ namespace OptiAssistant
         if (DoseLevel4_Radio.IsChecked == true && ((DoseLevel1_Combo.SelectedIndex == DoseLevel2_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex) || (DoseLevel3_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Dose Level Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
 
       }
-      if (CreateAvoids_CB.IsChecked == true && OarList_LV.SelectedItems.Count == 0)
+      if (CreateAvoids_CB.IsChecked == true && selectedOARs.ToList().Count == 0)
       {
         MessageBox.Show("Oops, it appears you'd like to create avoid structures but haven't selected any structures to create avoids for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         
       }
-      if (CreateOptis_CB.IsChecked == true && PTVList_LV.SelectedItems.Count == 0)
+      if (CreateOptis_CB.IsChecked == true && selectedPTVs.ToList().Count == 0)
       {
         MessageBox.Show("Oops, it appears you'd like to create opti ptv structures but haven't selected any targets to create optis for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         
       }
-      if (CreateRings_CB.IsChecked == true && PTVListForRings_LV.SelectedItems.Count == 0)
+      if (CreateRings_CB.IsChecked == true && selectedPTVsForRings.ToList().Count == 0)
       {
         MessageBox.Show("Oops, it appears you'd like to create ring structures but haven't selected any targets to create rings for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         
@@ -344,22 +364,22 @@ namespace OptiAssistant
       #endregion validation
 
       string msg = "Selected Items:\r\n\r\n\t";
-      foreach (var item in OarList_LV.Items)
+      foreach (var item in selectedOarStructureItems.ToList())
       {
-        var i = item as ListBoxItem;
-        if (i.IsSelected == true) { msg += i.Id + "\r\n\t"; }
+        //var i = item as StructureItem;
+        if (item.IsSelected == true) { msg += item.Id + "\r\n\t"; }
 
       }
-      foreach (var item in PTVList_LV.Items)
+      foreach (var item in selectedPTVStructureItems.ToList())
       {
-        var i = item as ListBoxItem;
-        if (i.IsSelected == true) { msg += i.Id + "\r\n\t"; }
+        //var i = item as StructureItem;
+        if (item.IsSelected == true) { msg += item.Id + "\r\n\t"; }
 
       }
-      foreach (var item in PTVListForRings_LV.Items)
+      foreach (var item in selectedRingStructureItems.ToList())
       {
-        var i = item as ListBoxItem;
-        if (i.IsSelected == true) { msg += i.Id + "\r\n\t"; }
+        //var i = item as StructureItem;
+        if (item.IsSelected == true) { msg += item.Id + "\r\n\t"; }
 
       }
       MessageBox.Show(msg);
@@ -368,62 +388,34 @@ namespace OptiAssistant
     // create structures button
     public void CreateStructures_Btn_Click(object sender, RoutedEventArgs e)
     {
-
-      List<string> selectedPTVs = new List<string>();
-      List<string> selectedOARs = new List<string>();
-      List<string> selectedPTVsForRings = new List<string>();
-      // for debug messages
+      //// for debug messages
       //var tempCounter = 1;
 
-      // will be changed to false if any validation logic fails
+      //// will be changed to false if any validation logic fails
       var continueToCreateStructures = true;
 
-      // determine further whether High Res Structures are needed
-      foreach (var item in OarList_LV.Items)
-      {
-        var s = item as ListBoxItem;
 
-        if (s.IsSelected == true)
-        {
-          selectedOARs.Add(s.Id);
-
-          if (highresMessage.Contains(s.Id.ToString()))
-          {
-            needHRStructures = true;
-          }
-        }
-
-      }
-
-      foreach (var item in PTVListForRings_LV.Items)
-      {
-        var s = item as ListBoxItem;
-        if (s.IsSelected == true)
-        {
-          selectedPTVsForRings.Add(s.Id);
-
-          if (highresMessage.Contains(s.Id.ToString()))
-          {
-            needHRStructures = true;
-          }
-        }
-      }
-
-      foreach (var item in PTVList_LV.Items)
-      {
-        var s = item as ListBoxItem;
-        if (s.IsSelected == true)
-        {
-          selectedPTVs.Add(s.Id);
-
-          if (highresMessage.Contains(s.Id.ToString()))
-          {
-            needHRStructures = true;
-          }
-        }
-      }
+      // get selected structures
+      var selectedOarStructureItems = from StructureItem item in OarList_LV.Items
+                                      where item.IsSelected == true
+                                      select item;
+      var selectedPTVStructureItems = from StructureItem item in PTVList_LV.Items
+                                      where item.IsSelected == true
+                                      select item;
+      var selectedRingStructureItems = from StructureItem item in PTVListForRings_LV.Items
+                                       where item.IsSelected == true
+                                       select item;
 
 
+      // get ids of selected structures
+      var selectedOARs = from StructureItem item in selectedOarStructureItems.ToList()
+                         select item.Id;
+      var selectedPTVs = from StructureItem item in selectedPTVStructureItems.ToList()
+                         select item.Id;
+      var selectedPTVsForRings = from StructureItem item in selectedRingStructureItems.ToList()
+                                 select item.Id;
+
+     
       #region validation
 
       // validation
@@ -463,10 +455,10 @@ namespace OptiAssistant
       if (CreateOptis_CB.IsChecked == true && MultipleDoseLevels_CB.IsChecked == true)
       {
         // if selected counts don't match
-        if (DoseLevel1_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 1) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
-        if (DoseLevel2_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 2) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
-        if (DoseLevel3_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 3) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
-        if (DoseLevel4_Radio.IsChecked == true && PTVList_LV.SelectedItems.Count != 4) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
+        if (DoseLevel1_Radio.IsChecked == true && selectedPTVs.ToList().Count != 1) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
+        if (DoseLevel2_Radio.IsChecked == true && selectedPTVs.ToList().Count != 2) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
+        if (DoseLevel3_Radio.IsChecked == true && selectedPTVs.ToList().Count != 3) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
+        if (DoseLevel4_Radio.IsChecked == true && selectedPTVs.ToList().Count != 4) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
         // dose level targets aren't selected
         if (DoseLevel1_Radio.IsChecked == true && DoseLevel1_Combo.SelectedIndex < 0)
         {
@@ -494,17 +486,17 @@ namespace OptiAssistant
         if (DoseLevel4_Radio.IsChecked == true && ((DoseLevel1_Combo.SelectedIndex == DoseLevel2_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex) || (DoseLevel3_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Dose Level Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); continueToCreateStructures = false; }
 
       }
-      if (CreateAvoids_CB.IsChecked == true && selectedOARs.Count == 0)
+      if (CreateAvoids_CB.IsChecked == true && selectedOARs.ToList().Count == 0)
       {
         MessageBox.Show("Oops, it appears you'd like to create avoid structures but haven't selected any structures to create avoids for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         continueToCreateStructures = false;
       }
-      if (CreateOptis_CB.IsChecked == true && selectedPTVs.Count == 0)
+      if (CreateOptis_CB.IsChecked == true && selectedPTVs.ToList().Count == 0)
       {
         MessageBox.Show("Oops, it appears you'd like to create opti ptv structures but haven't selected any targets to create optis for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         continueToCreateStructures = false;
       }
-      if (CreateOptis_CB.IsChecked == true && CreatePTVEval_CB.IsChecked == true && selectedPTVs.Count != 0)
+      if (CreateOptis_CB.IsChecked == true && CreatePTVEval_CB.IsChecked == true && selectedPTVs.ToList().Count != 0)
       {
         foreach (var t in PTVList_LV.SelectedItems)
         {
@@ -518,7 +510,7 @@ namespace OptiAssistant
 
         }
       }
-      if (CreateRings_CB.IsChecked == true && selectedPTVsForRings.Count == 0)
+      if (CreateRings_CB.IsChecked == true && selectedPTVsForRings.ToList().Count == 0)
       {
         MessageBox.Show("Oops, it appears you'd like to create ring structures but haven't selected any targets to create rings for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         continueToCreateStructures = false;
@@ -2088,7 +2080,7 @@ namespace OptiAssistant
 
             foreach (var item in PTVListForRings_LV.Items)
             {
-              var ptv = item as ListBoxItem;
+              var ptv = item as StructureItem;
 
               var target = ss.Structures.Single(st => st.Id == ptv.Id.ToString());
               for (var i = 0; i < ringCount; i++)
@@ -2247,11 +2239,6 @@ namespace OptiAssistant
         AvoidTarget2_SP.Visibility = Visibility.Collapsed;
         AvoidTarget3_SP.Visibility = Visibility.Collapsed;
         AvoidTarget4_SP.Visibility = Visibility.Collapsed;
-
-        AvoidTarget1CropMargin_TextBox.Visibility = Visibility.Collapsed;
-        AvoidTarget2CropMargin_TextBox.Visibility = Visibility.Collapsed;
-        AvoidTarget3CropMargin_TextBox.Visibility = Visibility.Collapsed;
-        AvoidTarget4CropMargin_TextBox.Visibility = Visibility.Collapsed;
       }
       else if (radio2.IsChecked == true)
       {
@@ -2259,11 +2246,6 @@ namespace OptiAssistant
         AvoidTarget2_SP.Visibility = Visibility.Visible;
         AvoidTarget3_SP.Visibility = Visibility.Collapsed;
         AvoidTarget4_SP.Visibility = Visibility.Collapsed;
-
-        AvoidTarget1CropMargin_TextBox.Visibility = Visibility.Visible;
-        AvoidTarget2CropMargin_TextBox.Visibility = Visibility.Collapsed;
-        AvoidTarget3CropMargin_TextBox.Visibility = Visibility.Collapsed;
-        AvoidTarget4CropMargin_TextBox.Visibility = Visibility.Collapsed;
       }
       else if (radio3.IsChecked == true)
       {
@@ -2271,11 +2253,6 @@ namespace OptiAssistant
         AvoidTarget2_SP.Visibility = Visibility.Visible;
         AvoidTarget3_SP.Visibility = Visibility.Visible;
         AvoidTarget4_SP.Visibility = Visibility.Collapsed;
-
-        AvoidTarget1CropMargin_TextBox.Visibility = Visibility.Visible;
-        AvoidTarget2CropMargin_TextBox.Visibility = Visibility.Visible;
-        AvoidTarget3CropMargin_TextBox.Visibility = Visibility.Collapsed;
-        AvoidTarget4CropMargin_TextBox.Visibility = Visibility.Collapsed;
       }
       else if (radio4.IsChecked == true)
       {
@@ -2283,11 +2260,6 @@ namespace OptiAssistant
         AvoidTarget2_SP.Visibility = Visibility.Visible;
         AvoidTarget3_SP.Visibility = Visibility.Visible;
         AvoidTarget4_SP.Visibility = Visibility.Visible;
-
-        AvoidTarget1CropMargin_TextBox.Visibility = Visibility.Visible;
-        AvoidTarget2CropMargin_TextBox.Visibility = Visibility.Visible;
-        AvoidTarget3CropMargin_TextBox.Visibility = Visibility.Visible;
-        AvoidTarget4CropMargin_TextBox.Visibility = Visibility.Collapsed;
       }
     }
 
@@ -2373,7 +2345,7 @@ namespace OptiAssistant
         DoseLevel3_SP.Visibility = Visibility.Collapsed;
         DoseLevel4_SP.Visibility = Visibility.Collapsed;
 
-        DoseLevel1CropMargin_TextBox.Visibility = Visibility.Collapsed;
+        DoseLevel1CropMargin_SP.Visibility = Visibility.Collapsed;
       }
       else if (radio2.IsChecked == true)
       {
@@ -2382,8 +2354,8 @@ namespace OptiAssistant
         DoseLevel3_SP.Visibility = Visibility.Collapsed;
         DoseLevel4_SP.Visibility = Visibility.Collapsed;
         
-        DoseLevel1CropMargin_TextBox.Visibility = Visibility.Visible;
-        DoseLevel2CropMargin_TextBox.Visibility = Visibility.Collapsed;
+        DoseLevel1CropMargin_SP.Visibility = Visibility.Visible;
+        DoseLevel2CropMargin_SP.Visibility = Visibility.Collapsed;
       }
       else if (radio3.IsChecked == true)
       {
@@ -2392,9 +2364,9 @@ namespace OptiAssistant
         DoseLevel3_SP.Visibility = Visibility.Visible;
         DoseLevel4_SP.Visibility = Visibility.Collapsed;
 
-        DoseLevel1CropMargin_TextBox.Visibility = Visibility.Visible;
-        DoseLevel2CropMargin_TextBox.Visibility = Visibility.Visible;
-        DoseLevel3CropMargin_TextBox.Visibility = Visibility.Collapsed;
+        DoseLevel1CropMargin_SP.Visibility = Visibility.Visible;
+        DoseLevel2CropMargin_SP.Visibility = Visibility.Visible;
+        DoseLevel3CropMargin_SP.Visibility = Visibility.Collapsed;
       }
       else if (radio4.IsChecked == true)
       {
@@ -2403,9 +2375,9 @@ namespace OptiAssistant
         DoseLevel3_SP.Visibility = Visibility.Visible;
         DoseLevel4_SP.Visibility = Visibility.Visible;
 
-        DoseLevel1CropMargin_TextBox.Visibility = Visibility.Visible;
-        DoseLevel2CropMargin_TextBox.Visibility = Visibility.Visible;
-        DoseLevel3CropMargin_TextBox.Visibility = Visibility.Visible;
+        DoseLevel1CropMargin_SP.Visibility = Visibility.Visible;
+        DoseLevel2CropMargin_SP.Visibility = Visibility.Visible;
+        DoseLevel3CropMargin_SP.Visibility = Visibility.Visible;
       }
     }
 
@@ -2538,6 +2510,331 @@ namespace OptiAssistant
       var textBox = e.OriginalSource as TextBox;
       if (textBox != null)
         textBox.SelectAll();
+    }
+
+    private void CreateBoolean_CB_Click(object sender, RoutedEventArgs e)
+    {
+      // toggle boolean tool section
+      if (CreateBoolean_CB.IsChecked == true) { BooleanedStructure_SP.Visibility = Visibility.Visible; }
+      else { BooleanedStructure_SP.Visibility = Visibility.Collapsed; }
+    }
+
+    private void BoolOperationAdd_CB_Click(object sender, RoutedEventArgs e)
+    {
+      handleBoolOperationSelection(sender as CheckBox);
+    }
+
+    private void BoolOperationSubtract_CB_Click(object sender, RoutedEventArgs e)
+    {
+      handleBoolOperationSelection(sender as CheckBox);
+    }
+
+    private void handleBoolOperationSelection(CheckBox cb)
+    {
+      var add = "BoolOperationAdd_CB";
+      var sub = "BoolOperationSubtract_CB";
+
+      //MessageBox.Show(cb.Name + " : " + cb.IsChecked);
+
+
+
+      if (cb.IsChecked == true)
+      {
+        if (cb.Name == add)
+        {
+          BoolOperationSubtract_CB.IsChecked = false;
+        }
+        if (cb.Name == sub)
+        {
+          BoolOperationAdd_CB.IsChecked = false;
+        }
+      }
+      if (cb.IsChecked == false)
+      {
+        if (cb.Name == add)
+        {
+          BoolOperationSubtract_CB.IsChecked = true;
+        }
+        if (cb.Name == sub)
+        {
+          BoolOperationAdd_CB.IsChecked = true;
+        }
+      }
+    }
+
+    private void CreateBooleanedStructure_Btn_Click(object sender, RoutedEventArgs e)
+    {
+      bool okToContinue = true;
+      // Define a regular expression for repeated words.
+      Regex rx = new Regex(@"^[a-zA-Z0-9_-]+$",
+                            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+
+
+      if (!rx.IsMatch(BoolStructId_TextBox.Text)) { MessageBox.Show("Please enter a valid Structure Id \r\n\t- (hint: can only use letters, numbers, dashes, and underscores)"); okToContinue = false; }
+      if (BoolBaseStruct_Combo.SelectedIndex < 1) { MessageBox.Show("Please select a base structure"); okToContinue = false; }
+      if (BoolBaseStruct_Combo.SelectedIndex > 0)
+      {
+        // if the structure exists already
+        if (ss.Structures.Where(x => x.Id.ToLower() == BoolStructId_TextBox.Text.ToLower()).ToList().Count > 0)
+        {
+          var result = MessageBox.Show("A structure exists with the same Id and the structure will be replaced.\r\n\r\n\tIs it OK to continue? ", "Some Title", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+          if (result == MessageBoxResult.Yes)
+          {
+            // ok to continue
+          }
+          else if (result == MessageBoxResult.No)
+          {
+            // not ok to continue
+            okToContinue = false;
+          }
+        }
+      }
+      if (okToContinue == true)
+        {
+
+
+          bool makeHR = false;
+          List<Structure> structuresToAddOrSubtract = new List<Structure>();
+
+          var selectedBooleanStructureItems = from StructureItem item in StructureListForBooleanOperations_LV.Items
+                                              where item.IsSelected == true
+                                              select item;
+
+          var selectedBooleanStructures = from StructureItem item in selectedBooleanStructureItems.ToList()
+                                          select item.Id;
+
+          var newStructureId = Helpers.ProcessStructureId(BoolStructId_TextBox.Text, MAX_ID_LENGTH);
+          var baseStructureId = BoolBaseStruct_Combo.SelectedItem.ToString();
+
+          if (baseStructureId != "")
+          {
+            // get base structure
+            var baseStructure = sorted_structureList.Single(x => x.Id == baseStructureId);
+
+            // get base structure dicom type
+            var baseStructureDicomType = baseStructure.DicomType;
+
+            // get boolean operation type
+            var boolOperationAdd = BoolOperationAdd_CB.IsChecked;
+            //var boolOperationSubtract = BoolOperationSubtract_CB.IsChecked;
+
+            // initiate new structure
+            Structure newStructure = null;
+            Structure booleanOfSelectedStructures = null;
+            string booleanOfSelectedStructuresId = "tempBoolTot";
+
+            // check and remove structure
+            Helpers.RemoveStructure(ss, newStructureId);
+            Helpers.RemoveStructure(ss, booleanOfSelectedStructuresId);
+
+            // create new structure
+            newStructure = ss.AddStructure(baseStructureDicomType, newStructureId);
+            booleanOfSelectedStructures = ss.AddStructure(baseStructureDicomType, booleanOfSelectedStructuresId);
+
+            // check if needs to be High Res
+            if (baseStructure.IsHighResolution == true) { makeHR = true; }
+
+            foreach (var id in selectedBooleanStructures)
+            {
+              var s = ss.Structures.Single(x => x.Id == id);
+              if (s.IsHighResolution == true) { makeHR = true; }
+
+              structuresToAddOrSubtract.Add(s);
+            }
+
+            // if High Res
+            if (makeHR == true)
+            {
+              // counter for temp hr structures
+              var counter = 0;
+
+              // convert base structure to High Res
+              if (baseStructure.CanConvertToHighResolution()) { baseStructure.ConvertToHighResolution(); }
+              if (newStructure.CanConvertToHighResolution()) { newStructure.ConvertToHighResolution(); }
+              if (booleanOfSelectedStructures.CanConvertToHighResolution()) { booleanOfSelectedStructures.ConvertToHighResolution(); }
+
+
+              List<Structure> tempStructsToBool = new List<Structure>();
+
+              if (structuresToAddOrSubtract.Count > 0)
+              {
+
+                foreach (var s in structuresToAddOrSubtract)
+                {
+
+                  // create temp structure to change to high res to preserve original structure
+                  var tempId = "temp_" + counter.ToString();
+                  // remove just in case
+                  Helpers.RemoveStructure(ss, tempId);
+
+                  // create new temp structure
+                  Structure tempStructure = ss.AddStructure(s.DicomType, tempId);
+                  // copy segment volume
+                  tempStructure.SegmentVolume = s.SegmentVolume;
+                  // convert to High Res
+                  if (tempStructure.CanConvertToHighResolution()) { tempStructure.ConvertToHighResolution(); }
+
+
+                  tempStructsToBool.Add(tempStructure);
+
+                }
+                // returns a booleaned segment volume given a list of structures
+                booleanOfSelectedStructures.SegmentVolume = Helpers.BooleanStructures(tempStructsToBool);
+
+                // create new structure
+
+                // if add
+                if (boolOperationAdd == true)
+                {
+                  // returns a segment volume of the combined structures (OR)
+                  newStructure.SegmentVolume = Helpers.BooleanStructures(baseStructure, booleanOfSelectedStructures);
+                }
+                // if subtract
+                else
+                {
+                  // returns a segment volume of the CROP of the one structure from the other with the provided margin
+                  newStructure.SegmentVolume = Helpers.CropStructure(baseStructure.SegmentVolume, booleanOfSelectedStructures, 0);
+                }
+
+                // remove temp structs for good
+                counter = 0;
+                foreach (var s in structuresToAddOrSubtract)
+                {
+                  var tempId = "temp_" + counter.ToString();
+                  // remove structure
+                  Helpers.RemoveStructure(ss, tempId);
+                }
+              }
+              // if no structures selected to boolean/add or subtract
+              else
+              {
+                newStructure.SegmentVolume = baseStructure.SegmentVolume;
+                MessageBox.Show("No structures were selected to add/subtract so the new structure is a copy of the base structure");
+              }
+              // remove temp bool structure
+              Helpers.RemoveStructure(ss, booleanOfSelectedStructuresId);
+
+            }
+            // if not High Res
+            else
+            {
+              if (structuresToAddOrSubtract.Count > 0)
+              {
+                // create booleaned structure
+                // returns a booleaned seg vol given a list of structures
+                booleanOfSelectedStructures.SegmentVolume = Helpers.BooleanStructures(structuresToAddOrSubtract);
+
+                // if add
+                if (boolOperationAdd == true)
+                {
+                  // returns a segment volume of the combined structures (OR)
+                  newStructure.SegmentVolume = Helpers.BooleanStructures(baseStructure, booleanOfSelectedStructures);
+                }
+                // if subtract
+                else
+                {
+                  // returns a segment volume of the CROP of the one structure from the other with the provided margin
+                  newStructure.SegmentVolume = Helpers.CropStructure(baseStructure.SegmentVolume, booleanOfSelectedStructures, 0);
+                }
+              }
+              // if no structures selected to add/subtract
+              else
+              {
+                newStructure.SegmentVolume = baseStructure.SegmentVolume;
+                MessageBox.Show("No structures were selected to add/subtract so the new structure is a copy of the base structure");
+              }
+              // remove temp struct for good
+              Helpers.RemoveStructure(ss, booleanOfSelectedStructuresId);
+
+            }
+
+          }
+          else
+          {
+            MessageBox.Show("Please select a base structure");
+          }
+        }
+        else { MessageBox.Show("Sorry, no structures were created or booleaned"); }
+    }
+
+    private void CreateBooleanedStructure_Btn_Click_DEV(object sender, RoutedEventArgs e)
+    {
+      bool okToContinue = true;
+      // Define a regular expression for repeated words.
+      Regex rx = new Regex(@"^[a-zA-Z0-9_-]+$",
+                            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+      if (!rx.IsMatch(BoolStructId_TextBox.Text)) { MessageBox.Show("Please enter a valid Structure Id \r\n\t- (hint: can only use letters, numbers, dashes, and underscores)"); okToContinue = false; } 
+      if (BoolBaseStruct_Combo.SelectedIndex < 1) { MessageBox.Show("Please select a base structure"); okToContinue = false; }
+      if (BoolBaseStruct_Combo.SelectedIndex > 0)
+      {
+        // if the structure exists already
+        if (ss.Structures.Where(x => x.Id.ToLower() == BoolStructId_TextBox.Text.ToLower()).ToList().Count > 0)
+        {
+          var result = MessageBox.Show("A structure exists with the same Id and the structure will be replaced.\r\n\r\n\tIs it OK to continue? ", "Some Title", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+          if (result == MessageBoxResult.Yes)
+          {
+            // ok to continue
+          }
+          else if (result == MessageBoxResult.No)
+          {
+            // not ok to continue
+            okToContinue = false;
+          }
+        }
+      }
+      if (okToContinue == true)
+      {
+        bool makeHR = false;
+        List<Structure> structuresToAddOrSubtract = new List<Structure>();
+
+        var selectedBooleanStructureItems = from StructureItem item in StructureListForBooleanOperations_LV.Items
+                                            where item.IsSelected == true
+                                            select item;
+
+        var selectedBooleanStructures = from StructureItem item in selectedBooleanStructureItems.ToList()
+                                        select item.Id;
+
+        var newStructureId = Helpers.ProcessStructureId(BoolStructId_TextBox.Text, MAX_ID_LENGTH);
+        var baseStructureId = BoolBaseStruct_Combo.SelectedItem.ToString();
+
+        if (baseStructureId != "")
+        {
+          var selectedMsg = newStructureId + "\r\n\r\nSelected Structures: \r\n\t";
+          var hrMsg = "HighRes Structures: \r\n\t";
+          var baseStructureMsg = "Base Structure: \r\n\t";
+          var boolOperationMsg = "Bool Operation: \r\n\t";
+
+          var baseStructure = ss.Structures.Single(x => x.Id == baseStructureId);
+          if (baseStructure.IsHighResolution == true) { hrMsg += baseStructure.Id + "\r\n\t"; makeHR = true; }
+
+          baseStructureMsg += baseStructure.Id + "\r\n\t";
+
+          if (selectedBooleanStructureItems.ToList().Count > 0)
+          {
+            foreach (var id in selectedBooleanStructures)
+            {
+              var s = ss.Structures.Single(x => x.Id == id);
+
+              if (s.IsHighResolution == true) { hrMsg += s.Id + "\r\n\t"; makeHR = true; }
+
+              selectedMsg += s.Id + "\r\n\t";
+            }
+          }
+          
+
+          boolOperationMsg += BoolOperationAdd_CB.IsChecked == true ? "Add" : "Subtract";
+
+          MessageBox.Show(string.Format("{0}\r\n{1}\r\n\t{4}\r\n{2}\r\n{3}", selectedMsg, hrMsg, baseStructureMsg, boolOperationMsg, makeHR));
+
+        }
+        else
+        {
+          MessageBox.Show("Please select a base structure");
+        }
+      }
+      else { MessageBox.Show("Sorry, no structures were created or booleaned"); }
+
     }
     #endregion highlight text on tab focus
 
