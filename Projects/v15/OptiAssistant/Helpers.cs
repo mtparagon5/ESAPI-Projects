@@ -180,22 +180,20 @@ namespace OptiAssistant
     /// </summary>
     /// <param name="structuresToBoolean"></param>
     /// <returns>Returns a booleaned structure</returns>
-    public static Structure BooleanStructures(List<Structure> structuresToBoolean)
+    public static SegmentVolume BooleanStructures(StructureSet ss, List<Structure> structuresToBoolean)
     {
-      Structure combinedStructure = structuresToBoolean[0];
-      combinedStructure.SegmentVolume = structuresToBoolean[0].SegmentVolume;
-      if (structuresToBoolean.Count() > 1)
+      RemoveStructure(ss, "zzzzTEMP");
+      Structure combinedStructure = ss.AddStructure("CONTROL", "zzzzTEMP");
+      if (structuresToBoolean[0].IsHighResolution)
       {
-        foreach (var s in structuresToBoolean)
-        {
-          if (s.IsHighResolution)
-          {
-            MessageBox.Show(string.Format("The {0} is a High Resolution Structure and may not be booleaned. Please make sure all Targets are either High Res or Not.", s.Id));
-          }
-          combinedStructure.SegmentVolume = combinedStructure.SegmentVolume.Or(s.SegmentVolume);
-        }
+        combinedStructure.ConvertToHighResolution();
       }
-      return combinedStructure;
+      //combinedStructure.SegmentVolume = structuresToBoolean[0].SegmentVolume;
+      foreach (var s in structuresToBoolean)
+      {
+        combinedStructure.SegmentVolume = combinedStructure.SegmentVolume.Or(s.SegmentVolume);
+      }
+      return combinedStructure.SegmentVolume;
     }
 
    /// <summary>
@@ -205,6 +203,7 @@ namespace OptiAssistant
    /// <returns>Returns a booleaned structure</returns>
     public static SegmentVolume BooleanStructures(StructureSet ss, IEnumerable<Structure> structuresToBoolean)
     {
+      RemoveStructure(ss, "zzzTEMP");
       Structure combinedStructure = ss.AddStructure("CONTROL", "zzzTEMP");
       combinedStructure.SegmentVolume = structuresToBoolean.First().SegmentVolume;
 

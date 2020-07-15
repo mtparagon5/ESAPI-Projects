@@ -239,7 +239,7 @@ namespace OptiAssistant
       }
     }
 
-    // temp create structures function to allow for design testing
+    // for design testing
     public void CreateStructures_Btn_Click_DEV(object sender, RoutedEventArgs e) 
     {
       // get selected structure items from oar, ptv, and ring lists
@@ -385,7 +385,7 @@ namespace OptiAssistant
       MessageBox.Show(msg);
     }
 
-    // create structures button
+    // for production
     public void CreateStructures_Btn_Click(object sender, RoutedEventArgs e)
     {
       //// for debug messages
@@ -498,13 +498,14 @@ namespace OptiAssistant
       }
       if (CreateOptis_CB.IsChecked == true && CreatePTVEval_CB.IsChecked == true && selectedPTVs.ToList().Count != 0)
       {
-        foreach (var t in PTVList_LV.SelectedItems)
+        foreach (var id in selectedPTVs)
         {
+          var t = ss.Structures.First(x => x.Id == id);
           var evalId = string.Format("{0}_Eval", Helpers.ProcessStructureId(t.ToString(), MAX_ID_LENGTH - 5));
-          var matchedEvalStructure = ss.Structures.SingleOrDefault(st => st.Id == evalId);
-          if (matchedEvalStructure != null)
+          var matchedEvalStructure = ss.Structures.Where(st => st.Id == evalId);
+          if (matchedEvalStructure.ToList().Count > 0)
           {
-            MessageBox.Show(string.Format("Oops, it appears {0} already exists.\r\n\t- Please rename the PTV or delete the existing Eval\r\n\tstructure to continue.", evalId), "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(string.Format("Oops, it appears {0} already exists.\r\n\t- Please rename or delete the existing Eval\r\n\tstructure to continue.", evalId), "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             continueToCreateStructures = false;
           }
 
@@ -530,6 +531,7 @@ namespace OptiAssistant
         MessageBox.Show(string.Format("Oops, it appears you've chosen a Prefix for your Ring Structures that is {0} in length:\r\n\r\n\t- Please limit your prefix to a max of {1} characters", RingPrefix_TextBox.Text.Length, MAX_PREFIX_LENGTH), "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         continueToCreateStructures = false;
       }
+      
       
       #endregion validation
 
@@ -1237,11 +1239,15 @@ namespace OptiAssistant
                     var avoidTargetHRId = string.Format("zz{0}_HR", Helpers.ProcessStructureId(t, MAX_ID_LENGTH - 5));
                     var avoidTargetId = string.Format("zz{0}", Helpers.ProcessStructureId(t, MAX_ID_LENGTH - 5)); // still minus 5 (same as hr structure) to allow only one id to be defined later when removing these two structures
 
+                    Helpers.RemoveStructure(ss, avoidTargetId);
+
                     // match ptv in structure set
                     avoidTarget = ss.AddStructure(OPTI_DICOM_TYPE, avoidTargetId);                    
                     if (needHRStructures)
                     {
-                      avoidTarget_HR = ss.Structures.Single(st => st.Id == avoidTargetHRId);
+                      Helpers.RemoveStructure(ss, avoidTargetHRId);
+                      avoidTarget_HR = ss.AddStructure(OPTI_DICOM_TYPE, avoidTargetHRId);
+                      avoidTarget_HR.ConvertToHighResolution();
                     }
 
                     // if creating optis, need to add margin to the temp avoid target for when cropping avoid away
@@ -1599,6 +1605,7 @@ namespace OptiAssistant
                   MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", optiStructure.Id);
                 }
               }
+              
 
               //zztemp += 1;
               // PTV Eval structure
@@ -2152,26 +2159,44 @@ namespace OptiAssistant
           #region clean up structure set
 
           // remove temporary high res structures
-          Helpers.RemoveStructure(ss, bodyHRId);
-          Helpers.RemoveStructure(ss, zptvTotalHRId);
-          Helpers.RemoveStructure(ss, zoptiTotalHRId);
-          Helpers.RemoveStructure(ss, "zzzTEMP"); // keep!!! used when booleaning structures -- Helpers.BooleanStructures()
+          var toRemove = new List<string> { bodyHRId, zptvTotalHRId, zoptiTotalHRId, "zzzTEMP" };
+          foreach (var id in toRemove)
+          {
+            try
+            {
+              Helpers.RemoveStructure(ss, id);
+            }
+            catch
+            {
+              MessageBox.Show("Trouble removing " + id);
+            }
+          }
+          //try
+          //{
+          //  Helpers.RemoveStructure(ss, bodyHRId);
+          //}
+          //Helpers.RemoveStructure(ss, zptvTotalHRId);
+          //Helpers.RemoveStructure(ss, zoptiTotalHRId);
+          //Helpers.RemoveStructure(ss, "zzzTEMP"); // keep!!! used when booleaning structures -- Helpers.BooleanStructures()
           foreach (var t in sorted_ptvList)
           {
-            var tempId = Helpers.ProcessStructureId(t.Id.ToString(), MAX_ID_LENGTH - 5);
-            try
+            if (ss.Structures.Where(x => x.Id.ToLower() == t.Id.ToLower()).ToList().Count > 1)
             {
-              Helpers.RemoveStructure(ss, string.Format("zz{0}_HR", tempId));
-            }
-            catch
-            {
-            }
-            try
-            {
-              Helpers.RemoveStructure(ss, string.Format("zz{0}", tempId));
-            }
-            catch
-            {
+              var tempId = Helpers.ProcessStructureId(t.Id.ToString(), MAX_ID_LENGTH - 5);
+              try
+              {
+                Helpers.RemoveStructure(ss, string.Format("zz{0}_HR", tempId));
+              }
+              catch
+              {
+              }
+              try
+              {
+                Helpers.RemoveStructure(ss, string.Format("zz{0}", tempId));
+              }
+              catch
+              {
+              }
             }
 
           }
@@ -2421,6 +2446,350 @@ namespace OptiAssistant
 
     #endregion opti structure section events
 
+    #region boolean structure button events
+
+
+    private void CreateBoolean_CB_Click(object sender, RoutedEventArgs e)
+    {
+      // toggle boolean tool section
+      if (CreateBoolean_CB.IsChecked == true) { BooleanedStructure_SP.Visibility = Visibility.Visible; }
+      else { BooleanedStructure_SP.Visibility = Visibility.Collapsed; }
+    }
+
+    private void BoolOperationAdd_CB_Click(object sender, RoutedEventArgs e)
+    {
+      handleBoolOperationSelection(sender as CheckBox);
+    }
+
+    private void BoolOperationSubtract_CB_Click(object sender, RoutedEventArgs e)
+    {
+      handleBoolOperationSelection(sender as CheckBox);
+    }
+
+    private void handleBoolOperationSelection(CheckBox cb)
+    {
+      var add = "BoolOperationAdd_CB";
+      var sub = "BoolOperationSubtract_CB";
+
+      //MessageBox.Show(cb.Name + " : " + cb.IsChecked);
+
+
+
+      if (cb.IsChecked == true)
+      {
+        if (cb.Name == add)
+        {
+          BoolOperationSubtract_CB.IsChecked = false;
+        }
+        if (cb.Name == sub)
+        {
+          BoolOperationAdd_CB.IsChecked = false;
+        }
+      }
+      if (cb.IsChecked == false)
+      {
+        if (cb.Name == add)
+        {
+          BoolOperationSubtract_CB.IsChecked = true;
+        }
+        if (cb.Name == sub)
+        {
+          BoolOperationAdd_CB.IsChecked = true;
+        }
+      }
+    }
+
+    // for production
+    private void CreateBooleanedStructure_Btn_Click(object sender, RoutedEventArgs e)
+    {
+      bool okToContinue = true;
+      // Define a regular expression for repeated words.
+      Regex rx = new Regex(@"^[a-zA-Z0-9_-]+$",
+                            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+      // validation
+      if (!rx.IsMatch(BoolStructId_TextBox.Text)) { MessageBox.Show("Please enter a valid Structure Id \r\n\t- (hint: can only use letters, numbers, dashes, and underscores)"); okToContinue = false; return; }
+      if (BoolBaseStruct_Combo.SelectedIndex == -1) { MessageBox.Show("Please select a base structure"); okToContinue = false; return; }
+      if (BoolBaseStruct_Combo.SelectedIndex >= 0)
+      {
+        // if the structure exists already
+        if (ss.Structures.Where(x => x.Id.ToLower() == BoolStructId_TextBox.Text.ToLower()).ToList().Count > 0)
+        {
+          var result = MessageBox.Show("A structure exists with the same Id and the structure will be replaced.\r\n\r\n\tIs it OK to continue? ", "Some Title", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+          if (result == MessageBoxResult.Yes)
+          {
+            // ok to continue
+          }
+          else if (result == MessageBoxResult.No)
+          {
+            // not ok to continue
+            okToContinue = false;
+            return;
+          }
+        }
+      }
+
+      // if pass validation
+      if (okToContinue == true)
+      {
+        using (new WaitCursor())
+        {
+
+          // allow modifications
+          patient.BeginModifications();
+
+          bool makeHR = false;
+          List<Structure> structuresToAddOrSubtract = new List<Structure>();
+
+          var selectedBooleanStructureItems = from StructureItem item in StructureListForBooleanOperations_LV.Items
+                                              where item.IsSelected == true
+                                              select item;
+
+          var selectedBooleanStructures = from StructureItem item in selectedBooleanStructureItems.ToList()
+                                          select item.Id;
+
+          var newStructureId = Helpers.ProcessStructureId(BoolStructId_TextBox.Text, MAX_ID_LENGTH);
+          var baseStructureId = BoolBaseStruct_Combo.SelectedItem.ToString();
+
+          // get base structure
+          var baseStructure = sorted_structureList.Single(x => x.Id == baseStructureId);
+
+          // get base structure dicom type
+          var baseStructureDicomType = baseStructure.DicomType == "EXTERNAL" || baseStructure.DicomType.Length == 0 ? CONTROL_DICOM_TYPE : baseStructure.DicomType.ToString();
+
+
+          // get boolean operation type
+          var boolOperationAdd = BoolOperationAdd_CB.IsChecked;
+          //var boolOperationSubtract = BoolOperationSubtract_CB.IsChecked;
+
+          // initiate new structure
+          Structure newStructure = null;
+          Structure booleanOfSelectedStructures = null;
+          string booleanOfSelectedStructuresId = "tempBoolTot";
+
+          // check and remove structure
+          Helpers.RemoveStructure(ss, booleanOfSelectedStructuresId);
+
+          // create new structure
+          if (ss.Structures.Where(x => x.Id.ToLower() == newStructureId.ToLower()).ToList().Count > 0) { newStructure = ss.Structures.First(x => x.Id.ToLower() == newStructureId.ToLower()); }
+          else { newStructure = ss.AddStructure(baseStructureDicomType, newStructureId); }
+          booleanOfSelectedStructures = ss.AddStructure(baseStructureDicomType, booleanOfSelectedStructuresId);
+
+          // check if needs to be High Res
+          if (baseStructure.IsHighResolution == true) { makeHR = true; }
+
+          foreach (var id in selectedBooleanStructures)
+          {
+            var s = ss.Structures.Single(x => x.Id == id);
+            if (s.IsHighResolution == true) { makeHR = true; }
+
+            structuresToAddOrSubtract.Add(s);
+          }
+
+          // if High Res
+          if (makeHR == true)
+          {
+            // counter for temp hr structures
+            var counter = 0;
+
+            // convert base structure to High Res
+            if (baseStructure.CanConvertToHighResolution()) { baseStructure.ConvertToHighResolution(); }
+            if (newStructure.CanConvertToHighResolution()) { newStructure.ConvertToHighResolution(); }
+            if (booleanOfSelectedStructures.CanConvertToHighResolution()) { booleanOfSelectedStructures.ConvertToHighResolution(); }
+
+
+            List<Structure> tempStructsToBool = new List<Structure>();
+
+            if (structuresToAddOrSubtract.Count > 0)
+            {
+
+              foreach (var s in structuresToAddOrSubtract)
+              {
+
+                // create temp structure to change to high res to preserve original structure
+                var tempId = "temp_" + counter.ToString();
+                // remove just in case
+                Helpers.RemoveStructure(ss, tempId);
+
+                var tempDicomType = s.DicomType == "EXTERNAL" || baseStructure.DicomType.Length == 0 ? CONTROL_DICOM_TYPE : baseStructure.DicomType.ToString();
+
+                // create new temp structure
+                Structure tempStructure = ss.AddStructure(tempDicomType, tempId);
+                // copy segment volume
+                tempStructure.SegmentVolume = s.SegmentVolume;
+                // convert to High Res
+                if (tempStructure.CanConvertToHighResolution()) { tempStructure.ConvertToHighResolution(); }
+
+
+                tempStructsToBool.Add(tempStructure);
+                counter += 1;
+              }
+              // returns a booleaned segment volume given a list of structures
+              booleanOfSelectedStructures.SegmentVolume = Helpers.BooleanStructures(ss, tempStructsToBool);
+              // created in the helpers.booleanstructures function above
+              Helpers.RemoveStructure(ss, "zzzzTEMP");
+
+
+              // create new structure
+
+              // if add
+              if (boolOperationAdd == true)
+              {
+                // returns a segment volume of the combined structures (OR)
+                newStructure.SegmentVolume = Helpers.BooleanStructures(baseStructure, booleanOfSelectedStructures);
+              }
+              // if subtract
+              else
+              {
+                // returns a segment volume of the CROP of the one structure from the other with the provided margin
+                newStructure.SegmentVolume = Helpers.CropStructure(baseStructure.SegmentVolume, booleanOfSelectedStructures, 0);
+              }
+
+              // remove temp structs for good
+              counter = 0;
+              foreach (var s in structuresToAddOrSubtract)
+              {
+                var tempId = "temp_" + counter.ToString();
+                // remove structure
+                Helpers.RemoveStructure(ss, tempId);
+                counter += 1;
+              }
+            }
+            // if no structures selected to boolean/add or subtract
+            else
+            {
+              newStructure.SegmentVolume = baseStructure.SegmentVolume;
+              MessageBox.Show("No structures were selected to add/subtract so the new structure is a copy of the base structure");
+            }
+            // remove temp bool structure
+            Helpers.RemoveStructure(ss, booleanOfSelectedStructuresId);
+
+          }
+          // if not High Res
+          else
+          {
+            if (structuresToAddOrSubtract.Count > 0)
+            {
+              // create booleaned structure
+              // returns a booleaned seg vol given a list of structures
+              booleanOfSelectedStructures.SegmentVolume = Helpers.BooleanStructures(ss, structuresToAddOrSubtract);
+              // created in the helpers.booleanstructures function above
+              Helpers.RemoveStructure(ss, "zzzzTEMP");
+
+              // if add
+              if (boolOperationAdd == true)
+              {
+                // returns a segment volume of the combined structures (OR)
+                newStructure.SegmentVolume = Helpers.BooleanStructures(baseStructure, booleanOfSelectedStructures);
+              }
+              // if subtract
+              else
+              {
+                // returns a segment volume of the CROP of the one structure from the other with the provided margin
+                newStructure.SegmentVolume = Helpers.CropStructure(baseStructure.SegmentVolume, booleanOfSelectedStructures, 0);
+              }
+            }
+            // if no structures selected to add/subtract
+            else
+            {
+              newStructure.SegmentVolume = baseStructure.SegmentVolume;
+              MessageBox.Show("No structures were selected to add/subtract so the new structure is a copy of the base structure");
+            }
+            // remove temp struct for good
+            Helpers.RemoveStructure(ss, booleanOfSelectedStructuresId);
+          }
+          MessageBox.Show(string.Format("{0} successfully created", newStructureId));
+        }
+
+      }
+      else { MessageBox.Show("Sorry, no structures were created or booleaned"); }
+
+    }
+
+    // for design testing
+    private void CreateBooleanedStructure_Btn_Click_DEV(object sender, RoutedEventArgs e)
+    {
+      bool okToContinue = true;
+      // Define a regular expression for repeated words.
+      Regex rx = new Regex(@"^[a-zA-Z0-9_-]+$",
+                            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+      if (!rx.IsMatch(BoolStructId_TextBox.Text)) { MessageBox.Show("Please enter a valid Structure Id \r\n\t- (hint: can only use letters, numbers, dashes, and underscores)"); okToContinue = false; return; }
+      if (BoolBaseStruct_Combo.SelectedIndex == -1) { MessageBox.Show("Please select a base structure"); okToContinue = false; return; }
+      if (BoolBaseStruct_Combo.SelectedIndex >= 0)
+      {
+        // if the structure exists already
+        if (ss.Structures.Where(x => x.Id.ToLower() == BoolStructId_TextBox.Text.ToLower()).ToList().Count > 0)
+        {
+          var result = MessageBox.Show("A structure exists with the same Id and the structure will be replaced.\r\n\r\n\tIs it OK to continue? ", "Some Title", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+          if (result == MessageBoxResult.Yes)
+          {
+            // ok to continue
+          }
+          else if (result == MessageBoxResult.No)
+          {
+            // not ok to continue
+            okToContinue = false;
+            return;
+          }
+        }
+      }
+      if (okToContinue == true)
+      {
+
+        //// allow modifications
+        //patient.BeginModifications();
+
+        bool makeHR = false;
+        List<Structure> structuresToAddOrSubtract = new List<Structure>();
+
+        var selectedBooleanStructureItems = from StructureItem item in StructureListForBooleanOperations_LV.Items
+                                            where item.IsSelected == true
+                                            select item;
+
+        var selectedBooleanStructures = from StructureItem item in selectedBooleanStructureItems.ToList()
+                                        select item.Id;
+
+        var newStructureId = Helpers.ProcessStructureId(BoolStructId_TextBox.Text, MAX_ID_LENGTH);
+        var baseStructureId = BoolBaseStruct_Combo.SelectedItem.ToString();
+        
+
+
+        var selectedMsg = newStructureId + "\r\n\r\nSelected Structures: \r\n\t";
+          var hrMsg = "HighRes Structures: \r\n\t";
+          var baseStructureMsg = "Base Structure: \r\n\t";
+          var boolOperationMsg = "Bool Operation: \r\n\t";
+
+          var baseStructure = ss.Structures.Single(x => x.Id == baseStructureId);
+          var baseStructureDicomType = baseStructure.DicomType;
+          MessageBox.Show(baseStructureDicomType.ToString() + " : " + baseStructureDicomType.Length);
+        if (baseStructure.IsHighResolution == true) { hrMsg += baseStructure.Id + "\r\n\t"; makeHR = true; }
+
+          baseStructureMsg += baseStructure.Id + "\r\n\t";
+
+          if (selectedBooleanStructureItems.ToList().Count > 0)
+          {
+            foreach (var id in selectedBooleanStructures)
+            {
+              var s = ss.Structures.Single(x => x.Id == id);
+
+              if (s.IsHighResolution == true) { hrMsg += s.Id + "\r\n\t"; makeHR = true; }
+
+              selectedMsg += s.Id + "\r\n\t";
+            }
+          }
+
+
+          boolOperationMsg += BoolOperationAdd_CB.IsChecked == true ? "Add" : "Subtract";
+
+          MessageBox.Show(string.Format("{0}\r\n{1}\r\n\t{4}\r\n{2}\r\n{3}", selectedMsg, hrMsg, baseStructureMsg, boolOperationMsg, makeHR));
+
+      }
+      else { MessageBox.Show("Sorry, no structures were created or booleaned"); }
+
+    }
+
+    #endregion boolean structure button events
+
     #endregion button / checkbox events
 
     #endregion event controls
@@ -2505,6 +2874,7 @@ namespace OptiAssistant
     #endregion miscelaneous events
 
     #region highlight text on tab focus
+
     void SelectAllText(object sender, RoutedEventArgs e)
     {
       var textBox = e.OriginalSource as TextBox;
@@ -2512,330 +2882,6 @@ namespace OptiAssistant
         textBox.SelectAll();
     }
 
-    private void CreateBoolean_CB_Click(object sender, RoutedEventArgs e)
-    {
-      // toggle boolean tool section
-      if (CreateBoolean_CB.IsChecked == true) { BooleanedStructure_SP.Visibility = Visibility.Visible; }
-      else { BooleanedStructure_SP.Visibility = Visibility.Collapsed; }
-    }
-
-    private void BoolOperationAdd_CB_Click(object sender, RoutedEventArgs e)
-    {
-      handleBoolOperationSelection(sender as CheckBox);
-    }
-
-    private void BoolOperationSubtract_CB_Click(object sender, RoutedEventArgs e)
-    {
-      handleBoolOperationSelection(sender as CheckBox);
-    }
-
-    private void handleBoolOperationSelection(CheckBox cb)
-    {
-      var add = "BoolOperationAdd_CB";
-      var sub = "BoolOperationSubtract_CB";
-
-      //MessageBox.Show(cb.Name + " : " + cb.IsChecked);
-
-
-
-      if (cb.IsChecked == true)
-      {
-        if (cb.Name == add)
-        {
-          BoolOperationSubtract_CB.IsChecked = false;
-        }
-        if (cb.Name == sub)
-        {
-          BoolOperationAdd_CB.IsChecked = false;
-        }
-      }
-      if (cb.IsChecked == false)
-      {
-        if (cb.Name == add)
-        {
-          BoolOperationSubtract_CB.IsChecked = true;
-        }
-        if (cb.Name == sub)
-        {
-          BoolOperationAdd_CB.IsChecked = true;
-        }
-      }
-    }
-
-    private void CreateBooleanedStructure_Btn_Click(object sender, RoutedEventArgs e)
-    {
-      bool okToContinue = true;
-      // Define a regular expression for repeated words.
-      Regex rx = new Regex(@"^[a-zA-Z0-9_-]+$",
-                            RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-
-
-      if (!rx.IsMatch(BoolStructId_TextBox.Text)) { MessageBox.Show("Please enter a valid Structure Id \r\n\t- (hint: can only use letters, numbers, dashes, and underscores)"); okToContinue = false; }
-      if (BoolBaseStruct_Combo.SelectedIndex < 1) { MessageBox.Show("Please select a base structure"); okToContinue = false; }
-      if (BoolBaseStruct_Combo.SelectedIndex > 0)
-      {
-        // if the structure exists already
-        if (ss.Structures.Where(x => x.Id.ToLower() == BoolStructId_TextBox.Text.ToLower()).ToList().Count > 0)
-        {
-          var result = MessageBox.Show("A structure exists with the same Id and the structure will be replaced.\r\n\r\n\tIs it OK to continue? ", "Some Title", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-          if (result == MessageBoxResult.Yes)
-          {
-            // ok to continue
-          }
-          else if (result == MessageBoxResult.No)
-          {
-            // not ok to continue
-            okToContinue = false;
-          }
-        }
-      }
-      if (okToContinue == true)
-        {
-
-
-          bool makeHR = false;
-          List<Structure> structuresToAddOrSubtract = new List<Structure>();
-
-          var selectedBooleanStructureItems = from StructureItem item in StructureListForBooleanOperations_LV.Items
-                                              where item.IsSelected == true
-                                              select item;
-
-          var selectedBooleanStructures = from StructureItem item in selectedBooleanStructureItems.ToList()
-                                          select item.Id;
-
-          var newStructureId = Helpers.ProcessStructureId(BoolStructId_TextBox.Text, MAX_ID_LENGTH);
-          var baseStructureId = BoolBaseStruct_Combo.SelectedItem.ToString();
-
-          if (baseStructureId != "")
-          {
-            // get base structure
-            var baseStructure = sorted_structureList.Single(x => x.Id == baseStructureId);
-
-            // get base structure dicom type
-            var baseStructureDicomType = baseStructure.DicomType;
-
-            // get boolean operation type
-            var boolOperationAdd = BoolOperationAdd_CB.IsChecked;
-            //var boolOperationSubtract = BoolOperationSubtract_CB.IsChecked;
-
-            // initiate new structure
-            Structure newStructure = null;
-            Structure booleanOfSelectedStructures = null;
-            string booleanOfSelectedStructuresId = "tempBoolTot";
-
-            // check and remove structure
-            Helpers.RemoveStructure(ss, newStructureId);
-            Helpers.RemoveStructure(ss, booleanOfSelectedStructuresId);
-
-            // create new structure
-            newStructure = ss.AddStructure(baseStructureDicomType, newStructureId);
-            booleanOfSelectedStructures = ss.AddStructure(baseStructureDicomType, booleanOfSelectedStructuresId);
-
-            // check if needs to be High Res
-            if (baseStructure.IsHighResolution == true) { makeHR = true; }
-
-            foreach (var id in selectedBooleanStructures)
-            {
-              var s = ss.Structures.Single(x => x.Id == id);
-              if (s.IsHighResolution == true) { makeHR = true; }
-
-              structuresToAddOrSubtract.Add(s);
-            }
-
-            // if High Res
-            if (makeHR == true)
-            {
-              // counter for temp hr structures
-              var counter = 0;
-
-              // convert base structure to High Res
-              if (baseStructure.CanConvertToHighResolution()) { baseStructure.ConvertToHighResolution(); }
-              if (newStructure.CanConvertToHighResolution()) { newStructure.ConvertToHighResolution(); }
-              if (booleanOfSelectedStructures.CanConvertToHighResolution()) { booleanOfSelectedStructures.ConvertToHighResolution(); }
-
-
-              List<Structure> tempStructsToBool = new List<Structure>();
-
-              if (structuresToAddOrSubtract.Count > 0)
-              {
-
-                foreach (var s in structuresToAddOrSubtract)
-                {
-
-                  // create temp structure to change to high res to preserve original structure
-                  var tempId = "temp_" + counter.ToString();
-                  // remove just in case
-                  Helpers.RemoveStructure(ss, tempId);
-
-                  // create new temp structure
-                  Structure tempStructure = ss.AddStructure(s.DicomType, tempId);
-                  // copy segment volume
-                  tempStructure.SegmentVolume = s.SegmentVolume;
-                  // convert to High Res
-                  if (tempStructure.CanConvertToHighResolution()) { tempStructure.ConvertToHighResolution(); }
-
-
-                  tempStructsToBool.Add(tempStructure);
-
-                }
-                // returns a booleaned segment volume given a list of structures
-                booleanOfSelectedStructures.SegmentVolume = Helpers.BooleanStructures(tempStructsToBool);
-
-                // create new structure
-
-                // if add
-                if (boolOperationAdd == true)
-                {
-                  // returns a segment volume of the combined structures (OR)
-                  newStructure.SegmentVolume = Helpers.BooleanStructures(baseStructure, booleanOfSelectedStructures);
-                }
-                // if subtract
-                else
-                {
-                  // returns a segment volume of the CROP of the one structure from the other with the provided margin
-                  newStructure.SegmentVolume = Helpers.CropStructure(baseStructure.SegmentVolume, booleanOfSelectedStructures, 0);
-                }
-
-                // remove temp structs for good
-                counter = 0;
-                foreach (var s in structuresToAddOrSubtract)
-                {
-                  var tempId = "temp_" + counter.ToString();
-                  // remove structure
-                  Helpers.RemoveStructure(ss, tempId);
-                }
-              }
-              // if no structures selected to boolean/add or subtract
-              else
-              {
-                newStructure.SegmentVolume = baseStructure.SegmentVolume;
-                MessageBox.Show("No structures were selected to add/subtract so the new structure is a copy of the base structure");
-              }
-              // remove temp bool structure
-              Helpers.RemoveStructure(ss, booleanOfSelectedStructuresId);
-
-            }
-            // if not High Res
-            else
-            {
-              if (structuresToAddOrSubtract.Count > 0)
-              {
-                // create booleaned structure
-                // returns a booleaned seg vol given a list of structures
-                booleanOfSelectedStructures.SegmentVolume = Helpers.BooleanStructures(structuresToAddOrSubtract);
-
-                // if add
-                if (boolOperationAdd == true)
-                {
-                  // returns a segment volume of the combined structures (OR)
-                  newStructure.SegmentVolume = Helpers.BooleanStructures(baseStructure, booleanOfSelectedStructures);
-                }
-                // if subtract
-                else
-                {
-                  // returns a segment volume of the CROP of the one structure from the other with the provided margin
-                  newStructure.SegmentVolume = Helpers.CropStructure(baseStructure.SegmentVolume, booleanOfSelectedStructures, 0);
-                }
-              }
-              // if no structures selected to add/subtract
-              else
-              {
-                newStructure.SegmentVolume = baseStructure.SegmentVolume;
-                MessageBox.Show("No structures were selected to add/subtract so the new structure is a copy of the base structure");
-              }
-              // remove temp struct for good
-              Helpers.RemoveStructure(ss, booleanOfSelectedStructuresId);
-
-            }
-
-          }
-          else
-          {
-            MessageBox.Show("Please select a base structure");
-          }
-        }
-        else { MessageBox.Show("Sorry, no structures were created or booleaned"); }
-    }
-
-    private void CreateBooleanedStructure_Btn_Click_DEV(object sender, RoutedEventArgs e)
-    {
-      bool okToContinue = true;
-      // Define a regular expression for repeated words.
-      Regex rx = new Regex(@"^[a-zA-Z0-9_-]+$",
-                            RegexOptions.Compiled | RegexOptions.IgnoreCase);
-      if (!rx.IsMatch(BoolStructId_TextBox.Text)) { MessageBox.Show("Please enter a valid Structure Id \r\n\t- (hint: can only use letters, numbers, dashes, and underscores)"); okToContinue = false; } 
-      if (BoolBaseStruct_Combo.SelectedIndex < 1) { MessageBox.Show("Please select a base structure"); okToContinue = false; }
-      if (BoolBaseStruct_Combo.SelectedIndex > 0)
-      {
-        // if the structure exists already
-        if (ss.Structures.Where(x => x.Id.ToLower() == BoolStructId_TextBox.Text.ToLower()).ToList().Count > 0)
-        {
-          var result = MessageBox.Show("A structure exists with the same Id and the structure will be replaced.\r\n\r\n\tIs it OK to continue? ", "Some Title", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-          if (result == MessageBoxResult.Yes)
-          {
-            // ok to continue
-          }
-          else if (result == MessageBoxResult.No)
-          {
-            // not ok to continue
-            okToContinue = false;
-          }
-        }
-      }
-      if (okToContinue == true)
-      {
-        bool makeHR = false;
-        List<Structure> structuresToAddOrSubtract = new List<Structure>();
-
-        var selectedBooleanStructureItems = from StructureItem item in StructureListForBooleanOperations_LV.Items
-                                            where item.IsSelected == true
-                                            select item;
-
-        var selectedBooleanStructures = from StructureItem item in selectedBooleanStructureItems.ToList()
-                                        select item.Id;
-
-        var newStructureId = Helpers.ProcessStructureId(BoolStructId_TextBox.Text, MAX_ID_LENGTH);
-        var baseStructureId = BoolBaseStruct_Combo.SelectedItem.ToString();
-
-        if (baseStructureId != "")
-        {
-          var selectedMsg = newStructureId + "\r\n\r\nSelected Structures: \r\n\t";
-          var hrMsg = "HighRes Structures: \r\n\t";
-          var baseStructureMsg = "Base Structure: \r\n\t";
-          var boolOperationMsg = "Bool Operation: \r\n\t";
-
-          var baseStructure = ss.Structures.Single(x => x.Id == baseStructureId);
-          if (baseStructure.IsHighResolution == true) { hrMsg += baseStructure.Id + "\r\n\t"; makeHR = true; }
-
-          baseStructureMsg += baseStructure.Id + "\r\n\t";
-
-          if (selectedBooleanStructureItems.ToList().Count > 0)
-          {
-            foreach (var id in selectedBooleanStructures)
-            {
-              var s = ss.Structures.Single(x => x.Id == id);
-
-              if (s.IsHighResolution == true) { hrMsg += s.Id + "\r\n\t"; makeHR = true; }
-
-              selectedMsg += s.Id + "\r\n\t";
-            }
-          }
-          
-
-          boolOperationMsg += BoolOperationAdd_CB.IsChecked == true ? "Add" : "Subtract";
-
-          MessageBox.Show(string.Format("{0}\r\n{1}\r\n\t{4}\r\n{2}\r\n{3}", selectedMsg, hrMsg, baseStructureMsg, boolOperationMsg, makeHR));
-
-        }
-        else
-        {
-          MessageBox.Show("Please select a base structure");
-        }
-      }
-      else { MessageBox.Show("Sorry, no structures were created or booleaned"); }
-
-    }
     #endregion highlight text on tab focus
 
     #endregion helper methods

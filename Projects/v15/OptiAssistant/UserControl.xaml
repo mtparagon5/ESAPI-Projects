@@ -152,25 +152,38 @@
 
     </Style>
 
+    <Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
+      <Setter Property="Stylus.IsFlicksEnabled" Value="True" />
+      <Style.Triggers>
+        <Trigger Property="Orientation" Value="Horizontal">
+          <Setter Property="Height" Value="10" />
+          <Setter Property="MinHeight" Value="10" />
+        </Trigger>
+        <Trigger Property="Orientation" Value="Vertical">
+          <Setter Property="Width" Value="10" />
+          <Setter Property="MinWidth" Value="10" />
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+
   </UserControl.Resources>
   
   <!--Main-->
-  <Border CornerRadius="5" BorderBrush="#003E6B" BorderThickness="2" Margin="35">
+  <Border CornerRadius="2" BorderBrush="#003E6B" BorderThickness="3" Margin="5">
     <Grid>
-      
-      <StackPanel>
-          
-        <!--Heading-->
-        <StackPanel Background="#003E6B"
-                  VerticalAlignment="Center">
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*" />
-              <ColumnDefinition Width="*" />
-              <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+        <StackPanel>
 
-            <Label  Grid.Column="1"
+          <!--Heading-->
+          <StackPanel Background="#003E6B"
+                  VerticalAlignment="Top">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+
+              <Label  Grid.Column="1"
                     Content="Opti Assistant"
                     Foreground="White"
                     Background="Transparent"
@@ -179,7 +192,7 @@
                     VerticalContentAlignment="Center"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center"/>
-            <Button Grid.Column="2"
+              <Button Grid.Column="2"
                     x:Name="Instructions_Button"
                     Content="Show Instructions"
                     Click="Instructions_Button_Click"
@@ -192,35 +205,37 @@
                     VerticalAlignment="Center"
                     HorizontalAlignment="right"
                     Cursor="Help"/>
-          </Grid>
-        </StackPanel>
-          
-        <ScrollViewer CanContentScroll="True" MaxHeight="1000">
+            </Grid>
+          </StackPanel>
 
-          <!-- main panel -->
-          <StackPanel Orientation="Vertical"
+
+          <ScrollViewer CanContentScroll="True" MaxHeight="900" MaxWidth="1250" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible">
+
+            <!-- main panel -->
+            <StackPanel Orientation="Vertical"
                     HorizontalAlignment="Center">
 
-            <StackPanel Orientation="Vertical"
+              <!--Tool Selections-->
+              <StackPanel Orientation="Vertical"
                       VerticalAlignment="Center"
                       Margin="25">
-              <!-- row 1 -->
-              <Border Padding="10"
+                <!-- row 1 -->
+                <Border Padding="10"
                       CornerRadius="10"
                       BorderThickness="1"
                       BorderBrush="#003E6B">
 
-                <StackPanel Orientation="Horizontal"
+                  <StackPanel Orientation="Horizontal"
                         Margin="5"
                         HorizontalAlignment="Center"
                           Background="White">
 
-                  <Label Content="What would you like to create?"
+                    <Label Content="What would you like to create?"
                       VerticalAlignment="Center"
                       Width="225"
                       Margin="5,0"/>
 
-                  <CheckBox Content="Avoid Structures"
+                    <CheckBox Content="Avoid Structures"
                         VerticalAlignment="Center"
                         VerticalContentAlignment="Bottom"
                         Margin="5,0"
@@ -229,7 +244,7 @@
                         Click="CreateAvoids_CB_Click"
                         Style="{StaticResource GreenCheckMark}"
                         IsChecked="False"/>
-                  <CheckBox Content="Opti Structures"
+                    <CheckBox Content="Opti Structures"
                         VerticalAlignment="Center"
                         VerticalContentAlignment="Bottom"
                         Margin="5, 0"
@@ -238,7 +253,7 @@
                         Click="CreateOptis_CB_Click"
                         Style="{StaticResource GreenCheckMark}"
                         IsChecked="False"/>
-                  <CheckBox Content="Ring Structures"
+                    <CheckBox Content="Ring Structures"
                         VerticalAlignment="Center"
                         Margin="5,0"
                         Width="150"
@@ -247,7 +262,7 @@
                         Click="CreateRingss_CB_Click"
                         Style="{StaticResource GreenCheckMark}"
                         IsChecked="False"/>
-                  <CheckBox Content="Booleaned Structures"
+                    <CheckBox Content="Booleaned Structures"
                         VerticalAlignment="Center"
                         Margin="5,0"
                         Width="155"
@@ -257,52 +272,1083 @@
                         Style="{StaticResource GreenCheckMark}"
                         IsChecked="False"/>
 
-                </StackPanel>
+                  </StackPanel>
 
-              </Border>
+                </Border>
 
-              <!-- row 2 -->
-              <StackPanel Orientation="Horizontal" 
+                <!-- row 2 -->
+                <StackPanel Orientation="Horizontal" 
                         Margin="0,5"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center">
 
-                <!-- oar avoids -->
-                <Border Padding="10"
+                  <!-- oar avoids -->
+                  <Border Padding="10"
                       CornerRadius="10"
                       BorderThickness="1"
                       BorderBrush="#003E6B"
                       Margin="0,0,5,0"
                       x:Name="AvoidanceStructure_SP"
                       Visibility="Collapsed">
-                  <StackPanel Background="#E1E1E1">
 
-                    <!--OAR Selection-->
-                    <StackPanel Orientation="Horizontal"
+
+                    <StackPanel Background="#E1E1E1">
+
+                      <!--OAR Selection-->
+                      <StackPanel Orientation="Horizontal"
                           Background="White"
                           Margin="0,5,0,5">
 
-                      <StackPanel Width="350">
-                        <StackPanel>
-                          <Label x:Name="OarAvoid_Label"
+                        <StackPanel Width="350">
+                          <StackPanel>
+                            <Label x:Name="OarAvoid_Label"
                             Content="OAR Avoids To Create"
                             HorizontalAlignment="Center"
                             />
-                          <TextBlock Text="Select the OAR(s) you'd like to create avoidance structures for:"
+                            <TextBlock Text="Select the OAR(s) you'd like to create avoidance structures for:"
                               TextWrapping="Wrap"
                               FontSize="12"
                               FontStyle="Italic"
                               HorizontalAlignment="Center"
                               />
-                          <ListBox x:Name="OarList_LV"
+                            <ListBox x:Name="OarList_LV"
                               Margin="5"
                               Width="auto"
-                              MinHeight="100"
-                              MaxHeight="300"
+                              MinHeight="150"
+                              MaxHeight="150"
                               FontSize="13"
                               ItemsSource="{Binding oarListBoxItems}"
                               SelectionMode="Multiple" 
                               Height="auto" 
+                              HorizontalContentAlignment="Center"
+                              VerticalContentAlignment="Center"
+                              BorderBrush="White">
+                              <ListBox.Resources>
+                                <Style TargetType="ListBoxItem">
+                                  <Setter Property="OverridesDefaultStyle" Value="true" />
+                                  <Setter Property="SnapsToDevicePixels" Value="true" />
+                                  <Setter Property="HorizontalAlignment" Value="Left" />
+                                  <Setter Property="Margin" Value="50,0,20,0" />
+                                  <Setter Property="Template">
+                                    <Setter.Value>
+                                      <ControlTemplate TargetType="ListBoxItem">
+                                        <CheckBox IsChecked="{Binding IsSelected}"
+                                        Style="{StaticResource GreenCheckMark}"
+                                        Content="{Binding Id}"
+                                        Margin="5,2">
+                                        </CheckBox>
+
+                                      </ControlTemplate>
+                                    </Setter.Value>
+                                  </Setter>
+                                </Style>
+                              </ListBox.Resources>
+                            </ListBox>
+                          </StackPanel>
+                        </StackPanel>
+                      </StackPanel>
+
+                      <!--Options-->
+                      <StackPanel Orientation="Horizontal"
+                                Background="White"
+                                Margin="0,5,0,5">
+
+                        <Grid>
+                          <Grid.RowDefinitions>
+                            <RowDefinition />
+                          </Grid.RowDefinitions>
+
+                        <ScrollViewer CanContentScroll="True" MinHeight="400"  MaxHeight="400" >
+
+                            <StackPanel Width="350">
+                              <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
+                                <Label Content="Options"
+                              VerticalAlignment="Center"
+                              FontSize="14"
+                              />
+                              </StackPanel>
+                              <Label Content="____________________________________________________________________________"
+                            Margin="0,-20,0,0"
+                            HorizontalAlignment="Center"
+                            VerticalContentAlignment="Top"
+                            FontSize="14"
+                            />
+
+                              <!--Which Targets-->
+                              <StackPanel>
+
+                                <!--Checkboxes For Avoid Targets-->
+                                <StackPanel Orientation="Vertical"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,5">
+
+                                  <CheckBox Content="Boolean All Targets"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                FontSize="13"
+                                Style="{StaticResource GreenCheckMark}"
+                                Margin="5,3"                                x:Name="BooleanAllTargets_CB"
+                                Click="HandleAvoidOptionsSelection"
+                                IsChecked="True"/>
+
+                                  <CheckBox Content="Create Avoids For Multiple Targets"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                FontSize="13"
+                                Style="{StaticResource GreenCheckMark}"
+                                Margin="5,3"                                x:Name="MultipleAvoidTargets_CB"
+                                Click="HandleAvoidOptionsSelection"
+                                IsChecked="False"/>
+
+                                </StackPanel>
+
+                                <!--Multiple Targets-->
+                                <StackPanel x:Name="MultipleAvoidTargets_SP"
+                                Visibility="Collapsed">
+                                  <!--Label-->
+                                  <!--<TextBlock Text="Select the PTV(s) you'd like to crop your avoidance structures from:"
+                                TextWrapping="Wrap"
+                                FontSize="12"
+                                FontStyle="Italic"
+                                HorizontalAlignment="Center"
+                                  />-->
+                                  <!--Multiple Avoid Target Options-->
+                                  <StackPanel x:Name="AvoidMultiTargetOptions_SP">
+                                    <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center">
+                                      <Label Content="# Targets To Create Unique Avoidance Structures For:"
+                                  VerticalAlignment="Center"
+                                  FontSize="14"
+                                  />
+                                    </StackPanel>
+                                    <Label Content="_________________________________________________________________________________________________________________"
+                                Margin="0,-20,0,0"
+                                HorizontalAlignment="Center"
+                                VerticalContentAlignment="Top"
+                                FontSize="14"
+                                />
+                                    <!--Radios-->
+                                    <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center">
+
+                                      <RadioButton  x:Name="AvoidTarget1_Radio"
+                                        GroupName="AvoidTargets"
+                                        Content="1"
+                                        Cursor="Hand"
+                                        VerticalContentAlignment="Bottom"
+                                        Margin="5"
+                                        Checked="HandleAvoidTargetCount"/>
+                                      <RadioButton  x:Name="AvoidTarget2_Radio"
+                                        GroupName="AvoidTargets"
+                                        Content="2"
+                                        Cursor="Hand"
+                                        VerticalContentAlignment="Bottom"
+                                        Margin="5"
+                                        Checked="HandleAvoidTargetCount"/>
+                                      <RadioButton  x:Name="AvoidTarget3_Radio"
+                                        GroupName="AvoidTargets"
+                                        Content="3"
+                                        Cursor="Hand"
+                                        VerticalContentAlignment="Bottom"
+                                        Margin="5"
+                                        Checked="HandleAvoidTargetCount"/>
+                                      <RadioButton  x:Name="AvoidTarget4_Radio"
+                                        GroupName="AvoidTargets"
+                                        Content="4"
+                                        Cursor="Hand"
+                                        VerticalContentAlignment="Bottom"
+                                        Margin="5"
+                                        Checked="HandleAvoidTargetCount"/>
+
+                                    </StackPanel>
+
+                                    <!--PTV : Dose Level Selectors-->
+                                    <StackPanel Margin="0,10">
+
+                                      <StackPanel Orientation="Horizontal"
+                                      HorizontalAlignment="Center"
+                                      Width="350"
+                                      Margin="0,0,0,5"
+                                      x:Name="AvoidTarget1_SP"
+                                      Visibility="Collapsed">
+
+                                        <Label Content="Av Target 1:"
+                                    Width="85"
+                                    FontSize="14"
+                                    />
+
+                                        <ComboBox x:Name="AvoidTarget1_Combo"
+                                      Width="125"
+                                      Background="#F5F7FA"
+                                      HorizontalContentAlignment="Left"
+                                      VerticalContentAlignment="Center"/>
+
+                                        <Label Content="Crop Margin [mm]:"
+                                Width="105"
+                                FontSize="12"
+                                />
+
+                                        <TextBox Width="40"
+                                  x:Name="AvoidTarget1CropMargin_TextBox"
+                                  Background="#0A558C"
+                                  Foreground="White"
+                                  GotFocus="SelectAllText"
+                                  TextAlignment="Center"
+                                  Margin="0,3"
+                                  FontSize="12"
+                                  VerticalContentAlignment="Center"
+                                  Text="2"/>
+
+                                      </StackPanel>
+
+                                      <StackPanel Orientation="Horizontal"
+                                      HorizontalAlignment="Center"
+                                      Width="350"
+                                      Margin="0,0,0,5"
+                                      x:Name="AvoidTarget2_SP"
+                                      Visibility="Collapsed">
+
+                                        <Label Content="Av Target 2:"
+                                    Width="85"
+                                    FontSize="14"
+                                    />
+
+                                        <ComboBox x:Name="AvoidTarget2_Combo"
+                                      Width="125"
+                                      Background="#F5F7FA"
+                                      HorizontalContentAlignment="Left"
+                                      VerticalContentAlignment="Center"/>
+
+                                        <Label Content="Crop Margin [mm]:"
+                                Width="105"
+                                FontSize="12"
+                                />
+
+                                        <TextBox Width="40"
+                                  x:Name="AvoidTarget2CropMargin_TextBox"
+                                  Background="#0A558C"
+                                  Foreground="White"
+                                  GotFocus="SelectAllText"
+                                  TextAlignment="Center"
+                                  Margin="0,3"
+                                  FontSize="12"
+                                  VerticalContentAlignment="Center"
+                                  Text="2"/>
+
+                                      </StackPanel>
+
+                                      <StackPanel Orientation="Horizontal"
+                                      HorizontalAlignment="Center"
+                                      Width="350"
+                                      Margin="0,0,0,5"
+                                      x:Name="AvoidTarget3_SP"
+                                      Visibility="Collapsed">
+
+                                        <Label Content="Av Target 3:"
+                                    Width="85"
+                                    FontSize="14"
+                                    />
+
+                                        <ComboBox x:Name="AvoidTarget3_Combo"
+                                      Width="125"
+                                      Background="#F5F7FA"
+                                      HorizontalContentAlignment="Left"
+                                      VerticalContentAlignment="Center"/>
+
+                                        <Label Content="Crop Margin [mm]:"
+                                Width="105"
+                                FontSize="12"
+                                />
+
+                                        <TextBox Width="40"
+                                  x:Name="AvoidTarget3CropMargin_TextBox"
+                                  Background="#0A558C"
+                                  Foreground="White"
+                                  GotFocus="SelectAllText"
+                                  TextAlignment="Center"
+                                  Margin="0,3"
+                                  FontSize="12"
+                                  VerticalContentAlignment="Center"
+                                  Text="2"/>
+
+                                      </StackPanel>
+
+                                      <StackPanel Orientation="Horizontal"
+                                      HorizontalAlignment="Center"
+                                      Width="350"
+                                      Margin="0,0,0,5"
+                                      x:Name="AvoidTarget4_SP"
+                                      Visibility="Collapsed">
+
+                                        <Label Content="Av Target 4:"
+                                    Width="85"
+                                    FontSize="14"
+                                    />
+
+                                        <ComboBox x:Name="AvoidTarget4_Combo"
+                                      Width="125"
+                                      Background="#F5F7FA"
+                                      HorizontalContentAlignment="Left"
+                                      VerticalContentAlignment="Center"/>
+
+                                        <Label Content="Crop Margin [mm]:"
+                                Width="105"
+                                FontSize="12"
+                                />
+
+                                        <TextBox Width="40"
+                                  x:Name="AvoidTarget4CropMargin_TextBox"
+                                  Background="#0A558C"
+                                  Foreground="White"
+                                  GotFocus="SelectAllText"
+                                  TextAlignment="Center"
+                                  Margin="0,3"
+                                  FontSize="12"
+                                  VerticalContentAlignment="Center"
+                                  Text="2"/>
+
+                                      </StackPanel>
+
+                                    </StackPanel>
+
+                                  </StackPanel>
+
+                                </StackPanel>
+
+                              </StackPanel>
+
+                              <!--Prefix-->
+                              <StackPanel Orientation="Horizontal"
+                              HorizontalAlignment="Center"
+                              Width="275">
+                                <Label Content="Preferred Prefix:"
+                            Width="120"
+                            FontSize="14"
+                            />
+                                <TextBox Width="40"
+                              x:Name="AvoidPrefix_TextBox"
+                              Background="#0A558C"
+                            Foreground="White"
+                              GotFocus="SelectAllText"
+                              TextAlignment="Center"
+                              VerticalContentAlignment="Center"
+                              Margin="0,3"
+                              FontSize="12"
+                              Text="zav"/>
+                                <TextBlock Text="(The default is 'zav')"
+                                TextWrapping="Wrap"
+                                FontSize="12"
+                                FontStyle="Italic"
+                                VerticalAlignment="Center"
+                                Margin="5,0"
+                                />
+                              </StackPanel>
+
+
+                              <!--Margin Options-->
+                              <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
+                                <Label Content="Margin Options"
+                              VerticalAlignment="Center"
+                              FontSize="14"
+                              />
+                              </StackPanel>
+                              <!--Divider-->
+                              <Label Content="____________________________________________________________________________"
+                            Margin="0,-20,0,0"
+                            HorizontalAlignment="Center"
+                            VerticalContentAlignment="Top"
+                            FontSize="14"
+                            />
+
+                              <!--Grow Margin-->
+                              <StackPanel Orientation="Horizontal"
+                              HorizontalAlignment="Center"
+                              Width="275">
+                                <Label Content="OAR Margin [mm]:"
+                            Width="120"
+                            FontSize="14"
+                            />
+                                <TextBox Width="40"
+                              x:Name="AvoidGrowMargin_TextBox"
+                              Background="#0A558C"
+                            Foreground="White"
+                              GotFocus="SelectAllText"
+                              TextAlignment="Center"
+                              Margin="0,3"
+                              FontSize="12"
+                              VerticalContentAlignment="Center"
+                              Text="2"/>
+                                <TextBlock Text="(The default is 2mm)"
+                                FontSize="12"
+                                FontStyle="Italic"
+                                VerticalAlignment="Center"
+                                Margin="5,0"
+                                />
+                              </StackPanel>
+
+                              <!--Crop Margin-->
+                              <StackPanel Orientation="Horizontal"
+                              HorizontalAlignment="Center"
+                              Width="275"
+                              x:Name="CropAvoidsFromPTVs"
+                              Visibility="Visible">
+                                <Label Content="From Target [mm]:"
+                            Width="120"
+                            FontSize="14"
+                            />
+                                <TextBox Width="40"
+                              x:Name="AvoidCropMargin_TextBox"
+                              Background="#0A558C"
+                            Foreground="White"
+                              GotFocus="SelectAllText"
+                              TextAlignment="Center"
+                              Margin="0,3"
+                              FontSize="12"
+                              VerticalContentAlignment="Center"
+                              Text="2"/>
+                                <TextBlock Text="(The default is 2mm)"
+                                FontSize="12"
+                                FontStyle="Italic"
+                                VerticalAlignment="Center"
+                                Margin="5,0"
+                                />
+                              </StackPanel>
+
+                            </StackPanel>
+
+                          </ScrollViewer>
+
+                        </Grid>
+                      </StackPanel>
+
+                    </StackPanel>
+
+
+                  </Border>
+
+                  <!-- opti ptvs -->
+                  <Border Padding="10"
+                      CornerRadius="10"
+                      BorderThickness="1"
+                      BorderBrush="#003E6B"
+                      Margin="0,0,5,0"
+                      x:Name="OptiStructure_SP"
+                      Visibility="Collapsed">
+                    
+                    <StackPanel Background="#E1E1E1">
+                      <StackPanel Orientation="Horizontal"
+                          Background="White"
+                          Margin="0,5,0,5">
+                        <StackPanel Width="350"
+                            Margin="5,0">
+                          <Label x:Name="OptiPTV_Label"
+                        Content="Opti PTVs To Create"
+                        HorizontalAlignment="Center" 
+                        />
+                          <TextBlock Text="Select the PTV(s) you'd like to create opti structures for:"
+                            TextWrapping="Wrap"
+                            FontSize="12"
+                            FontStyle="Italic"
+                            HorizontalAlignment="Center" 
+                            />
+                          <ListBox x:Name="PTVList_LV"
+                            Margin="5"
+                            Width="auto"
+                            MinHeight="150" 
+                                   MaxHeight="150"
+                            SelectionMode="Multiple" 
+                            ItemsSource="{Binding ptvListBoxItems}"
+                            Height="auto" 
+                            FontSize="13"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            BorderBrush="White">
+                            <ListBox.Resources>
+                              <Style TargetType="ListBoxItem">
+                                <Setter Property="OverridesDefaultStyle" Value="true" />
+                                <Setter Property="SnapsToDevicePixels" Value="true" />
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                <Setter Property="Margin" Value="50,0,20,0" />
+                                <Setter Property="Template">
+                                  <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                      <CheckBox IsChecked="{Binding IsSelected}"
+                                        Style="{StaticResource GreenCheckMark}"
+                                        Content="{Binding Id}"
+                                        Margin="5,2">
+                                      </CheckBox>
+
+                                    </ControlTemplate>
+                                  </Setter.Value>
+                                </Setter>
+                              </Style>
+                            </ListBox.Resources>
+                          </ListBox>
+                        </StackPanel>
+                      </StackPanel>
+
+                    
+                    <StackPanel Orientation="Horizontal"
+                      Background="White"
+                      Margin="0,5,0,5">
+
+                      <Grid>
+                        <Grid.RowDefinitions>
+                          <RowDefinition  />
+                        </Grid.RowDefinitions>
+
+                        <ScrollViewer CanContentScroll="True" MinHeight="400" MaxHeight="400" >
+
+                          <StackPanel Width="350"
+                            Margin="5,0">
+
+                            <!--Label-->
+                            <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center">
+                              <Label Content="Options"
+                              VerticalAlignment="Center"
+                              FontSize="14"
+                              />
+                            </StackPanel>
+                            <!--Divider-->
+                            <Label Content="__________________________________________________________"
+                              Margin="0,-20,0,0"
+                              HorizontalAlignment="Center"
+                              VerticalContentAlignment="Top"
+                              FontSize="14"
+                              />
+
+                            <!--Preferred Prefix-->
+                            <StackPanel Orientation="Horizontal"
+                              HorizontalAlignment="Center"
+                              Width="275">
+                              <Label Content="Preferred Prefix:"
+                                      Width="120"
+                                      FontSize="14"/>
+                              <TextBox Width="40"
+                              x:Name="OptiPrefix_TextBox"
+                              GotFocus="SelectAllText"
+                              Background="#0A558C"
+                            Foreground="White"
+                              TextAlignment="Center"
+                              Margin="0,3"
+                              FontSize="12"
+                              VerticalContentAlignment="Center"
+                              Text="zopti"/>
+                              <TextBlock Text="(The default is 'zopti')"
+                                TextWrapping="Wrap"
+                                FontSize="12"
+                                FontStyle="Italic"
+                                VerticalAlignment="Center"
+                                Margin="5,0"/>
+                            </StackPanel>
+
+                            <!--PTV Margin-->
+                            <StackPanel Orientation="Horizontal"
+                              HorizontalAlignment="Center"
+                              Width="275">
+                              <Label Content="PTV Margin [mm]:"
+                            Width="120"
+                            FontSize="14"/>
+                              <TextBox Width="40"
+                              x:Name="OptiGrowMargin_TextBox"
+                              Background="#0A558C"
+                            Foreground="White"
+                              GotFocus="SelectAllText"
+                              TextAlignment="Center"
+                              Margin="0,3"
+                              FontSize="12"
+                              VerticalContentAlignment="Center"
+                              Text="1"/>
+                              <TextBlock Text="(The default is 1mm)"
+                                FontSize="12"
+                                FontStyle="Italic"
+                                VerticalAlignment="Center"
+                                Margin="5,0"/>
+                            </StackPanel>
+
+                            <!--Option CheckBoxes-->
+                            <StackPanel>
+
+                              <!--Checkboxes-->
+                              <StackPanel Orientation="Vertical"
+                                HorizontalAlignment="Center"
+                                Margin="0,5,0,5">
+
+                                <CheckBox Content="Crop Outside Body"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                FontSize="13"
+                                Style="{StaticResource GreenCheckMark}"
+                                Margin="5,3"                                x:Name="CropFromBody_CB"
+                                Click="HandleOptiOptionsSelection"/>
+
+                                <CheckBox Content="Create PTV__Eval"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                FontSize="13"
+                                Style="{StaticResource GreenCheckMark}"
+                                Margin="5,3"                                x:Name="CreatePTVEval_CB"/>
+
+                                <CheckBox Content="Create CI Structure"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                FontSize="13"
+                                Style="{StaticResource GreenCheckMark}"
+                                Margin="5,3"                                x:Name="CreateCI_CB"
+                                Click="HandleOptiOptionsSelection"/>
+
+                                <CheckBox Content="Create R50 Structure"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                FontSize="13"
+                                Style="{StaticResource GreenCheckMark}"
+                                Margin="5,3"                                x:Name="CreateR50_CB"
+                                Click="HandleOptiOptionsSelection"/>
+
+                                <CheckBox Content="Multiple Dose Levels"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                FontSize="13"
+                                Style="{StaticResource GreenCheckMark}"
+                                Margin="5,3"                                x:Name="MultipleDoseLevels_CB"
+                                Click="HandleOptiOptionsSelection"/>
+
+                                <!--<CheckBox Content="Opti GTV For Single Lesions"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                Background="#003E6B"
+                                FontSize="12"
+                                Margin="5,3"                                x:Name="CreateOptiGTV_CB"
+                                Click="CreateOptiGTV_CB_Click"/>
+                    
+                      <CheckBox Content="Opti Total"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                Background="#003E6B"
+                                FontSize="12"
+                                Margin="5,3"                                x:Name="CreateOptiTotal_CB"
+                                Click="CreateOptiTotal_CB_Click"/>-->
+
+                              </StackPanel>
+
+                            </StackPanel>
+                            <!--Options Section-->
+                            <StackPanel x:Name="OptiOptions_SP"
+                              Visibility="Collapsed">
+
+                              <!--Crop Options-->
+                              <StackPanel x:Name="CropOptions_SP"
+                                Visibility="Collapsed">
+                                <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center">
+                                  <Label Content="Crop Margins"
+                                VerticalAlignment="Center"
+                                FontSize="14"
+                                />
+                                </StackPanel>
+                                <Label Content="____________________________________________________________________________"
+                              Margin="0,-20,0,0"
+                              HorizontalAlignment="Center"
+                              VerticalContentAlignment="Top"
+                              FontSize="14"
+                              />
+                                <!--Crop From Body Margin-->
+                                <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center"
+                                  Width="275"
+                                  Visibility="Collapsed"
+                                  x:Name="CropFromBody_SP">
+                                  <Label Content="From Body [mm]:"
+                                Width="120"
+                                FontSize="14"
+                                />
+                                  <TextBox Width="40"
+                                  x:Name="BodyCropMargin_TextBox"
+                                  Background="#0A558C"
+                                  Foreground="White"
+                                  GotFocus="SelectAllText"
+                                  TextAlignment="Center"
+                                  Margin="0,3"
+                                  FontSize="12"
+                                  VerticalContentAlignment="Center"
+                                  Text="4"/>
+                                  <TextBlock Text="(The default is 4mm)"
+                                    FontSize="12"
+                                    FontStyle="Italic"
+                                    VerticalAlignment="Center"
+                                    Margin="5,0"
+                                    />
+                                </StackPanel>
+
+                                <!--Crop From Optis Margin-->
+                                <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center"
+                                  Width="275"
+                                  Visibility="Visible"
+                                  x:Name="CropFromOptis_SP">
+                                  <Label Content="From Optis [mm]:"
+                                Width="120"
+                                FontSize="14"
+                                />
+                                  <TextBox Width="40"
+                                  x:Name="OptiCropMargin_TextBox"
+                                  Background="#0A558C"
+                                  Foreground="White"
+                                  GotFocus="SelectAllText"
+                                  TextAlignment="Center"
+                                  Margin="0,3"
+                                  FontSize="12"
+                                  VerticalContentAlignment="Center"
+                                  Text="2"/>
+                                  <TextBlock Text="(The default is 2mm)"
+                                    FontSize="12"
+                                    FontStyle="Italic"
+                                    VerticalAlignment="Center"
+                                    Margin="5,0"
+                                    />
+                                  <!--Crop From Body Margin-->
+                                </StackPanel>
+
+                              </StackPanel>
+
+                              <!--CI / R50 Structure Options-->
+                              <StackPanel x:Name="CI_R50_SP"
+                                Visibility="Collapsed">
+                                <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center">
+                                  <Label Content="CI / R50 Structure Margins"
+                                VerticalAlignment="Center"
+                                FontSize="14"
+                                />
+                                </StackPanel>
+                                <Label Content="____________________________________________________________________________"
+                              Margin="0,-20,0,0"
+                              HorizontalAlignment="Center"
+                              VerticalContentAlignment="Top"
+                              FontSize="14"
+                              />
+
+                                <!--CI Margin-->
+                                <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center"
+                                  Width="275"
+                                  Visibility="Collapsed"
+                                  x:Name="CIMargin_SP">
+                                  <Label Content="CI [mm]:"
+                                Width="120"
+                                FontSize="14"
+                                />
+                                  <TextBox Width="40"
+                                  x:Name="CIMargin_TextBox"
+                                  Background="#0A558C"
+                                  Foreground="White"
+                                  GotFocus="SelectAllText"
+                                  TextAlignment="Center"
+                                  Margin="0,3"
+                                  FontSize="12"
+                                  VerticalContentAlignment="Center"
+                                  Text="5"/>
+                                  <TextBlock Text="(The default is 5mm)"
+                                    FontSize="12"
+                                    FontStyle="Italic"
+                                    VerticalAlignment="Center"
+                                    Margin="5,0"
+                                    />
+                                </StackPanel>
+
+                                <!--R50 Margin-->
+                                <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center"
+                                  Width="275"
+                                  Visibility="Collapsed"
+                                  x:Name="R50Margin_SP">
+                                  <Label Content="R50 [mm]:"
+                                Width="120"
+                                FontSize="14"
+                                />
+                                  <TextBox Width="40"
+                                  x:Name="R50Margin_TextBox"
+                                  Background="#0A558C"
+                                  Foreground="White"
+                                  GotFocus="SelectAllText"
+                                  TextAlignment="Center"
+                                  Margin="0,3"
+                                  FontSize="12"
+                                  VerticalContentAlignment="Center"
+                                  Text="30"/>
+                                  <TextBlock Text="(The default is 30mm)"
+                                    FontSize="12"
+                                    FontStyle="Italic"
+                                    VerticalAlignment="Center"
+                                    Margin="5,0"
+                                    />
+                                </StackPanel>
+
+                              </StackPanel>
+
+                              <!--Multiple Dose Level Options-->
+                              <StackPanel x:Name="MultiDoseLevelOptions_SP"
+                                  Visibility="Collapsed">
+                                <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center">
+                                  <Label Content="Dose Levels"
+                                VerticalAlignment="Center"
+                                FontSize="14"
+                                />
+                                  <Label Content="(Lowest to Highest)"
+                                VerticalAlignment="Center"
+                                FontSize="12"
+                                FontStyle="Italic"
+                                />
+                                </StackPanel>
+                                <Label Content="____________________________________________________________________________"
+                              Margin="0,-20,0,0"
+                              HorizontalAlignment="Center"
+                              VerticalContentAlignment="Top"
+                              FontSize="14"
+                              />
+                                <!--Radios-->
+                                <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center">
+
+                                  <RadioButton  x:Name="DoseLevel1_Radio"
+                                      GroupName="DoseLevels"
+                                      Content="1"
+                                      Cursor="Hand"
+                                      VerticalContentAlignment="Bottom"
+                                      Margin="5"
+                                      Checked="HandleDoseLevelCount"/>
+                                  <RadioButton  x:Name="DoseLevel2_Radio"
+                                      GroupName="DoseLevels"
+                                      Content="2"
+                                      Cursor="Hand"
+                                      VerticalContentAlignment="Bottom"
+                                      Margin="5"
+                                      Checked="HandleDoseLevelCount"/>
+                                  <RadioButton  x:Name="DoseLevel3_Radio"
+                                      GroupName="DoseLevels"
+                                      Content="3"
+                                      Cursor="Hand"
+                                      VerticalContentAlignment="Bottom"
+                                      Margin="5"
+                                      Checked="HandleDoseLevelCount"/>
+                                  <RadioButton  x:Name="DoseLevel4_Radio"
+                                      GroupName="DoseLevels"
+                                      Content="4"
+                                      Cursor="Hand"
+                                      VerticalContentAlignment="Bottom"
+                                      Margin="5"
+                                      Checked="HandleDoseLevelCount"/>
+
+                                </StackPanel>
+
+                                <!--PTV : Dose Level Selectors-->
+                                <StackPanel Margin="0,10">
+
+                                  <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Width="350"
+                                    Margin="0,0,0,5"
+                                    x:Name="DoseLevel1_SP"
+                                    Visibility="Collapsed">
+
+                                    <Label Content="Dose Level 1"
+                                  Width="85"
+                                  FontSize="14"
+                                  />
+
+                                    <ComboBox x:Name="DoseLevel1_Combo"
+                                    Width="125"
+                                    Background="#F5F7FA"
+                                    HorizontalContentAlignment="Left"
+                                    VerticalContentAlignment="Center"/>
+
+                                    <StackPanel Orientation="Horizontal"
+                                      x:Name="DoseLevel1CropMargin_SP">
+                                      <Label Content="Crop Margin [mm]:"
+                              Width="105"
+                              FontSize="12"
+                              />
+
+                                      <TextBox Width="40"
+                                x:Name="DoseLevel1CropMargin_TextBox"
+                                Background="#0A558C"
+                                Foreground="White"
+                                GotFocus="SelectAllText"
+                                TextAlignment="Center"
+                                Margin="0,3"
+                                FontSize="12"
+                                VerticalContentAlignment="Center"
+                                Text="2"/>
+                                    </StackPanel>
+                                  </StackPanel>
+
+                                  <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Width="350"
+                                    Margin="0,0,0,5"
+                                    x:Name="DoseLevel2_SP"
+                                    Visibility="Collapsed">
+
+                                    <Label Content="Dose Level 2"
+                                  Width="85"
+                                  FontSize="14"
+                                  />
+
+                                    <ComboBox x:Name="DoseLevel2_Combo"
+                                    Width="125"
+                                    Background="#F5F7FA"
+                                    HorizontalContentAlignment="Left"
+                                    VerticalContentAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal"
+                                      x:Name="DoseLevel2CropMargin_SP">
+                                      <Label Content="Crop Margin [mm]:"
+                              Width="105"
+                              FontSize="12"
+                              />
+
+                                      <TextBox Width="40"
+                                x:Name="DoseLevel2CropMargin_TextBox"
+                                Background="#0A558C"
+                                Foreground="White"
+                                GotFocus="SelectAllText"
+                                TextAlignment="Center"
+                                Margin="0,3"
+                                FontSize="12"
+                                VerticalContentAlignment="Center"
+                                Text="2"/>
+                                    </StackPanel>
+                                  </StackPanel>
+
+                                  <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Width="350"
+                                    Margin="0,0,0,5"
+                                    x:Name="DoseLevel3_SP"
+                                    Visibility="Collapsed">
+
+                                    <Label Content="Dose Level 3"
+                                  Width="85"
+                                  FontSize="14"
+                                  />
+
+                                    <ComboBox x:Name="DoseLevel3_Combo"
+                                    Width="125"
+                                    Background="#F5F7FA"
+                                    HorizontalContentAlignment="Left"
+                                    VerticalContentAlignment="Center"/>
+
+                                    <StackPanel Orientation="Horizontal"
+                                      x:Name="DoseLevel3CropMargin_SP">
+                                      <Label Content="Crop Margin [mm]:"
+                                Width="105"
+                                FontSize="12"
+                                />
+
+                                      <TextBox Width="40"
+                                  x:Name="DoseLevel3CropMargin_TextBox"
+                                  Background="#0A558C"
+                                  Foreground="White"
+                                  GotFocus="SelectAllText"
+                                  TextAlignment="Center"
+                                  Margin="0,3"
+                                  FontSize="12"
+                                  VerticalContentAlignment="Center"
+                                  Text="2"/>
+                                    </StackPanel>
+                                  </StackPanel>
+
+                                  <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Width="350"
+                                    Margin="0,0,0,5"
+                                    x:Name="DoseLevel4_SP"
+                                    Visibility="Collapsed">
+
+                                    <Label Content="Dose Level 4"
+                                  Width="85"
+                                  FontSize="14"
+                                  />
+
+                                    <ComboBox x:Name="DoseLevel4_Combo"
+                                    Width="125"
+                                    Background="#F5F7FA"
+                                    HorizontalContentAlignment="Left"
+                                    VerticalContentAlignment="Center"/>
+
+                                  </StackPanel>
+
+                                </StackPanel>
+
+                              </StackPanel>
+
+                            </StackPanel>
+
+
+                          </StackPanel>
+
+                        </ScrollViewer>
+
+                      </Grid>
+                    </StackPanel>
+
+                  </StackPanel>
+                  </Border>
+
+                  <!-- rings -->
+                  <Border Padding="10"
+                      CornerRadius="10"
+                      BorderThickness="1"
+                      BorderBrush="#003E6B"
+                      Margin="0,0,5,0"
+                      x:Name="RingStructure_SP"
+                      Visibility="Collapsed">
+                    <StackPanel Background="#E1E1E1">
+                      <StackPanel Orientation="Horizontal"
+                          Background="White"
+                          Margin="0,5,0,5">
+                        <StackPanel Width="350"
+                            Margin="5,0">
+                          <Label x:Name="Ring_Label"
+                          Content="PTVs To Create Rings For"
+                          HorizontalAlignment="Center" 
+                          />
+                          <TextBlock Text="Select the PTV(s) you'd like to create ring structures for (not required)"
+                              TextWrapping="Wrap"
+                              FontSize="12"
+                              FontStyle="Italic"
+                              HorizontalAlignment="Center" 
+                              />
+                          <ListBox x:Name="PTVListForRings_LV"
+                              Margin="5"
+                              Width="auto"
+                              MinHeight="150" 
+                                   MaxHeight="150"
+                              SelectionMode="Multiple"
+                              ItemsSource="{Binding ringListBoxItems}"
+                              Height="auto" 
+                              FontSize="13"
                               HorizontalContentAlignment="Center"
                               VerticalContentAlignment="Center"
                               BorderBrush="White">
@@ -327,1040 +1373,41 @@
                               </Style>
                             </ListBox.Resources>
                           </ListBox>
+
                         </StackPanel>
                       </StackPanel>
-                    </StackPanel>
-
-                    <!--Options-->
-                    <StackPanel Orientation="Horizontal"
+                      <StackPanel Orientation="Horizontal"
                           Background="White"
-                          Margin="0,5,0,5">
-                      <StackPanel Width="350">
-                        <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
-                          <Label Content="Options"
+                              Margin="0,5,0,5"
+                                  Height="400">
+                        <StackPanel Width="350"
+                            Margin="5,0">
+
+                          <!--Label-->
+                          <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center">
+                            <Label Content="Options"
                               VerticalAlignment="Center"
                               FontSize="14"
                               />
-                        </StackPanel>
-                        <Label Content="____________________________________________________________________________"
-                            Margin="0,-20,0,0"
-                            HorizontalAlignment="Center"
-                            VerticalContentAlignment="Top"
-                            FontSize="14"
-                            />
-
-                        <!--Which Targets-->
-                        <StackPanel>
-
-                          <!--Checkboxes For Avoid Targets-->
-                          <StackPanel Orientation="Vertical"
-                                HorizontalAlignment="Center"
-                                Margin="0,0,0,5">
-
-                            <CheckBox Content="Boolean All Targets"
-                                VerticalAlignment="Center"
-                                VerticalContentAlignment="Bottom"
-                                HorizontalAlignment="Left"
-                                HorizontalContentAlignment="Left"
-                                FontSize="13"
-                                Style="{StaticResource GreenCheckMark}"
-                                Margin="5,3"                                x:Name="BooleanAllTargets_CB"
-                                Click="HandleAvoidOptionsSelection"
-                                IsChecked="True"/>
-
-                            <CheckBox Content="Create Avoids For Multiple Targets"
-                                VerticalAlignment="Center"
-                                VerticalContentAlignment="Bottom"
-                                HorizontalAlignment="Left"
-                                HorizontalContentAlignment="Left"
-                                FontSize="13"
-                                Style="{StaticResource GreenCheckMark}"
-                                Margin="5,3"                                x:Name="MultipleAvoidTargets_CB"
-                                Click="HandleAvoidOptionsSelection"
-                                IsChecked="False"/>
-
                           </StackPanel>
 
-                          <!--Multiple Targets-->
-                          <StackPanel x:Name="MultipleAvoidTargets_SP"
-                                Visibility="Collapsed">
-                            <!--Label-->
-                            <!--<TextBlock Text="Select the PTV(s) you'd like to crop your avoidance structures from:"
-                                TextWrapping="Wrap"
-                                FontSize="12"
-                                FontStyle="Italic"
-                                HorizontalAlignment="Center"
-                                  />-->
-                            <!--Multiple Avoid Target Options-->
-                            <StackPanel x:Name="AvoidMultiTargetOptions_SP">
-                              <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center">
-                                <Label Content="# Targets To Create Unique Avoidance Structures For:"
-                                  VerticalAlignment="Center"
-                                  FontSize="14"
-                                  />
-                              </StackPanel>
-                              <Label Content="_________________________________________________________________________________________________________________"
-                                Margin="0,-20,0,0"
-                                HorizontalAlignment="Center"
-                                VerticalContentAlignment="Top"
-                                FontSize="14"
-                                />
-                              <!--Radios-->
-                              <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center">
-
-                                <RadioButton  x:Name="AvoidTarget1_Radio"
-                                        GroupName="AvoidTargets"
-                                        Content="1"
-                                        Cursor="Hand"
-                                        VerticalContentAlignment="Bottom"
-                                        Margin="5"
-                                        Checked="HandleAvoidTargetCount"/>
-                                <RadioButton  x:Name="AvoidTarget2_Radio"
-                                        GroupName="AvoidTargets"
-                                        Content="2"
-                                        Cursor="Hand"
-                                        VerticalContentAlignment="Bottom"
-                                        Margin="5"
-                                        Checked="HandleAvoidTargetCount"/>
-                                <RadioButton  x:Name="AvoidTarget3_Radio"
-                                        GroupName="AvoidTargets"
-                                        Content="3"
-                                        Cursor="Hand"
-                                        VerticalContentAlignment="Bottom"
-                                        Margin="5"
-                                        Checked="HandleAvoidTargetCount"/>
-                                <RadioButton  x:Name="AvoidTarget4_Radio"
-                                        GroupName="AvoidTargets"
-                                        Content="4"
-                                        Cursor="Hand"
-                                        VerticalContentAlignment="Bottom"
-                                        Margin="5"
-                                        Checked="HandleAvoidTargetCount"/>
-
-                              </StackPanel>
-
-                              <!--PTV : Dose Level Selectors-->
-                              <StackPanel Margin="0,10">
-
-                                <StackPanel Orientation="Horizontal"
-                                      HorizontalAlignment="Center"
-                                      Width="350"
-                                      Margin="0,0,0,5"
-                                      x:Name="AvoidTarget1_SP"
-                                      Visibility="Collapsed">
-
-                                  <Label Content="Av Target 1:"
-                                    Width="85"
-                                    FontSize="14"
-                                    />
-
-                                  <ComboBox x:Name="AvoidTarget1_Combo"
-                                      Width="125"
-                                      Background="#F5F7FA"
-                                      HorizontalContentAlignment="Left"
-                                      VerticalContentAlignment="Center"/>
-
-                                  <Label Content="Crop Margin [mm]:"
-                                Width="105"
-                                FontSize="12"
-                                />
-
-                                  <TextBox Width="40"
-                                  x:Name="AvoidTarget1CropMargin_TextBox"
-                                  Background="#0A558C"
-                                  Foreground="White"
-                                  GotFocus="SelectAllText"
-                                  TextAlignment="Center"
-                                  Margin="0,3"
-                                  FontSize="12"
-                                  VerticalContentAlignment="Center"
-                                  Text="2"/>
-
-                                </StackPanel>
-
-                                <StackPanel Orientation="Horizontal"
-                                      HorizontalAlignment="Center"
-                                      Width="350"
-                                      Margin="0,0,0,5"
-                                      x:Name="AvoidTarget2_SP"
-                                      Visibility="Collapsed">
-
-                                  <Label Content="Av Target 2:"
-                                    Width="85"
-                                    FontSize="14"
-                                    />
-
-                                  <ComboBox x:Name="AvoidTarget2_Combo"
-                                      Width="125"
-                                      Background="#F5F7FA"
-                                      HorizontalContentAlignment="Left"
-                                      VerticalContentAlignment="Center"/>
-
-                                  <Label Content="Crop Margin [mm]:"
-                                Width="105"
-                                FontSize="12"
-                                />
-
-                                  <TextBox Width="40"
-                                  x:Name="AvoidTarget2CropMargin_TextBox"
-                                  Background="#0A558C"
-                                  Foreground="White"
-                                  GotFocus="SelectAllText"
-                                  TextAlignment="Center"
-                                  Margin="0,3"
-                                  FontSize="12"
-                                  VerticalContentAlignment="Center"
-                                  Text="2"/>
-
-                                </StackPanel>
-
-                                <StackPanel Orientation="Horizontal"
-                                      HorizontalAlignment="Center"
-                                      Width="350"
-                                      Margin="0,0,0,5"
-                                      x:Name="AvoidTarget3_SP"
-                                      Visibility="Collapsed">
-
-                                  <Label Content="Av Target 3:"
-                                    Width="85"
-                                    FontSize="14"
-                                    />
-
-                                  <ComboBox x:Name="AvoidTarget3_Combo"
-                                      Width="125"
-                                      Background="#F5F7FA"
-                                      HorizontalContentAlignment="Left"
-                                      VerticalContentAlignment="Center"/>
-
-                                  <Label Content="Crop Margin [mm]:"
-                                Width="105"
-                                FontSize="12"
-                                />
-
-                                  <TextBox Width="40"
-                                  x:Name="AvoidTarget3CropMargin_TextBox"
-                                  Background="#0A558C"
-                                  Foreground="White"
-                                  GotFocus="SelectAllText"
-                                  TextAlignment="Center"
-                                  Margin="0,3"
-                                  FontSize="12"
-                                  VerticalContentAlignment="Center"
-                                  Text="2"/>
-
-                                </StackPanel>
-
-                                <StackPanel Orientation="Horizontal"
-                                      HorizontalAlignment="Center"
-                                      Width="350"
-                                      Margin="0,0,0,5"
-                                      x:Name="AvoidTarget4_SP"
-                                      Visibility="Collapsed">
-
-                                  <Label Content="Av Target 4:"
-                                    Width="85"
-                                    FontSize="14"
-                                    />
-
-                                  <ComboBox x:Name="AvoidTarget4_Combo"
-                                      Width="125"
-                                      Background="#F5F7FA"
-                                      HorizontalContentAlignment="Left"
-                                      VerticalContentAlignment="Center"/>
-
-                                  <Label Content="Crop Margin [mm]:"
-                                Width="105"
-                                FontSize="12"
-                                />
-
-                                  <TextBox Width="40"
-                                  x:Name="AvoidTarget4CropMargin_TextBox"
-                                  Background="#0A558C"
-                                  Foreground="White"
-                                  GotFocus="SelectAllText"
-                                  TextAlignment="Center"
-                                  Margin="0,3"
-                                  FontSize="12"
-                                  VerticalContentAlignment="Center"
-                                  Text="2"/>
-
-                                </StackPanel>
-
-                              </StackPanel>
-
-                            </StackPanel>
-
-                          </StackPanel>
-
-                        </StackPanel>
-
-                        <!--Prefix-->
-                        <StackPanel Orientation="Horizontal"
-                              HorizontalAlignment="Center"
-                              Width="315">
-                          <Label Content="Preferred Prefix:"
-                            Width="120"
-                            FontSize="14"
-                            />
-                          <TextBox Width="40"
-                              x:Name="AvoidPrefix_TextBox"
-                              Background="#0A558C"
-                            Foreground="White"
-                              GotFocus="SelectAllText"
-                              TextAlignment="Center"
-                              VerticalContentAlignment="Center"
-                              Margin="0,3"
-                              FontSize="12"
-                              Text="zav"/>
-                          <TextBlock Text="(The defalut is 'zav')"
-                                TextWrapping="Wrap"
-                                FontSize="12"
-                                FontStyle="Italic"
-                                VerticalAlignment="Center"
-                                Margin="5,0"
-                                />
-                        </StackPanel>
-
-
-                        <!--Margin Options-->
-                        <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
-                          <Label Content="Margin Options"
-                              VerticalAlignment="Center"
-                              FontSize="14"
-                              />
-                        </StackPanel>
-                        <!--Divider-->
-                        <Label Content="____________________________________________________________________________"
-                            Margin="0,-20,0,0"
-                            HorizontalAlignment="Center"
-                            VerticalContentAlignment="Top"
-                            FontSize="14"
-                            />
-
-                        <!--Grow Margin-->
-                        <StackPanel Orientation="Horizontal"
-                              HorizontalAlignment="Center"
-                              Width="315">
-                          <Label Content="OAR Margin [mm]:"
-                            Width="120"
-                            FontSize="14"
-                            />
-                          <TextBox Width="40"
-                              x:Name="AvoidGrowMargin_TextBox"
-                              Background="#0A558C"
-                            Foreground="White"
-                              GotFocus="SelectAllText"
-                              TextAlignment="Center"
-                              Margin="0,3"
-                              FontSize="12"
-                              VerticalContentAlignment="Center"
-                              Text="2"/>
-                          <TextBlock Text="(The defalut is 2mm)"
-                                FontSize="12"
-                                FontStyle="Italic"
-                                VerticalAlignment="Center"
-                                Margin="5,0"
-                                />
-                        </StackPanel>
-
-                        <!--Crop Margin-->
-                        <StackPanel Orientation="Horizontal"
-                              HorizontalAlignment="Center"
-                              Width="315"
-                              x:Name="CropAvoidsFromPTVs"
-                              Visibility="Visible">
-                          <Label Content="From Target [mm]:"
-                            Width="120"
-                            FontSize="14"
-                            />
-                          <TextBox Width="40"
-                              x:Name="AvoidCropMargin_TextBox"
-                              Background="#0A558C"
-                            Foreground="White"
-                              GotFocus="SelectAllText"
-                              TextAlignment="Center"
-                              Margin="0,3"
-                              FontSize="12"
-                              VerticalContentAlignment="Center"
-                              Text="2"/>
-                          <TextBlock Text="(The defalut is 2mm)"
-                                FontSize="12"
-                                FontStyle="Italic"
-                                VerticalAlignment="Center"
-                                Margin="5,0"
-                                />
-                        </StackPanel>
-
-                      </StackPanel>
-
-                    </StackPanel>
-
-                  </StackPanel>
-
-                </Border>
-
-                <!-- opti ptvs -->
-                <Border Padding="10"
-                      CornerRadius="10"
-                      BorderThickness="1"
-                      BorderBrush="#003E6B"
-                      Margin="0,0,5,0"
-                      x:Name="OptiStructure_SP"
-                      Visibility="Collapsed">
-                  <StackPanel Background="#E1E1E1">
-                    <StackPanel Orientation="Horizontal"
-                          Background="White"
-                          Margin="0,5,0,5">
-                      <StackPanel Width="350"
-                            Margin="5,0">
-                        <Label x:Name="OptiPTV_Label"
-                        Content="Opti PTVs To Create"
-                        HorizontalAlignment="Center" 
-                        />
-                        <TextBlock Text="Select the PTV(s) you'd like to create opti structures for:"
-                            TextWrapping="Wrap"
-                            FontSize="12"
-                            FontStyle="Italic"
-                            HorizontalAlignment="Center" 
-                            />
-                        <ListBox x:Name="PTVList_LV"
-                            Margin="5"
-                            Width="auto"
-                            MinHeight="100" 
-                            SelectionMode="Multiple" 
-                            ItemsSource="{Binding ptvListBoxItems}"
-                            Height="auto" 
-                            FontSize="13"
-                            HorizontalContentAlignment="Center"
-                            VerticalContentAlignment="Center"
-                            BorderBrush="White">
-                          <ListBox.Resources>
-                            <Style TargetType="ListBoxItem">
-                              <Setter Property="OverridesDefaultStyle" Value="true" />
-                              <Setter Property="SnapsToDevicePixels" Value="true" />
-                              <Setter Property="HorizontalAlignment" Value="Left" />
-                              <Setter Property="Margin" Value="50,0,20,0" />
-                              <Setter Property="Template">
-                                <Setter.Value>
-                                  <ControlTemplate TargetType="ListBoxItem">
-                                    <CheckBox IsChecked="{Binding IsSelected}"
-                                        Style="{StaticResource GreenCheckMark}"
-                                        Content="{Binding Id}"
-                                        Margin="5,2">
-                                    </CheckBox>
-
-                                  </ControlTemplate>
-                                </Setter.Value>
-                              </Setter>
-                            </Style>
-                          </ListBox.Resources>
-                        </ListBox>
-                      </StackPanel>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal"
-                          Background="White"
-                          Margin="0,5,0,5">
-
-                      <StackPanel Width="350"
-                            Margin="5,0">
-
-                        <!--Label-->
-                        <StackPanel Orientation="Horizontal"
-                                  HorizontalAlignment="Center">
-                          <Label Content="Options"
-                              VerticalAlignment="Center"
-                              FontSize="14"
-                              />
-                        </StackPanel>
-                        <!--Divider-->
-                        <Label Content="__________________________________________________________"
+                          <!--Divider-->
+                          <Label Content="__________________________________________________________"
                               Margin="0,-20,0,0"
                               HorizontalAlignment="Center"
                               VerticalContentAlignment="Top"
                               FontSize="14"
                               />
 
-                        <!--Preferred Prefix-->
-                        <StackPanel Orientation="Horizontal"
+                          <!--Preferred Prefix-->
+                          <StackPanel Orientation="Horizontal"
                               HorizontalAlignment="Center"
-                              Width="315">
-                          <Label Content="Preferred Prefix:"
-                            Width="120"
-                            FontSize="14"/>
-                          <TextBox Width="40"
-                              x:Name="OptiPrefix_TextBox"
-                              GotFocus="SelectAllText"
-                              Background="#0A558C"
-                            Foreground="White"
-                              TextAlignment="Center"
-                              Margin="0,3"
-                              FontSize="12"
-                              VerticalContentAlignment="Center"
-                              Text="zopti"/>
-                          <TextBlock Text="(The defalut is 'zopti')"
-                                TextWrapping="Wrap"
-                                FontSize="12"
-                                FontStyle="Italic"
-                                VerticalAlignment="Center"
-                                Margin="5,0"/>
-                        </StackPanel>
-
-                        <!--PTV Margin-->
-                        <StackPanel Orientation="Horizontal"
-                              HorizontalAlignment="Center"
-                              Width="315">
-                          <Label Content="PTV Margin [mm]:"
-                            Width="120"
-                            FontSize="14"/>
-                          <TextBox Width="40"
-                              x:Name="OptiGrowMargin_TextBox"
-                              Background="#0A558C"
-                            Foreground="White"
-                              GotFocus="SelectAllText"
-                              TextAlignment="Center"
-                              Margin="0,3"
-                              FontSize="12"
-                              VerticalContentAlignment="Center"
-                              Text="1"/>
-                          <TextBlock Text="(The defalut is 1mm)"
-                                FontSize="12"
-                                FontStyle="Italic"
-                                VerticalAlignment="Center"
-                                Margin="5,0"/>
-                        </StackPanel>
-
-                        <!--Option CheckBoxes-->
-                        <StackPanel>
-
-                          <!--Checkboxes-->
-                          <StackPanel Orientation="Vertical"
-                                HorizontalAlignment="Center"
-                                Margin="0,0,0,5">
-
-                            <CheckBox Content="Crop Outside Body"
-                                VerticalAlignment="Center"
-                                VerticalContentAlignment="Bottom"
-                                HorizontalAlignment="Left"
-                                HorizontalContentAlignment="Left"
-                                FontSize="13"
-                                Style="{StaticResource GreenCheckMark}"
-                                Margin="5,3"                                x:Name="CropFromBody_CB"
-                                Click="HandleOptiOptionsSelection"/>
-
-                            <CheckBox Content="Create PTV__Eval"
-                                VerticalAlignment="Center"
-                                VerticalContentAlignment="Bottom"
-                                HorizontalAlignment="Left"
-                                HorizontalContentAlignment="Left"
-                                FontSize="13"
-                                Style="{StaticResource GreenCheckMark}"
-                                Margin="5,3"                                x:Name="CreatePTVEval_CB"/>
-
-                            <CheckBox Content="Create CI Structure"
-                                VerticalAlignment="Center"
-                                VerticalContentAlignment="Bottom"
-                                HorizontalAlignment="Left"
-                                HorizontalContentAlignment="Left"
-                                FontSize="13"
-                                Style="{StaticResource GreenCheckMark}"
-                                Margin="5,3"                                x:Name="CreateCI_CB"
-                                Click="HandleOptiOptionsSelection"/>
-
-                            <CheckBox Content="Create R50 Structure"
-                                VerticalAlignment="Center"
-                                VerticalContentAlignment="Bottom"
-                                HorizontalAlignment="Left"
-                                HorizontalContentAlignment="Left"
-                                FontSize="13"
-                                Style="{StaticResource GreenCheckMark}"
-                                Margin="5,3"                                x:Name="CreateR50_CB"
-                                Click="HandleOptiOptionsSelection"/>
-
-                            <CheckBox Content="Multiple Dose Levels"
-                                VerticalAlignment="Center"
-                                VerticalContentAlignment="Bottom"
-                                HorizontalAlignment="Left"
-                                HorizontalContentAlignment="Left"
-                                FontSize="13"
-                                Style="{StaticResource GreenCheckMark}"
-                                Margin="5,3"                                x:Name="MultipleDoseLevels_CB"
-                                Click="HandleOptiOptionsSelection"/>
-
-                            <!--<CheckBox Content="Opti GTV For Single Lesions"
-                                VerticalAlignment="Center"
-                                VerticalContentAlignment="Bottom"
-                                HorizontalAlignment="Left"
-                                HorizontalContentAlignment="Left"
-                                Background="#003E6B"
-                                FontSize="12"
-                                Margin="5,3"                                x:Name="CreateOptiGTV_CB"
-                                Click="CreateOptiGTV_CB_Click"/>
-                    
-                      <CheckBox Content="Opti Total"
-                                VerticalAlignment="Center"
-                                VerticalContentAlignment="Bottom"
-                                HorizontalAlignment="Left"
-                                HorizontalContentAlignment="Left"
-                                Background="#003E6B"
-                                FontSize="12"
-                                Margin="5,3"                                x:Name="CreateOptiTotal_CB"
-                                Click="CreateOptiTotal_CB_Click"/>-->
-
-                          </StackPanel>
-
-                        </StackPanel>
-                        <!--Options Section-->
-                        <StackPanel x:Name="OptiOptions_SP"
-                              Visibility="Collapsed">
-
-                          <!--Crop Options-->
-                          <StackPanel x:Name="CropOptions_SP"
-                                Visibility="Collapsed">
-                            <StackPanel Orientation="Horizontal"
-                                  HorizontalAlignment="Center">
-                              <Label Content="Crop Margins"
-                                VerticalAlignment="Center"
-                                FontSize="14"
-                                />
-                            </StackPanel>
-                            <Label Content="____________________________________________________________________________"
-                              Margin="0,-20,0,0"
-                              HorizontalAlignment="Center"
-                              VerticalContentAlignment="Top"
-                              FontSize="14"
-                              />
-                            <!--Crop From Body Margin-->
-                            <StackPanel Orientation="Horizontal"
-                                  HorizontalAlignment="Center"
-                                  Width="315"
-                                  Visibility="Collapsed"
-                                  x:Name="CropFromBody_SP">
-                              <Label Content="From Body [mm]:"
-                                Width="120"
-                                FontSize="14"
-                                />
-                              <TextBox Width="40"
-                                  x:Name="BodyCropMargin_TextBox"
-                                  Background="#0A558C"
-                                  Foreground="White"
-                                  GotFocus="SelectAllText"
-                                  TextAlignment="Center"
-                                  Margin="0,3"
-                                  FontSize="12"
-                                  VerticalContentAlignment="Center"
-                                  Text="4"/>
-                              <TextBlock Text="(The defalut is 4mm)"
-                                    FontSize="12"
-                                    FontStyle="Italic"
-                                    VerticalAlignment="Center"
-                                    Margin="5,0"
-                                    />
-                            </StackPanel>
-
-                            <!--Crop From Optis Margin-->
-                            <StackPanel Orientation="Horizontal"
-                                  HorizontalAlignment="Center"
-                                  Width="315"
-                                  Visibility="Visible"
-                                  x:Name="CropFromOptis_SP">
-                              <Label Content="From Optis [mm]:"
-                                Width="120"
-                                FontSize="14"
-                                />
-                              <TextBox Width="40"
-                                  x:Name="OptiCropMargin_TextBox"
-                                  Background="#0A558C"
-                                  Foreground="White"
-                                  GotFocus="SelectAllText"
-                                  TextAlignment="Center"
-                                  Margin="0,3"
-                                  FontSize="12"
-                                  VerticalContentAlignment="Center"
-                                  Text="2"/>
-                              <TextBlock Text="(The defalut is 2mm)"
-                                    FontSize="12"
-                                    FontStyle="Italic"
-                                    VerticalAlignment="Center"
-                                    Margin="5,0"
-                                    />
-                              <!--Crop From Body Margin-->
-                            </StackPanel>
-
-                          </StackPanel>
-
-                          <!--CI / R50 Structure Options-->
-                          <StackPanel x:Name="CI_R50_SP"
-                                Visibility="Collapsed">
-                            <StackPanel Orientation="Horizontal"
-                                  HorizontalAlignment="Center">
-                              <Label Content="CI / R50 Structure Margins"
-                                VerticalAlignment="Center"
-                                FontSize="14"
-                                />
-                            </StackPanel>
-                            <Label Content="____________________________________________________________________________"
-                              Margin="0,-20,0,0"
-                              HorizontalAlignment="Center"
-                              VerticalContentAlignment="Top"
-                              FontSize="14"
-                              />
-
-                            <!--CI Margin-->
-                            <StackPanel Orientation="Horizontal"
-                                  HorizontalAlignment="Center"
-                                  Width="315"
-                                  Visibility="Collapsed"
-                                  x:Name="CIMargin_SP">
-                              <Label Content="CI [mm]:"
-                                Width="120"
-                                FontSize="14"
-                                />
-                              <TextBox Width="40"
-                                  x:Name="CIMargin_TextBox"
-                                  Background="#0A558C"
-                                  Foreground="White"
-                                  GotFocus="SelectAllText"
-                                  TextAlignment="Center"
-                                  Margin="0,3"
-                                  FontSize="12"
-                                  VerticalContentAlignment="Center"
-                                  Text="5"/>
-                              <TextBlock Text="(The defalut is 5mm)"
-                                    FontSize="12"
-                                    FontStyle="Italic"
-                                    VerticalAlignment="Center"
-                                    Margin="5,0"
-                                    />
-                            </StackPanel>
-
-                            <!--R50 Margin-->
-                            <StackPanel Orientation="Horizontal"
-                                  HorizontalAlignment="Center"
-                                  Width="315"
-                                  Visibility="Collapsed"
-                                  x:Name="R50Margin_SP">
-                              <Label Content="R50 [mm]:"
-                                Width="120"
-                                FontSize="14"
-                                />
-                              <TextBox Width="40"
-                                  x:Name="R50Margin_TextBox"
-                                  Background="#0A558C"
-                                  Foreground="White"
-                                  GotFocus="SelectAllText"
-                                  TextAlignment="Center"
-                                  Margin="0,3"
-                                  FontSize="12"
-                                  VerticalContentAlignment="Center"
-                                  Text="30"/>
-                              <TextBlock Text="(The defalut is 30mm)"
-                                    FontSize="12"
-                                    FontStyle="Italic"
-                                    VerticalAlignment="Center"
-                                    Margin="5,0"
-                                    />
-                            </StackPanel>
-
-                          </StackPanel>
-
-                          <!--Multiple Dose Level Options-->
-                          <StackPanel x:Name="MultiDoseLevelOptions_SP"
-                                  Visibility="Collapsed">
-                            <StackPanel Orientation="Horizontal"
-                                  HorizontalAlignment="Center">
-                              <Label Content="Dose Levels"
-                                VerticalAlignment="Center"
-                                FontSize="14"
-                                />
-                              <Label Content="(Lowest to Highest)"
-                                VerticalAlignment="Center"
-                                FontSize="12"
-                                FontStyle="Italic"
-                                />
-                            </StackPanel>
-                            <Label Content="____________________________________________________________________________"
-                              Margin="0,-20,0,0"
-                              HorizontalAlignment="Center"
-                              VerticalContentAlignment="Top"
-                              FontSize="14"
-                              />
-                            <!--Radios-->
-                            <StackPanel Orientation="Horizontal"
-                                  HorizontalAlignment="Center">
-
-                              <RadioButton  x:Name="DoseLevel1_Radio"
-                                      GroupName="DoseLevels"
-                                      Content="1"
-                                      Cursor="Hand"
-                                      VerticalContentAlignment="Bottom"
-                                      Margin="5"
-                                      Checked="HandleDoseLevelCount"/>
-                              <RadioButton  x:Name="DoseLevel2_Radio"
-                                      GroupName="DoseLevels"
-                                      Content="2"
-                                      Cursor="Hand"
-                                      VerticalContentAlignment="Bottom"
-                                      Margin="5"
-                                      Checked="HandleDoseLevelCount"/>
-                              <RadioButton  x:Name="DoseLevel3_Radio"
-                                      GroupName="DoseLevels"
-                                      Content="3"
-                                      Cursor="Hand"
-                                      VerticalContentAlignment="Bottom"
-                                      Margin="5"
-                                      Checked="HandleDoseLevelCount"/>
-                              <RadioButton  x:Name="DoseLevel4_Radio"
-                                      GroupName="DoseLevels"
-                                      Content="4"
-                                      Cursor="Hand"
-                                      VerticalContentAlignment="Bottom"
-                                      Margin="5"
-                                      Checked="HandleDoseLevelCount"/>
-
-                            </StackPanel>
-
-                            <!--PTV : Dose Level Selectors-->
-                            <StackPanel Margin="0,10">
-
-                              <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    Width="350"
-                                    Margin="0,0,0,5"
-                                    x:Name="DoseLevel1_SP"
-                                    Visibility="Collapsed">
-
-                                <Label Content="Dose Level 1"
-                                  Width="85"
-                                  FontSize="14"
-                                  />
-
-                                <ComboBox x:Name="DoseLevel1_Combo"
-                                    Width="125"
-                                    Background="#F5F7FA"
-                                    HorizontalContentAlignment="Left"
-                                    VerticalContentAlignment="Center"/>
-
-                                <StackPanel Orientation="Horizontal"
-                                      x:Name="DoseLevel1CropMargin_SP">
-                                  <Label Content="Crop Margin [mm]:"
-                              Width="105"
-                              FontSize="12"
-                              />
-
-                                  <TextBox Width="40"
-                                x:Name="DoseLevel1CropMargin_TextBox"
-                                Background="#0A558C"
-                                Foreground="White"
-                                GotFocus="SelectAllText"
-                                TextAlignment="Center"
-                                Margin="0,3"
-                                FontSize="12"
-                                VerticalContentAlignment="Center"
-                                Text="2"/>
-                                </StackPanel>
-                              </StackPanel>
-
-                              <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    Width="350"
-                                    Margin="0,0,0,5"
-                                    x:Name="DoseLevel2_SP"
-                                    Visibility="Collapsed">
-
-                                <Label Content="Dose Level 2"
-                                  Width="85"
-                                  FontSize="14"
-                                  />
-
-                                <ComboBox x:Name="DoseLevel2_Combo"
-                                    Width="125"
-                                    Background="#F5F7FA"
-                                    HorizontalContentAlignment="Left"
-                                    VerticalContentAlignment="Center"/>
-                                <StackPanel Orientation="Horizontal"
-                                      x:Name="DoseLevel2CropMargin_SP">
-                                  <Label Content="Crop Margin [mm]:"
-                              Width="105"
-                              FontSize="12"
-                              />
-
-                                  <TextBox Width="40"
-                                x:Name="DoseLevel2CropMargin_TextBox"
-                                Background="#0A558C"
-                                Foreground="White"
-                                GotFocus="SelectAllText"
-                                TextAlignment="Center"
-                                Margin="0,3"
-                                FontSize="12"
-                                VerticalContentAlignment="Center"
-                                Text="2"/>
-                                </StackPanel>
-                              </StackPanel>
-
-                              <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    Width="350"
-                                    Margin="0,0,0,5"
-                                    x:Name="DoseLevel3_SP"
-                                    Visibility="Collapsed">
-
-                                <Label Content="Dose Level 3"
-                                  Width="85"
-                                  FontSize="14"
-                                  />
-
-                                <ComboBox x:Name="DoseLevel3_Combo"
-                                    Width="125"
-                                    Background="#F5F7FA"
-                                    HorizontalContentAlignment="Left"
-                                    VerticalContentAlignment="Center"/>
-
-                                <StackPanel Orientation="Horizontal"
-                                      x:Name="DoseLevel3CropMargin_SP">
-                                  <Label Content="Crop Margin [mm]:"
-                                Width="105"
-                                FontSize="12"
-                                />
-
-                                  <TextBox Width="40"
-                                  x:Name="DoseLevel3CropMargin_TextBox"
-                                  Background="#0A558C"
-                                  Foreground="White"
-                                  GotFocus="SelectAllText"
-                                  TextAlignment="Center"
-                                  Margin="0,3"
-                                  FontSize="12"
-                                  VerticalContentAlignment="Center"
-                                  Text="2"/>
-                                </StackPanel>
-                              </StackPanel>
-
-                              <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    Width="350"
-                                    Margin="0,0,0,5"
-                                    x:Name="DoseLevel4_SP"
-                                    Visibility="Collapsed">
-
-                                <Label Content="Dose Level 4"
-                                  Width="85"
-                                  FontSize="14"
-                                  />
-
-                                <ComboBox x:Name="DoseLevel4_Combo"
-                                    Width="125"
-                                    Background="#F5F7FA"
-                                    HorizontalContentAlignment="Left"
-                                    VerticalContentAlignment="Center"/>
-
-                              </StackPanel>
-
-                            </StackPanel>
-
-                          </StackPanel>
-
-                        </StackPanel>
-
-
-                      </StackPanel>
-                    </StackPanel>
-                  </StackPanel>
-                </Border>
-
-                <!-- rings -->
-                <Border Padding="10"
-                      CornerRadius="10"
-                      BorderThickness="1"
-                      BorderBrush="#003E6B"
-                      Margin="0,0,5,0"
-                      x:Name="RingStructure_SP"
-                      Visibility="Collapsed">
-                  <StackPanel Background="#E1E1E1">
-                    <StackPanel Orientation="Horizontal"
-                          Background="White"
-                          Margin="0,5,0,5">
-                      <StackPanel Width="350"
-                            Margin="5,0">
-                        <Label x:Name="Ring_Label"
-                          Content="PTVs To Create Rings For"
-                          HorizontalAlignment="Center" 
-                          />
-                        <TextBlock Text="Select the PTV(s) you'd like to create ring structures for (not required)"
-                              TextWrapping="Wrap"
-                              FontSize="12"
-                              FontStyle="Italic"
-                              HorizontalAlignment="Center" 
-                              />
-                        <ListBox x:Name="PTVListForRings_LV"
-                              Margin="5"
-                              Width="auto"
-                              MinHeight="100" 
-                              SelectionMode="Multiple"
-                              ItemsSource="{Binding ringListBoxItems}"
-                              Height="auto" 
-                              FontSize="13"
-                              HorizontalContentAlignment="Center"
-                              VerticalContentAlignment="Center"
-                              BorderBrush="White">
-                          <ListBox.Resources>
-                            <Style TargetType="ListBoxItem">
-                              <Setter Property="OverridesDefaultStyle" Value="true" />
-                              <Setter Property="SnapsToDevicePixels" Value="true" />
-                              <Setter Property="HorizontalAlignment" Value="Left" />
-                              <Setter Property="Margin" Value="50,0,20,0" />
-                              <Setter Property="Template">
-                                <Setter.Value>
-                                  <ControlTemplate TargetType="ListBoxItem">
-                                    <CheckBox IsChecked="{Binding IsSelected}"
-                                        Style="{StaticResource GreenCheckMark}"
-                                        Content="{Binding Id}"
-                                        Margin="5,2">
-                                    </CheckBox>
-
-                                  </ControlTemplate>
-                                </Setter.Value>
-                              </Setter>
-                            </Style>
-                          </ListBox.Resources>
-                        </ListBox>
-
-                      </StackPanel>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal"
-                          Background="White"
-                              Margin="0,5,0,5">
-                      <StackPanel Width="350"
-                            Margin="5,0">
-
-                        <!--Label-->
-                        <StackPanel Orientation="Horizontal"
-                                  HorizontalAlignment="Center">
-                          <Label Content="Options"
-                              VerticalAlignment="Center"
-                              FontSize="14"
-                              />
-                        </StackPanel>
-
-                        <!--Divider-->
-                        <Label Content="__________________________________________________________"
-                              Margin="0,-20,0,0"
-                              HorizontalAlignment="Center"
-                              VerticalContentAlignment="Top"
-                              FontSize="14"
-                              />
-
-                        <!--Preferred Prefix-->
-                        <StackPanel Orientation="Horizontal"
-                              HorizontalAlignment="Center"
-                              Width="315">
-                          <Label Content="Preferred Prefix:"
+                              Width="275">
+                            <Label Content="Preferred Prefix:"
                           Width="120"
                           FontSize="14"/>
-                          <TextBox Width="40"
+                            <TextBox Width="40"
                             x:Name="RingPrefix_TextBox"
                             Background="#0A558C"
                             Foreground="White"
@@ -1371,21 +1418,21 @@
                             VerticalContentAlignment="Center"
                             
                             Text="zring"/>
-                          <TextBlock Text="(The defalut is 'zring #')"
+                            <TextBlock Text="(The default is 'zring #')"
                               TextWrapping="Wrap"
                               FontSize="12"
                               FontStyle="Italic"
                               VerticalAlignment="Center"
                               Margin="5,0"/>
-                        </StackPanel>
-                        <!--Number of Rings-->
-                        <StackPanel Orientation="Horizontal"
+                          </StackPanel>
+                          <!--Number of Rings-->
+                          <StackPanel Orientation="Horizontal"
                               HorizontalAlignment="Center"
-                              Width="315">
-                          <Label  Content="Number of Rings:"
+                              Width="275">
+                            <Label  Content="Number of Rings:"
                             Width="120"
                             FontSize="14"/>
-                          <TextBox  Width="40"
+                            <TextBox  Width="40"
                               x:Name="RingCount_TextBox"
                               Background="#0A558C"
                               Foreground="White"
@@ -1394,20 +1441,20 @@
                               FontSize="12"
                               VerticalContentAlignment="Center"
                               Text="3"/>
-                          <TextBlock  Text="(The defalut is 3)"
+                            <TextBlock  Text="(The default is 3)"
                                 FontSize="12"
                                 FontStyle="Italic"
                                 VerticalAlignment="Center"
                                 Margin="5,0"/>
-                        </StackPanel>
-                        <!--Ring Margin-->
-                        <StackPanel Orientation="Horizontal"
+                          </StackPanel>
+                          <!--Ring Margin-->
+                          <StackPanel Orientation="Horizontal"
                               HorizontalAlignment="Center"
-                              Width="315">
-                          <Label Content="Ring Margin [mm]:"
+                              Width="275">
+                            <Label Content="Ring Margin [mm]:"
                             Width="120"
                             FontSize="14"/>
-                          <TextBox Width="40"
+                            <TextBox Width="40"
                         x:Name="RingGrowMargin_TextBox"
                         Background="#0A558C"
                         Foreground="White"
@@ -1417,41 +1464,41 @@
                         FontSize="12"
                         VerticalContentAlignment="Center"
                         Text="10"/>
-                          <TextBlock Text="(The defalut is 10mm)"
+                            <TextBlock Text="(The default is 10mm)"
                                 FontSize="12"
                                 FontStyle="Italic"
                                 VerticalAlignment="Center"
                                 Margin="5,0"/>
-                        </StackPanel>
+                          </StackPanel>
 
 
-                        <!--Label-->
-                        <StackPanel Orientation="Horizontal"
+                          <!--Label-->
+                          <StackPanel Orientation="Horizontal"
                                   HorizontalAlignment="Center"
                                   Margin="0,20,0,0">
-                          <Label Content="Innermost Ring Crop Options"
+                            <Label Content="Innermost Ring Crop Options"
                               VerticalAlignment="Center"
                               FontSize="14"
                               />
-                        </StackPanel>
-                        <!--Divider-->
-                        <Label Content="__________________________________________________________"
+                          </StackPanel>
+                          <!--Divider-->
+                          <Label Content="__________________________________________________________"
                               Margin="0,-20,0,0"
                               HorizontalAlignment="Center"
                               VerticalContentAlignment="Top"
                               FontSize="14"
                               />
 
-                        <!--Ring Margin-->
-                        <StackPanel>
+                          <!--Ring Margin-->
+                          <StackPanel>
 
-                          <StackPanel Orientation="Horizontal"
+                            <StackPanel Orientation="Horizontal"
                               HorizontalAlignment="Center"
-                              Width="315">
-                            <Label Content="From Target [mm]:"
+                              Width="275">
+                              <Label Content="From Target [mm]:"
                             Width="120"
                             FontSize="14"/>
-                            <TextBox Width="40"
+                              <TextBox Width="40"
                         x:Name="RingCropMargin_TextBox"
                         Background="#0A558C"
                         Foreground="White"
@@ -1461,88 +1508,88 @@
                         FontSize="12"
                         VerticalContentAlignment="Center"
                         Text="0"/>
-                            <TextBlock Text="(The defalut is 0mm)"
+                              <TextBlock Text="(The default is 0mm)"
                                 FontSize="12"
                                 FontStyle="Italic"
                                 VerticalAlignment="Center"
                                 Margin="5,0"/>
+                            </StackPanel>
                           </StackPanel>
-                        </StackPanel>
 
+                        </StackPanel>
                       </StackPanel>
                     </StackPanel>
-                  </StackPanel>
-                </Border>
+                  </Border>
 
-                <!-- boolean tool -->
-                <Border Padding="10"
+                  <!-- boolean tool -->
+                  <Border Padding="10"
                       CornerRadius="10"
                       BorderThickness="1"
                       BorderBrush="#003E6B"
                       x:Name="BooleanedStructure_SP"
                       Visibility="Collapsed">
-                  <StackPanel Background="#E1E1E1">
-                    <StackPanel Orientation="Horizontal"
+                    <StackPanel Background="#E1E1E1">
+                      <StackPanel Orientation="Horizontal"
                           Background="White"
                           Margin="0,5,0,5">
-                      <StackPanel Width="350"
+                        <StackPanel Width="350"
                             Margin="5,0">
 
-                        <!--New Structure Id-->
-                        <Label Content="Basic Boolean Operations Tool"
+                          <!--New Structure Id-->
+                          <Label Content="Basic Boolean Operations Tool"
                           HorizontalAlignment="Center"/>
-                        <TextBlock Text="Create up to five (5) new structures using basic boolean operations"
+                          <TextBlock Text="Create up to five (5) new structures using basic boolean operations"
                               TextWrapping="Wrap"
                               FontSize="12"
                               FontStyle="Italic"
                               HorizontalAlignment="Center"/>
-                        <StackPanel>
+                          <StackPanel>
 
-                          <StackPanel Orientation="Horizontal"
+                            <StackPanel Orientation="Horizontal"
                                     Margin="5,5,5,-20"
                                     HorizontalAlignment="Center">
 
-                            <Label Content="Structure Id"
+                              <Label Content="Structure Id"
                                   Width="100" 
                                   HorizontalContentAlignment="Center"/>
-                            <Label Content="Base Structure"
+                              <Label Content="Base Structure"
                                   Width="100" 
                                   Margin="10,0"
                                   HorizontalContentAlignment="Center"/>
-                            <Label Content="Operation"
+                              <Label Content="Operation"
                                   Width="100" 
                                   Margin="5,0"
                                   HorizontalContentAlignment="Center"/>
 
-                          </StackPanel>
+                            </StackPanel>
 
-                          <StackPanel Orientation="Horizontal"
+                            <StackPanel Orientation="Horizontal"
                                     VerticalAlignment="Top"
                                     Margin="0,0,0,5"
                                     HorizontalAlignment="Center">
 
-                            <Label Content="_____________________________"
+                              <Label Content="_____________________________"
                                   Width="100" 
                                   VerticalAlignment="Top"
                                   HorizontalContentAlignment="Center"/>
-                            <Label Content="_____________________________"
+                              <Label Content="_____________________________"
                                   Width="100" 
                                   Margin="10,0"
                                   VerticalAlignment="Top"
                                   HorizontalContentAlignment="Center"/>
-                            <Label Content="_____________________________"
+                              <Label Content="_____________________________"
                                   Width="100" 
                                   Margin="5,0"
                                   VerticalAlignment="Top"
                                   HorizontalContentAlignment="Center"/>
 
-                          </StackPanel>
+                            </StackPanel>
 
-                          <StackPanel Orientation="Horizontal"
+                            <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Center"
                                     Margin="5">
 
-                            <TextBox Text="Bladder-CTV"
+                              <TextBox Text="Bladder-CTV"
                                   Width="100"
                                     Height="25"
                                   x:Name="BoolStructId_TextBox"
@@ -1552,7 +1599,7 @@
                                   TextAlignment="Center"
                                   FontSize="12"
                                   VerticalContentAlignment="Center"/>
-                            <ComboBox x:Name="BoolBaseStruct_Combo"
+                              <ComboBox x:Name="BoolBaseStruct_Combo"
                                     Width="100"
                                     Margin="10,0"
                                     Height="25"
@@ -1560,12 +1607,12 @@
                                     Background="#F5F7FA"
                                     HorizontalContentAlignment="Left"
                                     VerticalContentAlignment="Center"/>
-                            <StackPanel Orientation="Horizontal"
+                              <StackPanel Orientation="Horizontal"
                                       Width="100"
                                       Margin="5,0"
                                       HorizontalAlignment="Center">
 
-                              <CheckBox Content="+"
+                                <CheckBox Content="+"
                                       VerticalAlignment="Center"
                                       HorizontalContentAlignment="Center"
                                       HorizontalAlignment="Center"
@@ -1575,7 +1622,7 @@
                                       Click="BoolOperationAdd_CB_Click"
                                       Style="{StaticResource GreenCheckMark}"
                                       IsChecked="True"/>
-                              <CheckBox Content="-"
+                                <CheckBox Content="-"
                                       VerticalAlignment="Center"
                                       HorizontalContentAlignment="Center"
                                       HorizontalAlignment="Center"
@@ -1586,37 +1633,38 @@
                                       Style="{StaticResource GreenCheckMark}"
                                       IsChecked="False"/>
 
+                              </StackPanel>
+
+
                             </StackPanel>
 
-
                           </StackPanel>
+                          <!--base structure-->
 
                         </StackPanel>
-                        <!--base structure-->
-
                       </StackPanel>
-                    </StackPanel>
 
-                    <StackPanel Orientation="Horizontal"
+                      <StackPanel Orientation="Horizontal"
                           Background="White"
                           Margin="0,5,0,5">
-                      <StackPanel Width="350"
+                        <StackPanel Width="350"
+                                    
                             Margin="5,0">
 
-                        <!--structure list-->
-                        <Label x:Name="Boolean_Label"
+                          <!--structure list-->
+                          <Label x:Name="Boolean_Label"
                           Content="Available Structures"
                           HorizontalAlignment="Center"/>
-                        <TextBlock Text="Select the Structures(s) to add or subtract from the base structure"
+                          <TextBlock Text="Select the Structures(s) to add or subtract from the base structure"
                               TextWrapping="Wrap"
                               FontSize="12"
                               FontStyle="Italic"
                               HorizontalAlignment="Center"/>
-                        <ListBox x:Name="StructureListForBooleanOperations_LV"
+                          <ListBox x:Name="StructureListForBooleanOperations_LV"
                               Margin="5"
                               Width="auto"
                               MinHeight="100" 
-                              MaxHeight="300"
+                              MaxHeight="375"
                               SelectionMode="Multiple"
                               ItemsSource="{Binding booleanListBoxItems}"
                               Height="auto" 
@@ -1624,38 +1672,38 @@
                               HorizontalContentAlignment="Center"
                               VerticalContentAlignment="Center"
                               BorderBrush="White">
-                          <ListBox.Resources>
-                            <Style TargetType="ListBoxItem">
-                              <Setter Property="OverridesDefaultStyle" Value="true" />
-                              <Setter Property="SnapsToDevicePixels" Value="true" />
-                              <Setter Property="HorizontalAlignment" Value="Left" />
-                              <Setter Property="Margin" Value="50,0,20,0" />
-                              <Setter Property="Template">
-                                <Setter.Value>
-                                  <ControlTemplate TargetType="ListBoxItem">
-                                    <CheckBox IsChecked="{Binding IsSelected}"
+                            <ListBox.Resources>
+                              <Style TargetType="ListBoxItem">
+                                <Setter Property="OverridesDefaultStyle" Value="true" />
+                                <Setter Property="SnapsToDevicePixels" Value="true" />
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                <Setter Property="Margin" Value="50,0,20,0" />
+                                <Setter Property="Template">
+                                  <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                      <CheckBox IsChecked="{Binding IsSelected}"
                                         Style="{StaticResource GreenCheckMark}"
                                         Content="{Binding Id}"
                                         Margin="5,2">
-                                    </CheckBox>
+                                      </CheckBox>
 
-                                  </ControlTemplate>
-                                </Setter.Value>
-                              </Setter>
-                            </Style>
-                          </ListBox.Resources>
-                        </ListBox>
+                                    </ControlTemplate>
+                                  </Setter.Value>
+                                </Setter>
+                              </Style>
+                            </ListBox.Resources>
+                          </ListBox>
 
+                        </StackPanel>
                       </StackPanel>
-                    </StackPanel>
 
-                    <StackPanel Orientation="Horizontal"
+                      <StackPanel Orientation="Horizontal"
                               Margin="0,5,0,5">
-                      <StackPanel Width="350"
+                        <StackPanel Width="350"
                             Margin="5,0">
 
-                        <Button x:Name="CreateBooleanedStructures_Btn"
-                              Click="CreateBooleanedStructure_Btn_Click_DEV"
+                          <Button x:Name="CreateBooleanedStructures_Btn"
+                              Click="CreateBooleanedStructure_Btn_Click"
                               Content="Add Booleaned Structure"
                               FontSize="14"
                               Width="250"
@@ -1667,20 +1715,20 @@
                               HorizontalAlignment="Center"
                               Cursor="Hand"/>
 
+                        </StackPanel>
                       </StackPanel>
                     </StackPanel>
-                  </StackPanel>
-                </Border>
+                  </Border>
+
+                </StackPanel>
 
               </StackPanel>
 
-            </StackPanel>
-
-            <!--Create Structures Button-->
-            <StackPanel Orientation="Horizontal"
+              <!--Create Structures Button-->
+              <StackPanel Orientation="Horizontal"
                       HorizontalAlignment="Center">
-              <Button x:Name="CreateStructures_Btn"
-                    Click="CreateStructures_Btn_Click_DEV"
+                <Button x:Name="CreateStructures_Btn"
+                    Click="CreateStructures_Btn_Click"
                     Content="Create Structure(s)"
                     FontSize="14"
                     Width="450"
@@ -1692,10 +1740,10 @@
                     HorizontalAlignment="Center"
                     Cursor="Hand"/>
 
-            </StackPanel>
+              </StackPanel>
 
-            <!-- Instructions -->
-            <Border Padding="10"
+              <!-- Instructions -->
+              <Border Padding="10"
                       CornerRadius="10"
                       BorderThickness="1"
                       BorderBrush="#003E6B"
@@ -1704,52 +1752,51 @@
                       x:Name="Instructions_SP"
                       Visibility="Collapsed">
 
-              <StackPanel Orientation="Vertical"
+                <StackPanel Orientation="Vertical"
                       VerticalAlignment="Center"
                       Margin="5"
                       Width="300"
                       Background="White">
-                <Label Content="Instructions"
+                  <Label Content="Instructions"
                     HorizontalAlignment="Center"
                     FontSize="15"/>
-                <!--Divider-->
-                <Label Content="__________________________________________________________"
+                  <!--Divider-->
+                  <Label Content="__________________________________________________________"
                               Margin="0,-20,0,5"
                               HorizontalAlignment="Center"
                               VerticalContentAlignment="Top"
                               FontSize="14"
                               />
-                <TextBlock Text='Note: The "Booleaned Structures" tool may be used to create new structures using basic 
+                  <TextBlock Text='Note: The "Booleaned Structures" tool may be used to create new structures using basic 
                             add and subtract boolean operations. These are created one at a time at the click of 
                             the "Add Booleaned Structure" button'
                         TextWrapping="WrapWithOverflow"
                         Margin="5,5"
                         FontSize="13"/>
-                <TextBlock  Text="1. Select the types of structures you would like to create."
+                  <TextBlock  Text="1. Select the types of structures you would like to create."
                         TextWrapping="WrapWithOverflow"
                         Margin="5"
                         FontSize="13"/>
-                <TextBlock Text="2. Select the OAR(s)/PTV(s) you want structures created for."
+                  <TextBlock Text="2. Select the OAR(s)/PTV(s) you want structures created for."
                         TextWrapping="WrapWithOverflow"
                         Margin="5"
                         FontSize="13"/>
-                <TextBlock Text="3. Define your desired Prefix, OAR or PTV Margin (Grow/Shrink : +/-), and Crop Margin."
+                  <TextBlock Text="3. Define your desired Prefix, OAR or PTV Margin (Grow/Shrink : +/-), and Crop Margin."
                         TextWrapping="WrapWithOverflow"
                         Margin="5"
                         FontSize="13"/>
-                <TextBlock Text='4. Click the "Create Structure(s)" Button.'
+                  <TextBlock Text='4. Click the "Create Structure(s)" Button.'
                         TextWrapping="WrapWithOverflow"
                         Margin="5,5"
                         FontSize="13"/>
-              </StackPanel>
+                </StackPanel>
 
-            </Border>
-          </StackPanel>
-          
-        </ScrollViewer>
-          
-      </StackPanel>
-            
+              </Border>
+            </StackPanel>
+
+          </ScrollViewer>
+
+        </StackPanel>
     </Grid>
   </Border>
 
