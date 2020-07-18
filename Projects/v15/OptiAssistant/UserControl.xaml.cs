@@ -60,6 +60,10 @@ namespace OptiAssistant
     const string RING_DICOM_TYPE = "CONTROL";
     const int DEFAULT_RING_CROP_FROM_TARGET_MARGIN = 0;
 
+    // BOOLEAN DEFAULTS
+    const int DEFAULT_BOOLEAN_GROW_MARGIN = 0;
+
+
     // MISC DICOM TYPE DEFAULTS
     const string CONTROL_DICOM_TYPE = "CONTROL";
 
@@ -115,6 +119,7 @@ namespace OptiAssistant
     public bool hasNoPTV = false;
     public bool hasSinglePTV = false;
     public bool hasMultiplePTVs = false;
+    public bool hasOneDoseLevel = false;
     public bool hasTwoDoseLevels = false;
     public bool hasThreeDoseLevels = false;
     public bool hasFourDoseLevels = false;
@@ -136,6 +141,8 @@ namespace OptiAssistant
     public int avoidTarget2CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
     public int avoidTarget3CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
     public int avoidTarget4CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
+    public int booleanedStructureGrowMargin = DEFAULT_BOOLEAN_GROW_MARGIN;
+
 
     public bool createPTVEval = false;
 
@@ -153,6 +160,7 @@ namespace OptiAssistant
     //---------------------------------------------------------------------------------
     #region objects used for binding
 
+      // used for listviews to hold id and whether they are checked (listviews are holding checkboxes)
     public class StructureItem
     {
       public StructureItem(string id, bool isSelected=false)
@@ -496,12 +504,12 @@ namespace OptiAssistant
         MessageBox.Show("Oops, it appears you'd like to create opti ptv structures but haven't selected any targets to create optis for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         continueToCreateStructures = false;
       }
-      if (CreateOptis_CB.IsChecked == true && CreatePTVEval_CB.IsChecked == true && selectedPTVs.ToList().Count != 0)
+      if (CreateOptis_CB.IsChecked == true && CreatePTVEval_CB.IsChecked == true && selectedPTVs.ToList().Count > 0)
       {
         foreach (var id in selectedPTVs)
         {
           var t = ss.Structures.First(x => x.Id == id);
-          var evalId = string.Format("{0}_Eval", Helpers.ProcessStructureId(t.ToString(), MAX_ID_LENGTH - 5));
+          var evalId = string.Format("{0}_Eval", Helpers.ProcessStructureId(t.Id.ToString(), MAX_ID_LENGTH - 5));
           var matchedEvalStructure = ss.Structures.Where(st => st.Id == evalId);
           if (matchedEvalStructure.ToList().Count > 0)
           {
@@ -570,6 +578,8 @@ namespace OptiAssistant
           string zptvTotalId = "zptv total";
           string zoptiTotalId = "zopti total";
 
+          var targetsToCreateAvoidsFor = new List<string>();
+
           // for when optis are made
           int zoptiGrowMargin = 0;
 
@@ -619,144 +629,183 @@ namespace OptiAssistant
 
             // add empty structures
             bodyHR = ss.AddStructure(CONTROL_DICOM_TYPE, bodyHRId);
-            zptvTotalHR = ss.AddStructure(OPTI_DICOM_TYPE, zptvTotalHRId);
-            zoptiTotalHR = ss.AddStructure(OPTI_DICOM_TYPE, zoptiTotalHRId);
 
             // copy body to bodyHR
             bodyHR.SegmentVolume = body.SegmentVolume;
 
             // convert to high res
             if (bodyHR.CanConvertToHighResolution() == true) { bodyHR.ConvertToHighResolution(); /*MESSAGES += "\r\n\t- High Res Body Created";*/ }
-            if (zptvTotalHR.CanConvertToHighResolution() == true) { zptvTotalHR.ConvertToHighResolution(); /*MESSAGES += "\r\n\t- High Res Target Created";*/ }
-            if (zoptiTotalHR.CanConvertToHighResolution() == true) { zoptiTotalHR.ConvertToHighResolution(); /*MESSAGES += "\r\n\t- High Res Target Created";*/ }
-
-            if (hasSinglePTV || hasMultiplePTVs)
+            
+            // hr targets not needed for ring structures
+            if (CreateAvoids_CB.IsChecked == true || CreateOptis_CB.IsChecked == true)
             {
-              foreach (var t in sorted_ptvList)
+              // add empty structures
+              zptvTotalHR = ss.AddStructure(OPTI_DICOM_TYPE, zptvTotalHRId);
+              zoptiTotalHR = ss.AddStructure(OPTI_DICOM_TYPE, zoptiTotalHRId);
+
+              // convert to high res
+              if (zptvTotalHR.CanConvertToHighResolution() == true) { zptvTotalHR.ConvertToHighResolution(); /*MESSAGES += "\r\n\t- High Res Target Created";*/ }
+              if (zoptiTotalHR.CanConvertToHighResolution() == true) { zoptiTotalHR.ConvertToHighResolution(); /*MESSAGES += "\r\n\t- High Res Target Created";*/ }
+
+              if (hasSinglePTV || hasMultiplePTVs)
               {
-                Structure hrTarget = null;
-                var hrId = string.Format("zz{0}_HR", Helpers.ProcessStructureId(t.Id.ToString(), MAX_ID_LENGTH - 5));
-                // remove if already there
-                Helpers.RemoveStructure(ss, hrId);
+                foreach (var t in sorted_ptvList)
+                {
+                  Structure hrTarget = null;
+                  var hrId = string.Format("zz{0}_HR", Helpers.ProcessStructureId(t.Id.ToString(), MAX_ID_LENGTH - 5));
+                  // remove if already there
+                  Helpers.RemoveStructure(ss, hrId);
 
-                // add empty zopti total structure
-                hrTarget = ss.AddStructure(OPTI_DICOM_TYPE, hrId);
-                hrTarget.SegmentVolume = t.SegmentVolume;
-                if (hrTarget.CanConvertToHighResolution()) { hrTarget.ConvertToHighResolution(); } // TODO: may need to check if t is HR and then convert hrTarget to HR first?
+                  // add empty zopti total structure
+                  hrTarget = ss.AddStructure(OPTI_DICOM_TYPE, hrId);
+
+                  if (t.IsHighResolution != true)
+                  {
+                    hrTarget.SegmentVolume = t.SegmentVolume;
+                    if (hrTarget.CanConvertToHighResolution()) { hrTarget.ConvertToHighResolution(); }
+                  }
+                  else
+                  {
+                    if (hrTarget.CanConvertToHighResolution()) { hrTarget.ConvertToHighResolution(); }
+                    hrTarget.SegmentVolume = t.SegmentVolume;
+                  }
 
 
-                zptvTotalHR.SegmentVolume = zptvTotalHR.Or(hrTarget.SegmentVolume);
+                  zptvTotalHR.SegmentVolume = zptvTotalHR.Or(hrTarget.SegmentVolume);
+                }
+                zptvTotalHR.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zptvTotalHR, bodyHR, cropFromBodyMargin);
+                zoptiTotalHR.SegmentVolume = zptvTotalHR.SegmentVolume;
               }
-              zptvTotalHR.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zptvTotalHR, bodyHR, cropFromBodyMargin);
-              zoptiTotalHR.SegmentVolume = zptvTotalHR.SegmentVolume;
             }
+            
           }
 
           #endregion get high res structures
 
           #region create zopti total
 
-          if (hasSinglePTV || hasMultiplePTVs)
+
+          // opti total shouldn't be needed for ring structures
+          if (CreateAvoids_CB.IsChecked == true || CreateOptis_CB.IsChecked == true)
           {
-            // remove if already there
-            Helpers.RemoveStructure(ss, zptvTotalId);
-
-            // add empty zopti total structure
-            zptvTotal = ss.AddStructure(OPTI_DICOM_TYPE, zptvTotalId);
-            MESSAGES += string.Format("\r\n\t- Structure Added: {0}", zptvTotalId);
-
-            // boolean ptvs into zopti total
-            zptvTotal.SegmentVolume = sorted_ptvList.Count() > 1 ? Helpers.BooleanStructures(ss, sorted_ptvList) : sorted_ptvList.First().SegmentVolume;
-            MESSAGES += string.Format("\r\n\t- Structure Booleaned: {0}", zptvTotalId);
-
-            // if user is creating opti ptvs, want to crop avoids from the opti ptv total (ptv total w/ margin specified by user)
-            if (CreateOptis_CB.IsChecked == true)
+            if (hasSinglePTV || hasMultiplePTVs)
             {
-              // set grow margin for otpti ptvs
-              if (int.TryParse(OptiGrowMargin_TextBox.Text, out zoptiGrowMargin))
-              {
-                //parsing successful 
-              }
-              else
-              {
-                //parsing failed. 
-                zoptiGrowMargin = DEFAULT_OPTI_GROW_MARGIN;
-                MessageBox.Show(string.Format("Oops, an invalid value was used for the opti structure grow margin ({0}). The DEFAULT of {1} mm will be used.", OptiGrowMargin_TextBox.Text, DEFAULT_OPTI_GROW_MARGIN));
-              }
-
               // remove if already there
-              Helpers.RemoveStructure(ss, zoptiTotalId);
+              Helpers.RemoveStructure(ss, zptvTotalId);
 
               // add empty zopti total structure
-              zoptiTotal = ss.AddStructure(OPTI_DICOM_TYPE, zoptiTotalId);
-              MESSAGES += string.Format("\r\n\t- Structure Added: {0}", zoptiTotalId);
-
-              // zopti total
-              zoptiTotal.SegmentVolume = zptvTotal.SegmentVolume.Margin(zoptiGrowMargin);
-              MESSAGES += string.Format("\r\n\t- {0} mm margin added to {1}", zoptiGrowMargin, zoptiTotalId);
-
-              if (needHRStructures)
-              {
-                // zopti total HR
-                zoptiTotalHR.SegmentVolume = zptvTotalHR.SegmentVolume.Margin(zoptiGrowMargin);
-                MESSAGES += string.Format("\r\n\t- {0} mm margin added to {1}", zoptiGrowMargin, zoptiTotalId);
-              }
-            }
-
-            // crop zptvtotal from body
-            try
-            {
-              if (zptvTotal.IsHighResolution)
-              {
-                zptvTotal.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zptvTotal, bodyHR, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
-                MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From High Res Body Surface", zptvTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
-              }
-              else
-              {
-                zptvTotal.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zptvTotal, body, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
-                MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From Body Surface", zptvTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
-              }
-            }
-            catch
-            {
-              MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body Surface***", zptvTotal.Id);
-            }
-
-            // crop zopti total from body
-            try
-            {
-              if (zoptiTotal.IsHighResolution)
-              {
-                zoptiTotal.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zoptiTotal, bodyHR, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
-                MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From High Res Body Surface", zoptiTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
-              }
-              else
-              {
-                zoptiTotal.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zoptiTotal, body, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
-                MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From Body Surface", zoptiTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
-              }
-            }
-            catch
-            {
-              MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body Surface***", zoptiTotal.Id);
-            }
-
-            // crop zopti total HR from body
-            if (needHRStructures)
-            {
+              zptvTotal = ss.AddStructure(OPTI_DICOM_TYPE, zptvTotalId);
+              MESSAGES += string.Format("\r\n\t- Structure Added: {0}", zptvTotalId);
               try
               {
-                zoptiTotalHR.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zoptiTotalHR, bodyHR, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
-                MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From High Res Body Surface", zoptiTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                if (needHRStructures)
+                {
+                  if (zptvTotal.CanConvertToHighResolution()) { zptvTotal.ConvertToHighResolution(); }
+                  zptvTotal.SegmentVolume = zptvTotalHR.SegmentVolume;
+                }
+                else
+                {
+                  // boolean ptvs into zopti total
+                  zptvTotal.SegmentVolume = sorted_ptvList.Count() > 1 ? Helpers.BooleanStructures(ss, sorted_ptvList) : sorted_ptvList.First().SegmentVolume;
+                }
+                MESSAGES += string.Format("\r\n\t- Structure Booleaned: {0}", zptvTotalId);
               }
               catch
               {
-                MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body Surface***", zoptiTotalHR.Id);
+                MESSAGES += string.Format("\r\n\t- ***Trouble creating {0}***", zptvTotalId);
               }
+
+              // if user is creating opti ptvs, want to crop avoids from the opti ptv total (ptv total w/ margin specified by user)
+              if (CreateOptis_CB.IsChecked == true)
+              {
+                // set grow margin for otpti ptvs
+                if (int.TryParse(OptiGrowMargin_TextBox.Text, out zoptiGrowMargin))
+                {
+                  //parsing successful 
+                }
+                else
+                {
+                  //parsing failed. 
+                  zoptiGrowMargin = DEFAULT_OPTI_GROW_MARGIN;
+                  MessageBox.Show(string.Format("Oops, an invalid value was used for the opti structure grow margin ({0}). The DEFAULT of {1} mm will be used.", OptiGrowMargin_TextBox.Text, DEFAULT_OPTI_GROW_MARGIN));
+                }
+
+                // remove if already there
+                Helpers.RemoveStructure(ss, zoptiTotalId);
+
+                // add empty zopti total structure
+                zoptiTotal = ss.AddStructure(OPTI_DICOM_TYPE, zoptiTotalId);
+                MESSAGES += string.Format("\r\n\t- Structure Added: {0}", zoptiTotalId);
+
+                // zopti total
+                zoptiTotal.SegmentVolume = zptvTotal.SegmentVolume.Margin(zoptiGrowMargin);
+                MESSAGES += string.Format("\r\n\t- {0} mm margin added to {1}", zoptiGrowMargin, zoptiTotalId);
+
+                if (needHRStructures)
+                {
+                  // zopti total HR
+                  zoptiTotalHR.SegmentVolume = zptvTotalHR.SegmentVolume.Margin(zoptiGrowMargin);
+                  MESSAGES += string.Format("\r\n\t- {0} mm margin added to {1}", zoptiGrowMargin, zoptiTotalId);
+                }
+              }
+
+              // crop zptvtotal from body
+              try
+              {
+                if (zptvTotal.IsHighResolution)
+                {
+                  zptvTotal.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zptvTotal, bodyHR, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                  //MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From High Res Body Surface", zptvTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                }
+                else
+                {
+                  zptvTotal.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zptvTotal, body, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                  //MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From Body Surface", zptvTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                }
+              }
+              catch
+              {
+                MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body Surface***", zptvTotal.Id);
+              }
+
+              // crop zopti total from body
+              if (CreateOptis_CB.IsChecked == true)
+              {
+                try
+                {
+                  if (zoptiTotal.IsHighResolution)
+                  {
+                    zoptiTotal.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zoptiTotal, bodyHR, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                    //MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From High Res Body Surface", zoptiTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                  }
+                  else
+                  {
+                    zoptiTotal.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zoptiTotal, body, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                    //MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From Body Surface", zoptiTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                  }
+                }
+                catch
+                {
+                  MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body Surface***", zoptiTotal.Id);
+                }
+
+                // crop zopti total HR from body
+                if (needHRStructures)
+                {
+                  try
+                  {
+                    zoptiTotalHR.SegmentVolume = Helpers.CropOutsideBodyWithMargin(zoptiTotalHR, bodyHR, -DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                    //MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From High Res Body Surface", zoptiTotal.Id, DEFAULT_OPTI_CROP_FROM_BODY_MARGIN);
+                  }
+                  catch
+                  {
+                    MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body Surface***", zoptiTotalHR.Id);
+                  }
+                }
+              }
+
             }
-
           }
-
           #endregion create zopti total
 
           #region avoidance structures
@@ -987,7 +1036,6 @@ namespace OptiAssistant
                   int avoidTarget4CropMargin = DEFAULT_AVOIDANCE_CROP_MARGIN;
 
                   var targetNumber = 1;
-                  var targetsToCreateAvoidsFor = new List<string>();
 
                   // define avoid targets
                   if (AvoidTarget1_Radio.IsChecked == true)
@@ -1230,14 +1278,14 @@ namespace OptiAssistant
 
                   foreach (var t in targetsToCreateAvoidsFor)
                   {
-                    avId = string.Format("{0} {1} {2}",
+                    avId = string.Format("{0} {1}-{2}",
                                             avPrefix,
                                             targetNumber,
                                             Helpers.ProcessStructureId(oar.Id.ToString(), MAX_ID_LENGTH - (avPrefix.Length + 2)) // +# to account for strongly typed characters/spaces beyond those already accounted for
                     );
 
-                    var avoidTargetHRId = string.Format("zz{0}_HR", Helpers.ProcessStructureId(t, MAX_ID_LENGTH - 5));
-                    var avoidTargetId = string.Format("zz{0}", Helpers.ProcessStructureId(t, MAX_ID_LENGTH - 5)); // still minus 5 (same as hr structure) to allow only one id to be defined later when removing these two structures
+                    var avoidTargetHRId = string.Format("zzz{0}_HR", Helpers.ProcessStructureId(t, MAX_ID_LENGTH - 6));
+                    var avoidTargetId = string.Format("zzz{0}_Id", Helpers.ProcessStructureId(t, MAX_ID_LENGTH - 6)); // still minus 5 (same as hr structure) to allow only one id to be defined later when removing these two structures
 
                     Helpers.RemoveStructure(ss, avoidTargetId);
 
@@ -1493,7 +1541,7 @@ namespace OptiAssistant
               if (DoseLevel1_Radio.IsChecked == true)
               {
                 doseLevel1Target = Helpers.GetStructure(ss, DoseLevel1_Combo.SelectedItem.ToString());
-                MessageBox.Show(string.Format("Dose Level 1 Set to: {0}", doseLevel1Target.Id));
+                hasOneDoseLevel = true;
               }
               else if (DoseLevel2_Radio.IsChecked == true)
               {
@@ -1643,7 +1691,7 @@ namespace OptiAssistant
                 try
                 {
                   // ci structure id
-                  var ciId = string.Format("{0} {1}", DEFAULT_CI_PREFIX, Helpers.ProcessStructureId(ptv.Id.ToString(), MAX_ID_LENGTH - DEFAULT_CI_PREFIX.Length));
+                  var ciId = string.Format("{0}_{1}", DEFAULT_CI_PREFIX, Helpers.ProcessStructureId(ptv.Id.ToString(), MAX_ID_LENGTH - DEFAULT_CI_PREFIX.Length));
 
                   // set ci grow margin
                   var ciGrowMargin = DEFAULT_CI_GROW_MARGIN;
@@ -1685,7 +1733,7 @@ namespace OptiAssistant
                 try
                 {
                   // r50 structure id
-                  var r50Id = string.Format("{0} {1}", DEFAULT_R50_PREFIX, Helpers.ProcessStructureId(ptv.Id.ToString(), MAX_ID_LENGTH - DEFAULT_R50_PREFIX.Length));
+                  var r50Id = string.Format("{0}_{1}", DEFAULT_R50_PREFIX, Helpers.ProcessStructureId(ptv.Id.ToString(), MAX_ID_LENGTH - DEFAULT_R50_PREFIX.Length));
 
                   // set r50 grow margin
                   var r50GrowMargin = DEFAULT_R50_GROW_MARGIN;
@@ -1750,6 +1798,7 @@ namespace OptiAssistant
             {
               try
               {
+                if (hasOneDoseLevel) {  }
                 // if multiple dose levels need to set opti crop margin as well as determine which targets correspond to which dose levels
                 if (hasTwoDoseLevels)
                 {
@@ -1936,63 +1985,66 @@ namespace OptiAssistant
                 // loop through the optis that were made
                 foreach (var opti in optisMade)
                 {
-                  // if two dose levels defined
-                  if (hasTwoDoseLevels)
+                  try
                   {
-                    if (opti1 != null && opti2 != null)
+                    if (hasOneDoseLevel) { }
+                    // if two dose levels defined
+                    if (hasTwoDoseLevels)
                     {
-                      // crop opti 1 from opti 2
-                      if (opti.Id == opti1.Id)
+                      if (opti1 != null && opti2 != null)
                       {
-                        opti.SegmentVolume = Helpers.CropOpti(opti, opti2, doseLevel1CropMargin);
+                        // crop opti 1 from opti 2
+                        if (opti.Id == opti1.Id)
+                        {
+                          opti.SegmentVolume = Helpers.CropOpti(opti, opti2, doseLevel1CropMargin);
+                        }
+                      }
+                    }
+                    // if three dose levels defined
+                    else if (hasThreeDoseLevels)
+                    {
+                      if (opti1 != null && opti2 != null && opti3 != null)
+                      {
+                        // crop opti 1 from optis 2 and 3
+                        if (opti.Id == opti1.Id)
+                        {
+                          opti.SegmentVolume = Helpers.CropOpti(opti, opti2, doseLevel1CropMargin);
+                          opti.SegmentVolume = Helpers.CropOpti(opti, opti3, doseLevel1CropMargin);
+                        }
+                        // crop opti 2 from opti 3
+                        if (opti.Id == opti2.Id)
+                        {
+                          opti.SegmentVolume = Helpers.CropOpti(opti, opti3, doseLevel2CropMargin);
+                        }
+                      }
+                    }
+                    // if four dose levels defined
+                    else if (hasFourDoseLevels)
+                    {
+                      if (opti1 != null && opti2 != null && opti3 != null && opti4 != null)
+                      {
+                        // crop opti 1 from optis 2, 3, and 4
+                        if (opti.Id == opti1.Id)
+                        {
+                          opti.SegmentVolume = Helpers.CropOpti(opti, opti2, doseLevel1CropMargin);
+                          opti.SegmentVolume = Helpers.CropOpti(opti, opti3, doseLevel1CropMargin);
+                          opti.SegmentVolume = Helpers.CropOpti(opti, opti4, doseLevel1CropMargin);
+                        }
+                        // crop opti 2 from optis 3 and 4
+                        if (opti.Id == opti2.Id)
+                        {
+                          opti.SegmentVolume = Helpers.CropOpti(opti, opti3, doseLevel2CropMargin);
+                          opti.SegmentVolume = Helpers.CropOpti(opti, opti4, doseLevel2CropMargin);
+                        }
+                        // crop opti 3 from opti 4
+                        if (opti.Id == opti3.Id)
+                        {
+                          opti.SegmentVolume = Helpers.CropOpti(opti, opti4, doseLevel3CropMargin);
+                        }
                       }
                     }
                   }
-                  // if three dose levels defined
-                  else if (hasThreeDoseLevels)
-                  {
-                    if (opti1 != null && opti2 != null && opti3 != null)
-                    {
-                      // crop opti 1 from optis 2 and 3
-                      if (opti.Id == opti1.Id)
-                      {
-                        opti.SegmentVolume = Helpers.CropOpti(opti, opti2, doseLevel1CropMargin);
-                        opti.SegmentVolume = Helpers.CropOpti(opti, opti3, doseLevel1CropMargin);
-                      }
-                      // crop opti 2 from opti 3
-                      if (opti.Id == opti2.Id)
-                      {
-                        opti.SegmentVolume = Helpers.CropOpti(opti, opti3, doseLevel2CropMargin);
-                      }
-                    }
-                  }
-                  // if four dose levels defined
-                  else if (hasFourDoseLevels)
-                  {
-                    if (opti1 != null && opti2 != null && opti3 != null && opti4 != null)
-                    {
-                      // crop opti 1 from optis 2, 3, and 4
-                      if (opti.Id == opti1.Id)
-                      {
-                        opti.SegmentVolume = Helpers.CropOpti(opti, opti2, doseLevel1CropMargin);
-                        opti.SegmentVolume = Helpers.CropOpti(opti, opti3, doseLevel1CropMargin);
-                        opti.SegmentVolume = Helpers.CropOpti(opti, opti4, doseLevel1CropMargin);
-                      }
-                      // crop opti 2 from optis 3 and 4
-                      if (opti.Id == opti2.Id)
-                      {
-                        opti.SegmentVolume = Helpers.CropOpti(opti, opti3, doseLevel2CropMargin);
-                        opti.SegmentVolume = Helpers.CropOpti(opti, opti4, doseLevel2CropMargin);
-                      }
-                      // crop opti 3 from opti 4
-                      if (opti.Id == opti3.Id)
-                      {
-                        opti.SegmentVolume = Helpers.CropOpti(opti, opti4, doseLevel3CropMargin);
-                      }
-                    }
-                  }
-
-                  else
+                  catch
                   {
                     MessageBox.Show("Oops, something went wrong while Cropping Opti PTVs");
                   }
@@ -2085,15 +2137,15 @@ namespace OptiAssistant
               }
             }
 
-            foreach (var item in PTVListForRings_LV.Items)
+            // create rings
+            foreach (var ptvId in selectedPTVsForRings)
             {
-              var ptv = item as StructureItem;
 
-              var target = ss.Structures.Single(st => st.Id == ptv.Id.ToString());
+              var target = ss.Structures.Single(st => st.Id == ptvId);
               for (var i = 0; i < ringCount; i++)
               {
                 var ringNum = i + 1;
-                var ringId = string.Format("{0} {1} {2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - (ringPrefix.Length + 1 + ringNum.ToString().Length)), ringNum);
+                var ringId = string.Format("{0}_{1}-{2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - (ringPrefix.Length + 1 + ringNum.ToString().Length)), ringNum);
 
                 // remove ring structure if present in ss
                 Helpers.RemoveStructure(ss, ringId);
@@ -2109,35 +2161,15 @@ namespace OptiAssistant
                 ringStructure.SegmentVolume = Helpers.CropStructure(ringStructure, target, cropMargin: ringCropFromTargetMargin);
                 MESSAGES += string.Format("\r\n\t- {0} Cropped from INSIDE {1} with {2} mm margin", ringStructure.Id, target.Id, ringCropFromTargetMargin);
 
-                // crop ring outside body
-                try
-                {
-                  ringStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(ringStructure, body, cropMargin: 0);
-                  MESSAGES += string.Format("\r\n\t- {0} Cropped OUTSIDE {1} with {2} mm margin", ringStructure.Id, body.Id, 0);
-                }
-                catch
-                {
-                  try
-                  {
-                    ringStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(ringStructure, bodyHR, cropMargin: 0);
-                    MESSAGES += string.Format("\r\n\t- {0} Cropped OUTSIDE {1} with {2} mm margin", ringStructure.Id, bodyHR.Id, 0);
-                  }
-                  catch
-                  {
-                    MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body Surface***", ringStructure.Id);
-                  }
-                }
-
-
+                // add to list for cropping later
                 ringStructures.Add(ringStructure);
-
               }
 
-
+              // crop rings from one another
               for (var i = ringCount; i > 1; i--)
               {
-                var currentRingId = string.Format("{0} {1} {2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - (ringPrefix.Length + 1 + i.ToString().Length)), i);
-                var nextLargestRingId = string.Format("{0} {1} {2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - (ringPrefix.Length + 1 + (i-1).ToString().Length)), i - 1);
+                var currentRingId = string.Format("{0}_{1}-{2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - (ringPrefix.Length + 1 + i.ToString().Length)), i);
+                var nextLargestRingId = string.Format("{0}_{1}-{2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - (ringPrefix.Length + 1 + (i-1).ToString().Length)), i - 1);
                 try
                 {
                   var currentRing = ss.Structures.Single(st => st.Id == currentRingId);
@@ -2152,6 +2184,24 @@ namespace OptiAssistant
                 }
               }
             }
+
+            // crop rings from body structure -- if opton checked
+            if (CropRingsFromBody_CB.IsChecked == true)
+            {
+              foreach (var ring in ringStructures)
+              {
+                try
+                {
+                  if (ring.IsHighResolution) { ring.SegmentVolume = Helpers.CropOutsideBodyWithMargin(ring, bodyHR, 0); }
+                  else { ring.SegmentVolume = Helpers.CropOutsideBodyWithMargin(ring, body, 0); }
+                  MESSAGES += string.Format("\r\n\t- {0} Cropped OUTSIDE {1} with {2} mm margin", ring.Id, body.Id, 0);
+                }
+                catch
+                {
+                  MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body Surface***", ring.Id);
+                }
+              }
+            }
           }
 
           #endregion ring structures
@@ -2159,7 +2209,7 @@ namespace OptiAssistant
           #region clean up structure set
 
           // remove temporary high res structures
-          var toRemove = new List<string> { bodyHRId, zptvTotalHRId, zoptiTotalHRId, "zzzTEMP" };
+          var toRemove = new List<string> { bodyHRId, zptvTotalHRId, zoptiTotalHRId, "zzzTEMP", "zzzzTEMP" };
           foreach (var id in toRemove)
           {
             try
@@ -2171,35 +2221,64 @@ namespace OptiAssistant
               MessageBox.Show("Trouble removing " + id);
             }
           }
-          //try
-          //{
-          //  Helpers.RemoveStructure(ss, bodyHRId);
-          //}
-          //Helpers.RemoveStructure(ss, zptvTotalHRId);
-          //Helpers.RemoveStructure(ss, zoptiTotalHRId);
-          //Helpers.RemoveStructure(ss, "zzzTEMP"); // keep!!! used when booleaning structures -- Helpers.BooleanStructures()
-          foreach (var t in sorted_ptvList)
+          
+          if (targetsToCreateAvoidsFor.Count > 0)
           {
-            if (ss.Structures.Where(x => x.Id.ToLower() == t.Id.ToLower()).ToList().Count > 1)
+            foreach (var t in targetsToCreateAvoidsFor)
             {
-              var tempId = Helpers.ProcessStructureId(t.Id.ToString(), MAX_ID_LENGTH - 5);
               try
               {
-                Helpers.RemoveStructure(ss, string.Format("zz{0}_HR", tempId));
+                //if (ss.Structures.Where(x => x.Id.ToLower() == t.ToLower()).ToList().Count > 1)
+                //{
+                var tempId = Helpers.ProcessStructureId(t, MAX_ID_LENGTH - 5);
+                try
+                {
+                  Helpers.RemoveStructure(ss, string.Format("zzz{0}_HR", tempId));
+                }
+                catch
+                {
+                }
+                try
+                {
+                  Helpers.RemoveStructure(ss, string.Format("zzz{0}_Id", tempId));
+                }
+                catch
+                {
+                }
+                //}
               }
               catch
               {
+
               }
+
+            }
+          }
+          if (needHRStructures && (CreateOptis_CB.IsChecked == true || CreateAvoids_CB.IsChecked == true))
+          {
+            foreach (var t in sorted_ptvList)
+            {
               try
               {
-                Helpers.RemoveStructure(ss, string.Format("zz{0}", tempId));
+                //if (ss.Structures.Where(x => x.Id.ToLower() == t.ToLower()).ToList().Count > 1)
+                //{
+                var tempId = Helpers.ProcessStructureId(t.Id, MAX_ID_LENGTH - 5);
+                try
+                {
+                  Helpers.RemoveStructure(ss, string.Format("zz{0}_HR", tempId));
+                }
+                catch
+                {
+                }
+                //}
               }
               catch
               {
+
               }
             }
-
           }
+
 
           #endregion clean up structure set
 
@@ -2448,7 +2527,7 @@ namespace OptiAssistant
 
     #region boolean structure button events
 
-
+    // create boolean option click event
     private void CreateBoolean_CB_Click(object sender, RoutedEventArgs e)
     {
       // toggle boolean tool section
@@ -2456,24 +2535,23 @@ namespace OptiAssistant
       else { BooleanedStructure_SP.Visibility = Visibility.Collapsed; }
     }
 
+    // bool operation add cb click event
     private void BoolOperationAdd_CB_Click(object sender, RoutedEventArgs e)
     {
       handleBoolOperationSelection(sender as CheckBox);
     }
-
+    
+    // bool operation subtract cb click event
     private void BoolOperationSubtract_CB_Click(object sender, RoutedEventArgs e)
     {
       handleBoolOperationSelection(sender as CheckBox);
     }
-
+    
+    // bool operation type event
     private void handleBoolOperationSelection(CheckBox cb)
     {
       var add = "BoolOperationAdd_CB";
       var sub = "BoolOperationSubtract_CB";
-
-      //MessageBox.Show(cb.Name + " : " + cb.IsChecked);
-
-
 
       if (cb.IsChecked == true)
       {
@@ -2499,6 +2577,56 @@ namespace OptiAssistant
       }
     }
 
+    // create boolean structure with margin checkbox
+    private void CreateBooleanWitMargin_CB_Click(object sender, RoutedEventArgs e)
+    {
+      if (BooleanedMarginOptions_SP.Visibility == Visibility.Collapsed)
+        BooleanedMarginOptions_SP.Visibility = Visibility.Visible;
+      else
+        BooleanedMarginOptions_SP.Visibility = Visibility.Collapsed;
+    }
+
+    // boolean margin type cb event
+    private void handleBoolMarginTypeSelection(CheckBox cb)
+    {
+      var outer = "OuterMargin_CB";
+      var inner = "InnerMargin_CB";
+
+      if (cb.IsChecked == true)
+      {
+        if (cb.Name == outer)
+        {
+          InnerMargin_CB.IsChecked = false;
+        }
+        if (cb.Name == inner)
+        {
+          OuterMargin_CB.IsChecked = false;
+        }
+      }
+      if (cb.IsChecked == false)
+      {
+        if (cb.Name == outer)
+        {
+          InnerMargin_CB.IsChecked = true;
+        }
+        if (cb.Name == inner)
+        {
+          OuterMargin_CB.IsChecked = true;
+        }
+      }
+    }
+
+    // outer cb click event
+    private void OuterMargin_CB_Click(object sender, RoutedEventArgs e)
+    {
+      handleBoolMarginTypeSelection(sender as CheckBox);
+    }
+    // inner cb click event
+    private void InnerMargin_CB_Click(object sender, RoutedEventArgs e)
+    {
+      handleBoolMarginTypeSelection(sender as CheckBox);
+    }
+
     // for production
     private void CreateBooleanedStructure_Btn_Click(object sender, RoutedEventArgs e)
     {
@@ -2507,9 +2635,32 @@ namespace OptiAssistant
       Regex rx = new Regex(@"^[a-zA-Z0-9_-]+$",
                             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+      var validBoolMargin = true;
+
+      // set ring crop from target margin
+      if (BooleanMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(BooleanMargin_TextBox.Text))
+      {
+        validBoolMargin = false;
+      }
+      else
+      {
+        if (int.TryParse(BooleanMargin_TextBox.Text, out booleanedStructureGrowMargin))
+        {
+          //parsing successful 
+          if (InnerMargin_CB.IsChecked == true)
+            booleanedStructureGrowMargin = -booleanedStructureGrowMargin;
+        }
+        else
+        {
+          //parsing failed. 
+          validBoolMargin = false;
+        }
+      }
+
       // validation
-      if (!rx.IsMatch(BoolStructId_TextBox.Text)) { MessageBox.Show("Please enter a valid Structure Id \r\n\t- (hint: can only use letters, numbers, dashes, and underscores)"); okToContinue = false; return; }
+      if (!rx.IsMatch(BoolStructId_TextBox.Text) || BoolStructId_TextBox.Text == "") { MessageBox.Show("Please enter a valid Structure Id \r\n\t- (hint: can only use letters, numbers, dashes, and underscores)"); okToContinue = false; return; }
       if (BoolBaseStruct_Combo.SelectedIndex == -1) { MessageBox.Show("Please select a base structure"); okToContinue = false; return; }
+      if (CreateBooleanWitMargin_CB.IsChecked == true && validBoolMargin == false) { MessageBox.Show("Please enter a valid integer value for the booleaned structure margin"); okToContinue = false; return; }
       if (BoolBaseStruct_Combo.SelectedIndex >= 0)
       {
         // if the structure exists already
@@ -2644,6 +2795,8 @@ namespace OptiAssistant
                 // returns a segment volume of the CROP of the one structure from the other with the provided margin
                 newStructure.SegmentVolume = Helpers.CropStructure(baseStructure.SegmentVolume, booleanOfSelectedStructures, 0);
               }
+              // add margin if option selected
+              if (CreateBooleanWitMargin_CB.IsChecked == true) { newStructure.SegmentVolume = Helpers.AddMargin(newStructure, booleanedStructureGrowMargin); }
 
               // remove temp structs for good
               counter = 0;
@@ -2658,8 +2811,10 @@ namespace OptiAssistant
             // if no structures selected to boolean/add or subtract
             else
             {
+              // copy base structure
               newStructure.SegmentVolume = baseStructure.SegmentVolume;
-              MessageBox.Show("No structures were selected to add/subtract so the new structure is a copy of the base structure");
+              // add margin if option selected
+              if (CreateBooleanWitMargin_CB.IsChecked == true) { newStructure.SegmentVolume = Helpers.AddMargin(newStructure, booleanedStructureGrowMargin); }
             }
             // remove temp bool structure
             Helpers.RemoveStructure(ss, booleanOfSelectedStructuresId);
@@ -2688,12 +2843,16 @@ namespace OptiAssistant
                 // returns a segment volume of the CROP of the one structure from the other with the provided margin
                 newStructure.SegmentVolume = Helpers.CropStructure(baseStructure.SegmentVolume, booleanOfSelectedStructures, 0);
               }
+              // add margin if option selected
+              if (CreateBooleanWitMargin_CB.IsChecked == true) { newStructure.SegmentVolume = Helpers.AddMargin(newStructure, booleanedStructureGrowMargin); }
             }
             // if no structures selected to add/subtract
             else
             {
+              // copy base structure
               newStructure.SegmentVolume = baseStructure.SegmentVolume;
-              MessageBox.Show("No structures were selected to add/subtract so the new structure is a copy of the base structure");
+              // add margin if option selected
+              if (CreateBooleanWitMargin_CB.IsChecked == true) { newStructure.SegmentVolume = Helpers.AddMargin(newStructure, booleanedStructureGrowMargin); }
             }
             // remove temp struct for good
             Helpers.RemoveStructure(ss, booleanOfSelectedStructuresId);
@@ -2881,6 +3040,8 @@ namespace OptiAssistant
       if (textBox != null)
         textBox.SelectAll();
     }
+
+  
 
     #endregion highlight text on tab focus
 

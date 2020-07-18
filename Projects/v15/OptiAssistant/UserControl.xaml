@@ -334,9 +334,10 @@
                                       <ControlTemplate TargetType="ListBoxItem">
                                         <CheckBox IsChecked="{Binding IsSelected}"
                                         Style="{StaticResource GreenCheckMark}"
-                                        Content="{Binding Id}"
-                                        Margin="5,2">
-                                        </CheckBox>
+                                        Margin="5,2"
+                                                  Width="150">
+                                        <TextBlock Text="{Binding Id}"></TextBlock>
+                                      </CheckBox>
 
                                       </ControlTemplate>
                                     </Setter.Value>
@@ -780,9 +781,10 @@
                                     <ControlTemplate TargetType="ListBoxItem">
                                       <CheckBox IsChecked="{Binding IsSelected}"
                                         Style="{StaticResource GreenCheckMark}"
-                                        Content="{Binding Id}"
-                                        Margin="5,2">
-                                      </CheckBox>
+                                        Margin="5,2"
+                                                Width="150">
+                                      <TextBlock Text="{Binding Id}"></TextBlock>
+                                    </CheckBox>
 
                                     </ControlTemplate>
                                   </Setter.Value>
@@ -1327,7 +1329,8 @@
                     <StackPanel Background="#E1E1E1">
                       <StackPanel Orientation="Horizontal"
                           Background="White"
-                          Margin="0,5,0,5">
+                          Margin="0,5,0,5"
+                                  >
                         <StackPanel Width="350"
                             Margin="5,0">
                           <Label x:Name="Ring_Label"
@@ -1363,9 +1366,10 @@
                                     <ControlTemplate TargetType="ListBoxItem">
                                       <CheckBox IsChecked="{Binding IsSelected}"
                                         Style="{StaticResource GreenCheckMark}"
-                                        Content="{Binding Id}"
-                                        Margin="5,2">
-                                      </CheckBox>
+                                        Margin="5,2"
+                                                Width="150">
+                                      <TextBlock Text="{Binding Id}" />
+                                    </CheckBox>
 
                                     </ControlTemplate>
                                   </Setter.Value>
@@ -1516,7 +1520,23 @@
                             </StackPanel>
                           </StackPanel>
 
+                        <StackPanel Orientation="Vertical"
+                                HorizontalAlignment="Center"
+                                Margin="0,5,0,5">
+
+                          <CheckBox Content="Crop Outside Body"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Left"
+                                FontSize="13"
+                                Style="{StaticResource GreenCheckMark}"
+                                Margin="5,3"                                x:Name="CropRingsFromBody_CB"
+                                IsChecked="True"/>
+
                         </StackPanel>
+
+                      </StackPanel>
                       </StackPanel>
                     </StackPanel>
                   </Border>
@@ -1533,20 +1553,20 @@
                           Background="White"
                           Margin="0,5,0,5">
                         <StackPanel Width="350"
-                            Margin="5,0">
+                            Margin="5,0"
+                            Height="202">
 
                           <!--New Structure Id-->
                           <Label Content="Basic Boolean Operations Tool"
                           HorizontalAlignment="Center"/>
-                          <TextBlock Text="Create up to five (5) new structures using basic boolean operations"
-                              TextWrapping="Wrap"
-                              FontSize="12"
-                              FontStyle="Italic"
-                              HorizontalAlignment="Center"/>
-                          <StackPanel>
+
+                        
+
+
+                        <StackPanel>
 
                             <StackPanel Orientation="Horizontal"
-                                    Margin="5,5,5,-20"
+                                    Margin="0,5,0,-20"
                                     HorizontalAlignment="Center">
 
                               <Label Content="Structure Id"
@@ -1554,11 +1574,11 @@
                                   HorizontalContentAlignment="Center"/>
                               <Label Content="Base Structure"
                                   Width="100" 
-                                  Margin="10,0"
+                                  Margin="15,0"
                                   HorizontalContentAlignment="Center"/>
                               <Label Content="Operation"
                                   Width="100" 
-                                  Margin="5,0"
+                                  Margin="0"
                                   HorizontalContentAlignment="Center"/>
 
                             </StackPanel>
@@ -1574,12 +1594,12 @@
                                   HorizontalContentAlignment="Center"/>
                               <Label Content="_____________________________"
                                   Width="100" 
-                                  Margin="10,0"
+                                  Margin="15,0"
                                   VerticalAlignment="Top"
                                   HorizontalContentAlignment="Center"/>
                               <Label Content="_____________________________"
                                   Width="100" 
-                                  Margin="5,0"
+                                  Margin="0,0,0,0"
                                   VerticalAlignment="Top"
                                   HorizontalContentAlignment="Center"/>
 
@@ -1589,7 +1609,7 @@
                                     HorizontalAlignment="Center"
                                     Margin="5">
 
-                              <TextBox Text="Bladder-CTV"
+                              <TextBox Text=""
                                   Width="100"
                                     Height="25"
                                   x:Name="BoolStructId_TextBox"
@@ -1601,7 +1621,7 @@
                                   VerticalContentAlignment="Center"/>
                               <ComboBox x:Name="BoolBaseStruct_Combo"
                                     Width="100"
-                                    Margin="10,0"
+                                    Margin="15,0"
                                     Height="25"
                                     FontSize="12"
                                     Background="#F5F7FA"
@@ -1609,7 +1629,7 @@
                                     VerticalContentAlignment="Center"/>
                               <StackPanel Orientation="Horizontal"
                                       Width="100"
-                                      Margin="5,0"
+                                      Margin="0"
                                       HorizontalAlignment="Center">
 
                                 <CheckBox Content="+"
@@ -1638,7 +1658,88 @@
 
                             </StackPanel>
 
+                          <!--margin options-->
+
+                          <!--Label-->
+                          <StackPanel Orientation="Horizontal"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,5,0,0"
+                                      >
+                            <Label Content="Margin Options"
+                              VerticalAlignment="Center"
+                              FontSize="14"
+                              />
                           </StackPanel>
+                          <!--Divider-->
+                          <Label Content="__________________________________________________________"
+                              Margin="0,-20,0,0"
+                              HorizontalAlignment="Center"
+                              VerticalContentAlignment="Top"
+                              FontSize="14"
+                              />
+                          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <CheckBox Content="Create w/ Margin"
+                                      Margin="-13, 0, 0, 5"
+                                      VerticalAlignment="Center"
+                                      HorizontalContentAlignment="Center"
+                                      HorizontalAlignment="Center"
+                                      VerticalContentAlignment="Bottom"
+                                      x:Name="CreateBooleanWitMargin_CB"
+                                      Click="CreateBooleanWitMargin_CB_Click"
+                                      Style="{StaticResource GreenCheckMark}"
+                                      IsChecked="False"/>
+                          </StackPanel>
+
+
+                          <StackPanel Orientation="Horizontal" 
+                                      HorizontalAlignment="Center"
+                                      x:Name="BooleanedMarginOptions_SP"
+                                      Visibility="Collapsed">
+                            
+                            <CheckBox Content="Outer"
+                                      VerticalAlignment="Center"
+                                      HorizontalContentAlignment="Center"
+                                      HorizontalAlignment="Center"
+                                      Margin="5,0"
+                                      VerticalContentAlignment="Bottom"
+                                      x:Name="OuterMargin_CB"
+                                      Click="OuterMargin_CB_Click"
+                                      Style="{StaticResource GreenCheckMark}"
+                                      IsChecked="True"/>
+
+                            <CheckBox Content="Inner"
+                                      VerticalAlignment="Center"
+                                      HorizontalContentAlignment="Center"
+                                      HorizontalAlignment="Center"
+                                      Margin="5,0"
+                                      VerticalContentAlignment="Bottom"
+                                      x:Name="InnerMargin_CB"
+                                      Click="InnerMargin_CB_Click"
+                                      Style="{StaticResource GreenCheckMark}"
+                                      IsChecked="False"/>
+
+
+                            <TextBox Width="40"
+                                  x:Name="BooleanMargin_TextBox"
+                                  Background="#0A558C"
+                                  Foreground="White"
+                                  GotFocus="SelectAllText"
+                                  TextAlignment="Center"
+                                  Margin="15,0,0,0"
+                                  FontSize="12"
+                                     Height="22"
+                                  VerticalContentAlignment="Center"
+                                  Text="0"/>
+
+                            <TextBlock Text="mm (The default is 0mm)"
+                                FontSize="12"
+                                FontStyle="Italic"
+                                VerticalAlignment="Center"
+                                Margin="5,0"/>
+
+                          </StackPanel>
+
+                        </StackPanel>
                           <!--base structure-->
 
                         </StackPanel>
@@ -1664,7 +1765,7 @@
                               Margin="5"
                               Width="auto"
                               MinHeight="100" 
-                              MaxHeight="375"
+                              MaxHeight="300"
                               SelectionMode="Multiple"
                               ItemsSource="{Binding booleanListBoxItems}"
                               Height="auto" 
@@ -1678,16 +1779,18 @@
                                 <Setter Property="SnapsToDevicePixels" Value="true" />
                                 <Setter Property="HorizontalAlignment" Value="Left" />
                                 <Setter Property="Margin" Value="50,0,20,0" />
+                                
                                 <Setter Property="Template">
                                   <Setter.Value>
                                     <ControlTemplate TargetType="ListBoxItem">
                                       <CheckBox IsChecked="{Binding IsSelected}"
                                         Style="{StaticResource GreenCheckMark}"
-                                        Content="{Binding Id}"
-                                        Margin="5,2">
-                                      </CheckBox>
+                                        Margin="5,2"
+                                                Width="150">
+                                      <TextBlock Text="{Binding Id}" />
+                                    </CheckBox>
 
-                                    </ControlTemplate>
+                                  </ControlTemplate>
                                   </Setter.Value>
                                 </Setter>
                               </Style>
