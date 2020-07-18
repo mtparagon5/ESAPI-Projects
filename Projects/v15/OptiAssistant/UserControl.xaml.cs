@@ -3011,6 +3011,10 @@ namespace OptiAssistant
       var s1 = ss.Structures.First(x => x.Id == OverlapStructure1_Combo.SelectedItem.ToString());
       var s2 = ss.Structures.First(x => x.Id == OverlapStructure2_Combo.SelectedItem.ToString());
 
+      var tempS1Id = "zzztempS1";
+      var tempS2Id = "zzztempS2";
+
+
       var volOverlap = 0.0;
       Tuple<double, double> percents = null;
       //var pctS1 = 0.0;
@@ -3039,7 +3043,6 @@ namespace OptiAssistant
       {
         if (s1.IsHighResolution)
         {
-          var tempS2Id = "zzztempS2";
           Helpers.RemoveStructure(ss, tempS2Id);
           var tempS2 = ss.AddStructure(s2.DicomType.ToString(), tempS2Id);
           tempS2.SegmentVolume = s2.SegmentVolume;
@@ -3053,7 +3056,6 @@ namespace OptiAssistant
 
         else if (s2.IsHighResolution)
         {
-          var tempS1Id = "zzztempS1";
           Helpers.RemoveStructure(ss, tempS1Id);
           var tempS1 = ss.AddStructure(s2.DicomType.ToString(), tempS1Id);
           tempS1.SegmentVolume = s1.SegmentVolume;
@@ -3071,7 +3073,9 @@ namespace OptiAssistant
       PctStructure1_Label.Content = percents.Item1.ToString();
       PctStructure2_Label.Content = percents.Item2.ToString();
 
-      
+      try { Helpers.RemoveStructure(ss, tempS1Id); } catch { }
+      try { Helpers.RemoveStructure(ss, tempS2Id); } catch { }
+
     }
 
     /// <summary>
