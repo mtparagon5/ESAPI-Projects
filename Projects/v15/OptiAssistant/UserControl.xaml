@@ -209,7 +209,7 @@
           </StackPanel>
 
 
-          <ScrollViewer CanContentScroll="True" MaxHeight="900" MaxWidth="1250" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible">
+          <ScrollViewer CanContentScroll="True" MaxHeight="850" Width="1250" MaxWidth="1250" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible">
 
             <!-- main panel -->
             <StackPanel Orientation="Vertical"
@@ -218,7 +218,7 @@
               <!--Tool Selections-->
               <StackPanel Orientation="Vertical"
                       VerticalAlignment="Center"
-                      Margin="25">
+                      Margin="10">
                 <!-- row 1 -->
                 <Border Padding="10"
                       CornerRadius="10"
@@ -230,16 +230,14 @@
                         HorizontalAlignment="Center"
                           Background="White">
 
-                    <Label Content="What would you like to create?"
+                    <Label Content="What would you like to create/do?"
                       VerticalAlignment="Center"
-                      Width="225"
-                      Margin="5,0"/>
+                      Margin="5,0,15,0"/>
 
                     <CheckBox Content="Avoid Structures"
                         VerticalAlignment="Center"
                         VerticalContentAlignment="Bottom"
-                        Margin="5,0"
-                        Width="150"
+                        Margin="15,0"
                         x:Name="CreateAvoids_CB"
                         Click="CreateAvoids_CB_Click"
                         Style="{StaticResource GreenCheckMark}"
@@ -247,16 +245,14 @@
                     <CheckBox Content="Opti Structures"
                         VerticalAlignment="Center"
                         VerticalContentAlignment="Bottom"
-                        Margin="5, 0"
-                        Width="150"
+                        Margin="15, 0"
                         x:Name="CreateOptis_CB"
                         Click="CreateOptis_CB_Click"
                         Style="{StaticResource GreenCheckMark}"
                         IsChecked="False"/>
                     <CheckBox Content="Ring Structures"
                         VerticalAlignment="Center"
-                        Margin="5,0"
-                        Width="150"
+                        Margin="15,0"
                         VerticalContentAlignment="Bottom"
                         x:Name="CreateRings_CB"
                         Click="CreateRingss_CB_Click"
@@ -264,15 +260,23 @@
                         IsChecked="False"/>
                     <CheckBox Content="Booleaned Structures"
                         VerticalAlignment="Center"
-                        Margin="5,0"
-                        Width="155"
+                        Margin="15,0"
                         VerticalContentAlignment="Bottom"
                         x:Name="CreateBoolean_CB"
                         Click="CreateBoolean_CB_Click"
                         Style="{StaticResource GreenCheckMark}"
                         IsChecked="False"/>
 
-                  </StackPanel>
+                    <CheckBox Content="Approximate Overlap"
+                          VerticalAlignment="Center"
+                          Margin="15,0,10,0"
+                          VerticalContentAlignment="Bottom"
+                          x:Name="ApproxOverlap_CB"
+                          Click="ApproxOverlap_CB_Click"
+                          Style="{StaticResource GreenCheckMark}"
+                          IsChecked="False"/>
+
+                </StackPanel>
 
                 </Border>
 
@@ -1560,9 +1564,6 @@
                           <Label Content="Basic Boolean Operations Tool"
                           HorizontalAlignment="Center"/>
 
-                        
-
-
                         <StackPanel>
 
                             <StackPanel Orientation="Horizontal"
@@ -1749,8 +1750,7 @@
                           Background="White"
                           Margin="0,5,0,5">
                         <StackPanel Width="350"
-                                    
-                            Margin="5,0">
+                                    Margin="5,0">
 
                           <!--structure list-->
                           <Label x:Name="Boolean_Label"
@@ -1823,7 +1823,191 @@
                     </StackPanel>
                   </Border>
 
-                </StackPanel>
+                  <!--overlap tool-->
+                <Border Padding="10"
+                      CornerRadius="10"
+                      BorderThickness="1"
+                      BorderBrush="#003E6B"
+                      x:Name="ApproximateOverlap_SP"
+                      Visibility="Collapsed">
+                  <StackPanel Background="#E1E1E1">
+                    <StackPanel Orientation="Horizontal"
+                          Background="White"
+                          Margin="0,5,0,5">
+                      <StackPanel Width="350"
+                            Margin="5,0"
+                            Height="202">
+
+                        <!--New Structure Id-->
+                        <Label Content="Fast Overlap Approximation Tool"
+                          HorizontalAlignment="Center"/>
+
+
+                        <StackPanel>
+
+                          <StackPanel Orientation="Horizontal"
+                                    Margin="0,5,0,-20"
+                                    HorizontalAlignment="Center">
+
+                            <Label Content="Structure 1"
+                                  Width="100" 
+                                   Margin="0,0,15,0"
+                                  HorizontalContentAlignment="Center"/>
+                            <Label Content="Structure 2"
+                                  Width="100" 
+                                  Margin="15,0,0,0"
+                                  HorizontalContentAlignment="Center"/>
+
+                          </StackPanel>
+                          
+
+                          <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Top"
+                                    Margin="0,0,0,5"
+                                    HorizontalAlignment="Center">
+
+                            <Label Content="_____________________________"
+                                  Width="100" 
+                                   Margin="0,0,15,0"
+                                  VerticalAlignment="Top"
+                                  HorizontalContentAlignment="Center"/>
+                            <Label Content="_____________________________"
+                                  Width="100" 
+                                  Margin="15,0,0,0"
+                                  VerticalAlignment="Top"
+                                  HorizontalContentAlignment="Center"/>
+
+                          </StackPanel>
+
+                          <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Margin="5">
+
+                            <ComboBox x:Name="OverlapStructure1_Combo"
+                                    Width="100"
+                                    Margin="15,0"
+                                    Height="25"
+                                    FontSize="12"
+                                    Background="#F5F7FA"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"/>
+                            <ComboBox x:Name="OverlapStructure2_Combo"
+                                    Width="100"
+                                    Margin="15,0"
+                                    Height="25"
+                                    FontSize="12"
+                                    Background="#F5F7FA"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"/>
+
+                          </StackPanel>
+
+
+                          <StackPanel Orientation="Horizontal"
+                                    Margin="0,5,0,-20"
+                                    HorizontalAlignment="Center">
+
+                            <Label Content="Overlap [cc]"
+                                  Width="100" 
+                                  Margin="0"
+                                  HorizontalContentAlignment="Center"/>
+                            <Label Content="S1 [%]"
+                                  Width="100" 
+                                  Margin="0"
+                                  HorizontalContentAlignment="Center"/>
+                            <Label Content="S2 [%]"
+                                  Width="100" 
+                                  Margin="0"
+                                  HorizontalContentAlignment="Center"/>
+
+                          </StackPanel>
+
+
+                          <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Top"
+                                    Margin="0,0,0,5"
+                                    HorizontalAlignment="Center">
+
+                            
+                            <Label Content="_____________________________"
+                                  Width="100" 
+                                  Margin="0"
+                                  VerticalAlignment="Top"
+                                  HorizontalContentAlignment="Center"/>
+                            <Label Content="_____________________________"
+                                  Width="80" 
+                                  Margin="10,0"
+                                  VerticalAlignment="Top"
+                                  HorizontalContentAlignment="Center"/>
+                            <Label Content="_____________________________"
+                                  Width="80" 
+                                  Margin="10, 0"
+                                  VerticalAlignment="Top"
+                                  HorizontalContentAlignment="Center"/>
+
+                          </StackPanel>
+
+                          <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Margin="5">
+
+                            <StackPanel Orientation="Horizontal"
+                                      Margin="0"
+                                      HorizontalAlignment="Center">
+
+                              <Label Content=""
+                                  Width="100" 
+                                  Margin="0"
+                                  HorizontalContentAlignment="Center"
+                                     x:Name="VolumeOverlapCC_Label"/>
+                              <Label Content=""
+                                  Width="100" 
+                                  Margin="0"
+                                  HorizontalContentAlignment="Center"
+                                     x:Name="PctStructure1_Label"/>
+                              <Label Content=""
+                                  Width="100" 
+                                  Margin="0"
+                                  HorizontalContentAlignment="Center"
+                                     x:Name="PctStructure2_Label"/>
+
+                            </StackPanel>
+
+
+                          </StackPanel>
+
+                        </StackPanel>
+                        <!--base structure-->
+
+                      </StackPanel>
+                    </StackPanel>
+
+
+                    <StackPanel Orientation="Horizontal"
+                              Margin="0,5,0,5">
+                      <StackPanel Width="350"
+                            Margin="5,0">
+
+                        <Button x:Name="ApproximateOverlap_Btn"
+                              Click="ApproximateOverlap_Btn_Click"
+                              Content="Approximate Overlap"
+                              FontSize="14"
+                              Width="250"
+                              Padding="5"
+                              Margin="5"
+                              Style="{StaticResource BlueRoundButtonTemplate}"
+                              VerticalContentAlignment="Center"
+                              VerticalAlignment="Center"
+                              HorizontalAlignment="Center"
+                              Cursor="Hand"/>
+
+                      </StackPanel>
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
+
+
+              </StackPanel>
 
               </StackPanel>
 
@@ -1836,7 +2020,7 @@
                     FontSize="14"
                     Width="450"
                     Padding="5"
-                    Margin="0,0,0,35"
+                    Margin="0,0,0,15"
                     Style="{StaticResource BlueRoundButtonTemplate}"
                     VerticalContentAlignment="Center"
                     VerticalAlignment="Center"
@@ -1846,11 +2030,11 @@
               </StackPanel>
 
               <!-- Instructions -->
-              <Border Padding="10"
+              <Border Padding="5"
                       CornerRadius="10"
                       BorderThickness="1"
                       BorderBrush="#003E6B"
-                      Margin="0,0,0,20"
+                      Margin="0,0,0,10"
                   HorizontalAlignment="Center"
                       x:Name="Instructions_SP"
                       Visibility="Collapsed">
@@ -1858,25 +2042,19 @@
                 <StackPanel Orientation="Vertical"
                       VerticalAlignment="Center"
                       Margin="5"
-                      Width="300"
+                      Width="600"
                       Background="White">
                   <Label Content="Instructions"
                     HorizontalAlignment="Center"
                     FontSize="15"/>
                   <!--Divider-->
-                  <Label Content="__________________________________________________________"
+                <Label Content="__________________________________________________________"
                               Margin="0,-20,0,5"
                               HorizontalAlignment="Center"
                               VerticalContentAlignment="Top"
                               FontSize="14"
                               />
-                  <TextBlock Text='Note: The "Booleaned Structures" tool may be used to create new structures using basic 
-                            add and subtract boolean operations. These are created one at a time at the click of 
-                            the "Add Booleaned Structure" button'
-                        TextWrapping="WrapWithOverflow"
-                        Margin="5,5"
-                        FontSize="13"/>
-                  <TextBlock  Text="1. Select the types of structures you would like to create."
+                <TextBlock  Text="1. Select the types of structures you would like to create."
                         TextWrapping="WrapWithOverflow"
                         Margin="5"
                         FontSize="13"/>
@@ -1892,7 +2070,19 @@
                         TextWrapping="WrapWithOverflow"
                         Margin="5,5"
                         FontSize="13"/>
-                </StackPanel>
+                <TextBlock Text='Notes:'
+                        TextWrapping="WrapWithOverflow"
+                        Margin="5,5"
+                        FontSize="13"/>
+                <TextBlock Text=' - The "Booleaned Structures" tool may be used to create new structures using basic add and subtract boolean operations. These are created one at a time at the click of  the "Add Booleaned Structure" button'
+                        TextWrapping="WrapWithOverflow"
+                        Margin="5,5"
+                        FontSize="13"/>
+                <TextBlock Text=' - The "Approximate Overlap" tool uses boolean operations to calculate the volume and percentage overlap between two structures. Simply select two structures and click the "Approximate Overlap" button'
+                        TextWrapping="WrapWithOverflow"
+                        Margin="5,5"
+                        FontSize="13"/>
+              </StackPanel>
 
               </Border>
             </StackPanel>

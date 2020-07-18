@@ -189,48 +189,7 @@ namespace OptiAssistant
     //---------------------------------------------------------------------------------
     #region event controls
 
-    #region button / checkbox events
-
-    // check boxes
-    public void CreateAvoids_CB_Click(object sender, RoutedEventArgs e)
-    {
-      var cb = sender as CheckBox;
-      if (cb.IsChecked == true)
-      {
-        AvoidanceStructure_SP.Visibility = Visibility.Visible;
-      }
-      else
-      {
-        AvoidanceStructure_SP.Visibility = Visibility.Collapsed;
-      }
-
-    }
-
-    public void CreateRingss_CB_Click(object sender, RoutedEventArgs e)
-    {
-      var cb = sender as CheckBox;
-      if (cb.IsChecked == true)
-      {
-        RingStructure_SP.Visibility = Visibility.Visible;
-      }
-      else
-      {
-        RingStructure_SP.Visibility = Visibility.Collapsed;
-      }
-    }
-
-    public void CreateOptis_CB_Click(object sender, RoutedEventArgs e)
-    {
-      var cb = sender as CheckBox;
-      if (cb.IsChecked == true)
-      {
-        OptiStructure_SP.Visibility = Visibility.Visible;
-      }
-      else
-      {
-        OptiStructure_SP.Visibility = Visibility.Collapsed;
-      }
-    }
+    #region instructions button
 
     // show/hide instructions buttion
     public void Instructions_Button_Click(object sender, RoutedEventArgs e)
@@ -247,8 +206,293 @@ namespace OptiAssistant
       }
     }
 
+    #endregion instructions button
+
+    #region avoid structure events
+
+    // cb event
+    public void CreateAvoids_CB_Click(object sender, RoutedEventArgs e)
+    {
+      var cb = sender as CheckBox;
+      if (cb.IsChecked == true)
+      {
+        AvoidanceStructure_SP.Visibility = Visibility.Visible;
+      }
+      else
+      {
+        AvoidanceStructure_SP.Visibility = Visibility.Collapsed;
+      }
+
+    }
+    // event fired when avoid option selected/unselected - boolean all targets || create avoids for multiple targets
+    private void HandleAvoidOptionsSelection(object sender, RoutedEventArgs e)
+    {
+      var cb = sender as CheckBox;
+
+      var booleanAll = "BooleanAllTargets_CB";
+      var multipleAvoidTargets = "MultipleAvoidTargets_CB";
+
+      if (cb.IsChecked == true)
+      {
+        if (cb.Name == booleanAll)
+        {
+          MultipleAvoidTargets_CB.IsChecked = false;
+          MultipleAvoidTargets_SP.Visibility = Visibility.Collapsed;
+        }
+        if (cb.Name == multipleAvoidTargets)
+        {
+          BooleanAllTargets_CB.IsChecked = false;
+          MultipleAvoidTargets_SP.Visibility = Visibility.Visible;
+
+        }
+      }
+      if (cb.IsChecked == false)
+      {
+        if (cb.Name == booleanAll)
+        {
+          MultipleAvoidTargets_CB.IsChecked = true;
+          MultipleAvoidTargets_SP.Visibility = Visibility.Visible;
+        }
+        if (cb.Name == multipleAvoidTargets)
+        {
+          BooleanAllTargets_CB.IsChecked = true;
+          MultipleAvoidTargets_SP.Visibility = Visibility.Collapsed;
+        }
+      }
+
+    }
+
+    // event fired when different number of dose levels is defined
+    private void HandleAvoidTargetCount(object sender, RoutedEventArgs e)
+    {
+      var radio1 = AvoidTarget1_Radio;
+      var radio2 = AvoidTarget2_Radio;
+      var radio3 = AvoidTarget3_Radio;
+      var radio4 = AvoidTarget4_Radio;
+
+      if (radio1.IsChecked == true)
+      {
+        AvoidTarget1_SP.Visibility = Visibility.Visible;
+        AvoidTarget2_SP.Visibility = Visibility.Collapsed;
+        AvoidTarget3_SP.Visibility = Visibility.Collapsed;
+        AvoidTarget4_SP.Visibility = Visibility.Collapsed;
+      }
+      else if (radio2.IsChecked == true)
+      {
+        AvoidTarget1_SP.Visibility = Visibility.Visible;
+        AvoidTarget2_SP.Visibility = Visibility.Visible;
+        AvoidTarget3_SP.Visibility = Visibility.Collapsed;
+        AvoidTarget4_SP.Visibility = Visibility.Collapsed;
+      }
+      else if (radio3.IsChecked == true)
+      {
+        AvoidTarget1_SP.Visibility = Visibility.Visible;
+        AvoidTarget2_SP.Visibility = Visibility.Visible;
+        AvoidTarget3_SP.Visibility = Visibility.Visible;
+        AvoidTarget4_SP.Visibility = Visibility.Collapsed;
+      }
+      else if (radio4.IsChecked == true)
+      {
+        AvoidTarget1_SP.Visibility = Visibility.Visible;
+        AvoidTarget2_SP.Visibility = Visibility.Visible;
+        AvoidTarget3_SP.Visibility = Visibility.Visible;
+        AvoidTarget4_SP.Visibility = Visibility.Visible;
+      }
+    }
+
+
+    #endregion avoid structure option events
+
+    #region opti structure section events
+
+    // cb event
+    public void CreateOptis_CB_Click(object sender, RoutedEventArgs e)
+    {
+      var cb = sender as CheckBox;
+      if (cb.IsChecked == true)
+      {
+        OptiStructure_SP.Visibility = Visibility.Visible;
+      }
+      else
+      {
+        OptiStructure_SP.Visibility = Visibility.Collapsed;
+      }
+    }
+
+    // event fired when opti option selected/unselected - crop from body option || multiple dose levels option
+    private void HandleOptiOptionsSelection(object sender, RoutedEventArgs e)
+    {
+      // if any opti structure options checked : show the options section
+      if (CropFromBody_CB.IsChecked == true || MultipleDoseLevels_CB.IsChecked == true || CreateCI_CB.IsChecked == true || CreateR50_CB.IsChecked == true)
+      {
+        if (OptiOptions_SP.Visibility == Visibility.Collapsed) { OptiOptions_SP.Visibility = Visibility.Visible; }
+      }
+
+      // if crop or multi dose levels checked
+      if (CropFromBody_CB.IsChecked == true || MultipleDoseLevels_CB.IsChecked == true)
+      {
+
+        // show section if checked
+        CropFromBody_SP.Visibility = CropFromBody_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        CropFromOptis_SP.Visibility = MultipleDoseLevels_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        MultiDoseLevelOptions_SP.Visibility = MultipleDoseLevels_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+
+        // show options if either is checked
+        if (CropOptions_SP.Visibility == Visibility.Collapsed) { CropOptions_SP.Visibility = Visibility.Visible; }
+
+      }
+
+      // if crop and multi dose levels unchecked
+      if (CropFromBody_CB.IsChecked == false && MultipleDoseLevels_CB.IsChecked == false)
+      {
+        if (CropOptions_SP.Visibility == Visibility.Visible) { CropOptions_SP.Visibility = Visibility.Collapsed; }
+
+        // collapese sections
+        CropFromBody_SP.Visibility = Visibility.Collapsed;
+        CropFromOptis_SP.Visibility = Visibility.Collapsed;
+        MultiDoseLevelOptions_SP.Visibility = Visibility.Collapsed;
+      }
+
+      // if create ci or r50 structure checked
+      if (CreateCI_CB.IsChecked == true || CreateR50_CB.IsChecked == true)
+      {
+        // reveal/hide options first
+        CI_R50_SP.Visibility = CreateCI_CB.IsChecked == true || CreateR50_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        CIMargin_SP.Visibility = CreateCI_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        R50Margin_SP.Visibility = CreateR50_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+
+        // then show options if either is checked
+        if (OptiOptions_SP.Visibility == Visibility.Collapsed) { OptiOptions_SP.Visibility = Visibility.Visible; }
+      }
+
+      // if none of the options are checked
+      if (CropFromBody_CB.IsChecked == false && MultipleDoseLevels_CB.IsChecked == false && CreateCI_CB.IsChecked == false && CreateR50_CB.IsChecked == false)
+      {
+        // show options if either is checked
+        OptiOptions_SP.Visibility = Visibility.Collapsed;
+
+        // collapese sections
+        CropFromBody_SP.Visibility = Visibility.Collapsed;
+        CropFromOptis_SP.Visibility = Visibility.Collapsed;
+        MultiDoseLevelOptions_SP.Visibility = Visibility.Collapsed;
+        CI_R50_SP.Visibility = Visibility.Collapsed;
+        CIMargin_SP.Visibility = Visibility.Collapsed;
+        R50Margin_SP.Visibility = Visibility.Collapsed;
+      }
+    }
+
+    // event fired when different number of dose levels is defined
+    private void HandleDoseLevelCount(object sender, RoutedEventArgs e)
+    {
+      var radio1 = DoseLevel1_Radio;
+      var radio2 = DoseLevel2_Radio;
+      var radio3 = DoseLevel3_Radio;
+      var radio4 = DoseLevel4_Radio;
+
+      if (radio1.IsChecked == true)
+      {
+        DoseLevel1_SP.Visibility = Visibility.Visible;
+        DoseLevel2_SP.Visibility = Visibility.Collapsed;
+        DoseLevel3_SP.Visibility = Visibility.Collapsed;
+        DoseLevel4_SP.Visibility = Visibility.Collapsed;
+
+        DoseLevel1CropMargin_SP.Visibility = Visibility.Collapsed;
+      }
+      else if (radio2.IsChecked == true)
+      {
+        DoseLevel1_SP.Visibility = Visibility.Visible;
+        DoseLevel2_SP.Visibility = Visibility.Visible;
+        DoseLevel3_SP.Visibility = Visibility.Collapsed;
+        DoseLevel4_SP.Visibility = Visibility.Collapsed;
+        
+        DoseLevel1CropMargin_SP.Visibility = Visibility.Visible;
+        DoseLevel2CropMargin_SP.Visibility = Visibility.Collapsed;
+      }
+      else if (radio3.IsChecked == true)
+      {
+        DoseLevel1_SP.Visibility = Visibility.Visible;
+        DoseLevel2_SP.Visibility = Visibility.Visible;
+        DoseLevel3_SP.Visibility = Visibility.Visible;
+        DoseLevel4_SP.Visibility = Visibility.Collapsed;
+
+        DoseLevel1CropMargin_SP.Visibility = Visibility.Visible;
+        DoseLevel2CropMargin_SP.Visibility = Visibility.Visible;
+        DoseLevel3CropMargin_SP.Visibility = Visibility.Collapsed;
+      }
+      else if (radio4.IsChecked == true)
+      {
+        DoseLevel1_SP.Visibility = Visibility.Visible;
+        DoseLevel2_SP.Visibility = Visibility.Visible;
+        DoseLevel3_SP.Visibility = Visibility.Visible;
+        DoseLevel4_SP.Visibility = Visibility.Visible;
+
+        DoseLevel1CropMargin_SP.Visibility = Visibility.Visible;
+        DoseLevel2CropMargin_SP.Visibility = Visibility.Visible;
+        DoseLevel3CropMargin_SP.Visibility = Visibility.Visible;
+      }
+    }
+
+    // not used
+    #region not used
+
+    //// event fired when opti option selected/unselected - crop from body option
+    //private void CropFromBody_CB_Click(object sender, RoutedEventArgs e)
+    //{
+    //  var cb = sender as CheckBox;
+
+    //  if (cb.IsChecked == true) { cropFromBody = true; CropFromBody_SP.Visibility = Visibility.Visible; }
+    //  else { cropFromBody = false; CropFromBody_SP.Visibility = Visibility.Collapsed; }
+
+
+    //}
+
+    //// event fired when opti option selected/unselected - multiple dose levels option
+    //private void MultipleDoseLevels_CB_Click(object sender, RoutedEventArgs e)
+    //{
+    //  var cb = sender as CheckBox;
+    //  if (cb.IsChecked == true) { MultiDoseLevelOptions_SP.Visibility = Visibility.Visible; }
+    //  else { MultiDoseLevelOptions_SP.Visibility = Visibility.Collapsed; }
+    //}
+
+    //private void CreateOptiGTV_CB_Click(object sender, RoutedEventArgs e)
+    //{
+    //  var cb = sender as CheckBox;
+    //  if (cb.IsChecked == true) { createOptiGTVForSingleLesion = true; }
+    //  else { createOptiGTVForSingleLesion = false; }
+    //}
+
+    //private void CreateOptiTotal_CB_Click(object sender, RoutedEventArgs e)
+    //{
+    //  var cb = sender as CheckBox;
+    //  if (cb.IsChecked == true) { createOptiTotal  = true; }
+    //  else { createOptiTotal = false; }
+    //}
+
+    #endregion not used
+
+    #endregion opti structure section events
+
+    #region ring structure events
+
+    public void CreateRingss_CB_Click(object sender, RoutedEventArgs e)
+    {
+      var cb = sender as CheckBox;
+      if (cb.IsChecked == true)
+      {
+        RingStructure_SP.Visibility = Visibility.Visible;
+      }
+      else
+      {
+        RingStructure_SP.Visibility = Visibility.Collapsed;
+      }
+    }
+
+    #endregion ring structure events
+
+    #region create structures button
+
     // for design testing
-    public void CreateStructures_Btn_Click_DEV(object sender, RoutedEventArgs e) 
+    public void CreateStructures_Btn_Click_DEV(object sender, RoutedEventArgs e)
     {
       // get selected structure items from oar, ptv, and ring lists
       var selectedOarStructureItems = from StructureItem item in OarList_LV.Items
@@ -258,15 +502,15 @@ namespace OptiAssistant
                                       where item.IsSelected == true
                                       select item;
       var selectedRingStructureItems = from StructureItem item in PTVListForRings_LV.Items
-                                      where item.IsSelected == true
-                                      select item;
+                                       where item.IsSelected == true
+                                       select item;
 
       var selectedOARs = from StructureItem item in selectedOarStructureItems.ToList()
                          select item.Id;
       var selectedPTVs = from StructureItem item in selectedPTVStructureItems.ToList()
                          select item.Id;
       var selectedPTVsForRings = from StructureItem item in selectedRingStructureItems.ToList()
-                         select item.Id;
+                                 select item.Id;
 
       #region validation
 
@@ -274,7 +518,7 @@ namespace OptiAssistant
       if (CreateAvoids_CB.IsChecked == false && CreateOptis_CB.IsChecked == false && CreateRings_CB.IsChecked == false)
       {
         MessageBox.Show("Oops, it seems no tasks were selected.\n\nPlease select which structures you would like assistance in creating.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-        
+
       }
       if (CreateAvoids_CB.IsChecked == true && MultipleAvoidTargets_CB.IsChecked == true)
       {
@@ -282,91 +526,91 @@ namespace OptiAssistant
         if (AvoidTarget1_Radio.IsChecked == true && AvoidTarget1_Combo.SelectedIndex < 0)
         {
           MessageBox.Show("It appears you'd like to create unique avoidance structures for one target:\n\n\t- At least one target should be specified.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-          
+
         }
         if (AvoidTarget2_Radio.IsChecked == true && (AvoidTarget1_Combo.SelectedIndex < 0 || AvoidTarget2_Combo.SelectedIndex < 0))
         {
           MessageBox.Show("It appears you'd like to create unique avoidance structures for two targets:\n\n\t- At least two targets should be specified.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-          
+
         }
         if (AvoidTarget3_Radio.IsChecked == true && (AvoidTarget1_Combo.SelectedIndex < 0 || AvoidTarget2_Combo.SelectedIndex < 0 || AvoidTarget3_Combo.SelectedIndex < 0))
         {
           MessageBox.Show("It appears you'd like to create unique avoidance structures for three targets:\n\n\t- At least three targets should be specified.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-          
+
         }
         if (AvoidTarget4_Radio.IsChecked == true && (AvoidTarget1_Combo.SelectedIndex < 0 || AvoidTarget2_Combo.SelectedIndex < 0 || AvoidTarget3_Combo.SelectedIndex < 0 || AvoidTarget4_Combo.SelectedIndex < 0))
         {
           MessageBox.Show("It appears you'd like to create unique avoidance structures for four targets:\n\n\t- At least four targets should be specified.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-          
+
         }
         // if selected dose level targets are the same
-        if (AvoidTarget2_Radio.IsChecked == true && (AvoidTarget1_Combo.SelectedIndex == AvoidTarget2_Combo.SelectedIndex)) { MessageBox.Show("The selected Avoid Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
-        if (AvoidTarget3_Radio.IsChecked == true && ((AvoidTarget1_Combo.SelectedIndex == AvoidTarget2_Combo.SelectedIndex) || (AvoidTarget1_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex) || (AvoidTarget2_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Avoid Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
-        if (AvoidTarget4_Radio.IsChecked == true && ((AvoidTarget1_Combo.SelectedIndex == AvoidTarget2_Combo.SelectedIndex) || (AvoidTarget1_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex) || (AvoidTarget1_Combo.SelectedIndex == AvoidTarget4_Combo.SelectedIndex) || (AvoidTarget2_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex) || (AvoidTarget2_Combo.SelectedIndex == AvoidTarget4_Combo.SelectedIndex) || (AvoidTarget3_Combo.SelectedIndex == AvoidTarget4_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Avoid Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+        if (AvoidTarget2_Radio.IsChecked == true && (AvoidTarget1_Combo.SelectedIndex == AvoidTarget2_Combo.SelectedIndex)) { MessageBox.Show("The selected Avoid Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); }
+        if (AvoidTarget3_Radio.IsChecked == true && ((AvoidTarget1_Combo.SelectedIndex == AvoidTarget2_Combo.SelectedIndex) || (AvoidTarget1_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex) || (AvoidTarget2_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Avoid Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); }
+        if (AvoidTarget4_Radio.IsChecked == true && ((AvoidTarget1_Combo.SelectedIndex == AvoidTarget2_Combo.SelectedIndex) || (AvoidTarget1_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex) || (AvoidTarget1_Combo.SelectedIndex == AvoidTarget4_Combo.SelectedIndex) || (AvoidTarget2_Combo.SelectedIndex == AvoidTarget3_Combo.SelectedIndex) || (AvoidTarget2_Combo.SelectedIndex == AvoidTarget4_Combo.SelectedIndex) || (AvoidTarget3_Combo.SelectedIndex == AvoidTarget4_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Avoid Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); }
       }
       if (CreateOptis_CB.IsChecked == true && MultipleDoseLevels_CB.IsChecked == true)
       {
         // if selected counts don't match
-        if (DoseLevel1_Radio.IsChecked == true && selectedPTVs.ToList().Count != 1) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
-        if (DoseLevel2_Radio.IsChecked == true && selectedPTVs.ToList().Count != 2) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
-        if (DoseLevel3_Radio.IsChecked == true && selectedPTVs.ToList().Count != 3) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
-        if (DoseLevel4_Radio.IsChecked == true && selectedPTVs.ToList().Count != 4) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+        if (DoseLevel1_Radio.IsChecked == true && selectedPTVs.ToList().Count != 1) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); }
+        if (DoseLevel2_Radio.IsChecked == true && selectedPTVs.ToList().Count != 2) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); }
+        if (DoseLevel3_Radio.IsChecked == true && selectedPTVs.ToList().Count != 3) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); }
+        if (DoseLevel4_Radio.IsChecked == true && selectedPTVs.ToList().Count != 4) { MessageBox.Show("Number of Selected Targets and Selected Dose Levels do not match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); }
         // dose level targets aren't selected
         if (DoseLevel1_Radio.IsChecked == true && DoseLevel1_Combo.SelectedIndex < 0)
         {
           MessageBox.Show("One Dose Level has been selected:\n\n\t- At least one target should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-          
+
         }
         if (DoseLevel2_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex < 0 || DoseLevel2_Combo.SelectedIndex < 0))
         {
           MessageBox.Show("Two Dose Levels have been selected:\n\n\t- Targets for at least two dose levels should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-          
+
         }
         if (DoseLevel3_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex < 0 || DoseLevel2_Combo.SelectedIndex < 0 || DoseLevel3_Combo.SelectedIndex < 0))
         {
           MessageBox.Show("Three Dose Levels have been selected:\n\n\t- Targets for at least three dose levels should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-          
+
         }
         if (DoseLevel4_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex < 0 || DoseLevel2_Combo.SelectedIndex < 0 || DoseLevel3_Combo.SelectedIndex < 0 || DoseLevel4_Combo.SelectedIndex < 0))
         {
           MessageBox.Show("Four Dose Levels have been selected:\n\n\t- Targets for at least four dose levels should be selected.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-          
+
         }
         // if selected dose level targets are the same
-        if (DoseLevel2_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex == DoseLevel2_Combo.SelectedIndex)) { MessageBox.Show("The selected Dose Level Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
-        if (DoseLevel3_Radio.IsChecked == true && ((DoseLevel1_Combo.SelectedIndex == DoseLevel2_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Dose Level Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
-        if (DoseLevel4_Radio.IsChecked == true && ((DoseLevel1_Combo.SelectedIndex == DoseLevel2_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex) || (DoseLevel3_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Dose Level Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);  }
+        if (DoseLevel2_Radio.IsChecked == true && (DoseLevel1_Combo.SelectedIndex == DoseLevel2_Combo.SelectedIndex)) { MessageBox.Show("The selected Dose Level Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); }
+        if (DoseLevel3_Radio.IsChecked == true && ((DoseLevel1_Combo.SelectedIndex == DoseLevel2_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Dose Level Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); }
+        if (DoseLevel4_Radio.IsChecked == true && ((DoseLevel1_Combo.SelectedIndex == DoseLevel2_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel1_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel3_Combo.SelectedIndex) || (DoseLevel2_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex) || (DoseLevel3_Combo.SelectedIndex == DoseLevel4_Combo.SelectedIndex))) { MessageBox.Show("Some of the selected Dose Level Targets match.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning); }
 
       }
       if (CreateAvoids_CB.IsChecked == true && selectedOARs.ToList().Count == 0)
       {
         MessageBox.Show("Oops, it appears you'd like to create avoid structures but haven't selected any structures to create avoids for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-        
+
       }
       if (CreateOptis_CB.IsChecked == true && selectedPTVs.ToList().Count == 0)
       {
         MessageBox.Show("Oops, it appears you'd like to create opti ptv structures but haven't selected any targets to create optis for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-        
+
       }
       if (CreateRings_CB.IsChecked == true && selectedPTVsForRings.ToList().Count == 0)
       {
         MessageBox.Show("Oops, it appears you'd like to create ring structures but haven't selected any targets to create rings for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-        
+
       }
       if (AvoidPrefix_TextBox.Text.Length > MAX_PREFIX_LENGTH)
       {
         MessageBox.Show(string.Format("Oops, it appears you've chosen a Prefix for your Avoid Structures that is {0} characters in length:\r\n\r\n\t- Please limit your prefix to a max of {1} characters", AvoidPrefix_TextBox.Text.Length, MAX_PREFIX_LENGTH), "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-        
+
       }
       if (OptiPrefix_TextBox.Text.Length > MAX_PREFIX_LENGTH)
       {
         MessageBox.Show(string.Format("Oops, it appears you've chosen a Prefix for your Opti Structures that is {0} in length:\r\n\r\n\t- Please limit your prefix to a max of {1} characters", OptiPrefix_TextBox.Text.Length, MAX_PREFIX_LENGTH), "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-        
+
       }
       if (RingPrefix_TextBox.Text.Length > MAX_PREFIX_LENGTH)
       {
         MessageBox.Show(string.Format("Oops, it appears you've chosen a Prefix for your Ring Structures that is {0} in length:\r\n\r\n\t- Please limit your prefix to a max of {1} characters", RingPrefix_TextBox.Text.Length, MAX_PREFIX_LENGTH), "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-        
+
       }
 
       #endregion validation
@@ -423,7 +667,7 @@ namespace OptiAssistant
       var selectedPTVsForRings = from StructureItem item in selectedRingStructureItems.ToList()
                                  select item.Id;
 
-     
+
       #region validation
 
       // validation
@@ -524,7 +768,7 @@ namespace OptiAssistant
         MessageBox.Show("Oops, it appears you'd like to create ring structures but haven't selected any targets to create rings for.", "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         continueToCreateStructures = false;
       }
-      if (AvoidPrefix_TextBox.Text.Length > MAX_PREFIX_LENGTH) 
+      if (AvoidPrefix_TextBox.Text.Length > MAX_PREFIX_LENGTH)
       {
         MessageBox.Show(string.Format("Oops, it appears you've chosen a Prefix for your Avoid Structures that is {0} characters in length:\r\n\r\n\t- Please limit your prefix to a max of {1} characters", AvoidPrefix_TextBox.Text.Length, MAX_PREFIX_LENGTH), "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         continueToCreateStructures = false;
@@ -539,8 +783,8 @@ namespace OptiAssistant
         MessageBox.Show(string.Format("Oops, it appears you've chosen a Prefix for your Ring Structures that is {0} in length:\r\n\r\n\t- Please limit your prefix to a max of {1} characters", RingPrefix_TextBox.Text.Length, MAX_PREFIX_LENGTH), "Form Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         continueToCreateStructures = false;
       }
-      
-      
+
+
       #endregion validation
 
       // NOTE: various other validation can be done. To reduce the need for some validation, when user input for margins is invalid, a warning will show informing the user of the invalid entry and that the default value will instead be used. 
@@ -635,7 +879,7 @@ namespace OptiAssistant
 
             // convert to high res
             if (bodyHR.CanConvertToHighResolution() == true) { bodyHR.ConvertToHighResolution(); /*MESSAGES += "\r\n\t- High Res Body Created";*/ }
-            
+
             // hr targets not needed for ring structures
             if (CreateAvoids_CB.IsChecked == true || CreateOptis_CB.IsChecked == true)
             {
@@ -677,7 +921,7 @@ namespace OptiAssistant
                 zoptiTotalHR.SegmentVolume = zptvTotalHR.SegmentVolume;
               }
             }
-            
+
           }
 
           #endregion get high res structures
@@ -812,7 +1056,7 @@ namespace OptiAssistant
 
           if (CreateAvoids_CB.IsChecked == true)
           {
-            
+
             //var avStructuresToMake = OarList_LV.SelectedItems;
             var avStructuresToMake = selectedOARs;
             string avPrefix;
@@ -1290,7 +1534,7 @@ namespace OptiAssistant
                     Helpers.RemoveStructure(ss, avoidTargetId);
 
                     // match ptv in structure set
-                    avoidTarget = ss.AddStructure(OPTI_DICOM_TYPE, avoidTargetId);                    
+                    avoidTarget = ss.AddStructure(OPTI_DICOM_TYPE, avoidTargetId);
                     if (needHRStructures)
                     {
                       Helpers.RemoveStructure(ss, avoidTargetHRId);
@@ -1299,20 +1543,20 @@ namespace OptiAssistant
                     }
 
                     // if creating optis, need to add margin to the temp avoid target for when cropping avoid away
-                    if (CreateOptis_CB.IsChecked == true) 
-                    { 
+                    if (CreateOptis_CB.IsChecked == true)
+                    {
                       avoidTarget.SegmentVolume = ss.Structures.Single(st => st.Id == t).SegmentVolume.Margin(zoptiGrowMargin);
                       if (needHRStructures)
                       {
                         avoidTarget_HR.SegmentVolume = avoidTarget_HR.SegmentVolume.Margin(zoptiGrowMargin);
                       }
                     }
-                    else 
-                    { 
-                      avoidTarget.SegmentVolume = ss.Structures.Single(st => st.Id == t).SegmentVolume; 
+                    else
+                    {
+                      avoidTarget.SegmentVolume = ss.Structures.Single(st => st.Id == t).SegmentVolume;
                       //avoidTarget_HR.SegmentVolume = avoidTarget_HR.SegmentVolume.Margin(zoptiGrowMargin);
                     }
-                    
+
 
                     // match crop margin
                     if (targetNumber == 1) { avCropMargin = avoidTarget1CropMargin; }
@@ -1401,7 +1645,7 @@ namespace OptiAssistant
                 }
               }
               // if no PTVs detected (no structures that start with PTV)
-              else 
+              else
               {
                 avId = string.Format("{0} {1}", avPrefix, Helpers.ProcessStructureId(oar.Id.ToString(), MAX_ID_LENGTH - avPrefix.Length));
 
@@ -1456,7 +1700,7 @@ namespace OptiAssistant
 
           if (CreateOptis_CB.IsChecked == true)
           {
-            
+
             cropFromBody = (bool)CropFromBody_CB.IsChecked;
             createCI = (bool)CreateCI_CB.IsChecked;
             createR50 = (bool)CreateR50_CB.IsChecked;
@@ -1617,7 +1861,7 @@ namespace OptiAssistant
                 }
               }
 
-              
+
 
 
 
@@ -1637,7 +1881,7 @@ namespace OptiAssistant
                     optiStructure.SegmentVolume = Helpers.CropOutsideBodyWithMargin(optiStructure, body, -optiCropFromBodyMargin);
                     MESSAGES += string.Format("\r\n\t- {0} Cropped {1} mm From Body Surface", optiStructure.Id, optiCropFromBodyMargin);
                   }
-                  
+
 
                   if (evalStructure != null)
                   {
@@ -1653,7 +1897,7 @@ namespace OptiAssistant
                   MESSAGES += string.Format("\r\n\t- ***Trouble Cropping {0} From Body***", optiStructure.Id);
                 }
               }
-              
+
 
               //zztemp += 1;
               // PTV Eval structure
@@ -1798,12 +2042,12 @@ namespace OptiAssistant
             {
               try
               {
-                if (hasOneDoseLevel) {  }
+                if (hasOneDoseLevel) { }
                 // if multiple dose levels need to set opti crop margin as well as determine which targets correspond to which dose levels
                 if (hasTwoDoseLevels)
                 {
                   // set opti crop margins for the dose levels
-                  
+
                   // 1
                   if (DoseLevel1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(DoseLevel1CropMargin_TextBox.Text))
                   {
@@ -1912,7 +2156,7 @@ namespace OptiAssistant
                 else if (hasFourDoseLevels)
                 {
                   // set opti crop margins for the dose levels
-                  
+
                   // 1
                   if (DoseLevel1CropMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(DoseLevel1CropMargin_TextBox.Text))
                   {
@@ -2055,7 +2299,7 @@ namespace OptiAssistant
                 MESSAGES += string.Format("\r\n\t- ***Trouble Cropping Multiple Dose Level Opti Structures***");
               }
 
-              }
+            }
 
           }
 
@@ -2155,11 +2399,11 @@ namespace OptiAssistant
 
                 // copy target with defined margin
                 ringStructure.SegmentVolume = Helpers.AddMargin(target, (double)ringGrowMargin * ringNum);
-                MESSAGES += string.Format("\r\n\t- {0} added with {1} mm margin to {2}", ringStructure.Id, ringGrowMargin * ringNum, target.Id);
+                //MESSAGES += string.Format("\r\n\t- {0} added with {1} mm margin to {2}", ringStructure.Id, ringGrowMargin * ringNum, target.Id);
 
                 // crop ring from target (prevents having to loop through again later)
                 ringStructure.SegmentVolume = Helpers.CropStructure(ringStructure, target, cropMargin: ringCropFromTargetMargin);
-                MESSAGES += string.Format("\r\n\t- {0} Cropped from INSIDE {1} with {2} mm margin", ringStructure.Id, target.Id, ringCropFromTargetMargin);
+                //MESSAGES += string.Format("\r\n\t- {0} Cropped from INSIDE {1} with {2} mm margin", ringStructure.Id, target.Id, ringCropFromTargetMargin);
 
                 // add to list for cropping later
                 ringStructures.Add(ringStructure);
@@ -2169,14 +2413,14 @@ namespace OptiAssistant
               for (var i = ringCount; i > 1; i--)
               {
                 var currentRingId = string.Format("{0}_{1}-{2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - (ringPrefix.Length + 1 + i.ToString().Length)), i);
-                var nextLargestRingId = string.Format("{0}_{1}-{2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - (ringPrefix.Length + 1 + (i-1).ToString().Length)), i - 1);
+                var nextLargestRingId = string.Format("{0}_{1}-{2}", ringPrefix, Helpers.ProcessStructureId(target.Id.ToString(), MAX_ID_LENGTH - (ringPrefix.Length + 1 + (i - 1).ToString().Length)), i - 1);
                 try
                 {
                   var currentRing = ss.Structures.Single(st => st.Id == currentRingId);
                   var nextLargestRing = ss.Structures.Single(st => st.Id == nextLargestRingId);
 
                   currentRing.SegmentVolume = Helpers.CropStructure(currentRing, nextLargestRing, ringCropMargin);
-                  MESSAGES += string.Format("\r\n\t- {0} Cropped from INSIDE {1} with {2} mm margin", currentRingId, nextLargestRingId, ringCropMargin);
+                  //MESSAGES += string.Format("\r\n\t- {0} Cropped from INSIDE {1} with {2} mm margin", currentRingId, nextLargestRingId, ringCropMargin);
                 }
                 catch
                 {
@@ -2221,7 +2465,7 @@ namespace OptiAssistant
               MessageBox.Show("Trouble removing " + id);
             }
           }
-          
+
           if (targetsToCreateAvoidsFor.Count > 0)
           {
             foreach (var t in targetsToCreateAvoidsFor)
@@ -2289,241 +2533,7 @@ namespace OptiAssistant
       }
     }
 
-    #region avoid structure option events
-
-    // event fired when avoid option selected/unselected - boolean all targets || create avoids for multiple targets
-    private void HandleAvoidOptionsSelection(object sender, RoutedEventArgs e)
-    {
-      var cb = sender as CheckBox;
-
-      var booleanAll = "BooleanAllTargets_CB";
-      var multipleAvoidTargets = "MultipleAvoidTargets_CB";
-
-      if (cb.IsChecked == true)
-      {
-        if (cb.Name == booleanAll)
-        {
-          MultipleAvoidTargets_CB.IsChecked = false;
-          MultipleAvoidTargets_SP.Visibility = Visibility.Collapsed;
-        }
-        if (cb.Name == multipleAvoidTargets)
-        {
-          BooleanAllTargets_CB.IsChecked = false;
-          MultipleAvoidTargets_SP.Visibility = Visibility.Visible;
-
-        }
-      }
-      if (cb.IsChecked == false)
-      {
-        if (cb.Name == booleanAll)
-        {
-          MultipleAvoidTargets_CB.IsChecked = true;
-          MultipleAvoidTargets_SP.Visibility = Visibility.Visible;
-        }
-        if (cb.Name == multipleAvoidTargets)
-        {
-          BooleanAllTargets_CB.IsChecked = true;
-          MultipleAvoidTargets_SP.Visibility = Visibility.Collapsed;
-        }
-      }
-
-    }
-
-    // event fired when different number of dose levels is defined
-    private void HandleAvoidTargetCount(object sender, RoutedEventArgs e)
-    {
-      var radio1 = AvoidTarget1_Radio;
-      var radio2 = AvoidTarget2_Radio;
-      var radio3 = AvoidTarget3_Radio;
-      var radio4 = AvoidTarget4_Radio;
-
-      if (radio1.IsChecked == true)
-      {
-        AvoidTarget1_SP.Visibility = Visibility.Visible;
-        AvoidTarget2_SP.Visibility = Visibility.Collapsed;
-        AvoidTarget3_SP.Visibility = Visibility.Collapsed;
-        AvoidTarget4_SP.Visibility = Visibility.Collapsed;
-      }
-      else if (radio2.IsChecked == true)
-      {
-        AvoidTarget1_SP.Visibility = Visibility.Visible;
-        AvoidTarget2_SP.Visibility = Visibility.Visible;
-        AvoidTarget3_SP.Visibility = Visibility.Collapsed;
-        AvoidTarget4_SP.Visibility = Visibility.Collapsed;
-      }
-      else if (radio3.IsChecked == true)
-      {
-        AvoidTarget1_SP.Visibility = Visibility.Visible;
-        AvoidTarget2_SP.Visibility = Visibility.Visible;
-        AvoidTarget3_SP.Visibility = Visibility.Visible;
-        AvoidTarget4_SP.Visibility = Visibility.Collapsed;
-      }
-      else if (radio4.IsChecked == true)
-      {
-        AvoidTarget1_SP.Visibility = Visibility.Visible;
-        AvoidTarget2_SP.Visibility = Visibility.Visible;
-        AvoidTarget3_SP.Visibility = Visibility.Visible;
-        AvoidTarget4_SP.Visibility = Visibility.Visible;
-      }
-    }
-
-
-    #endregion avoid structure option events
-
-    #region opti structure section events
-
-    // event fired when opti option selected/unselected - crop from body option || multiple dose levels option
-    private void HandleOptiOptionsSelection(object sender, RoutedEventArgs e)
-    {
-      // if any opti structure options checked : show the options section
-      if (CropFromBody_CB.IsChecked == true || MultipleDoseLevels_CB.IsChecked == true || CreateCI_CB.IsChecked == true || CreateR50_CB.IsChecked == true)
-      {
-        if (OptiOptions_SP.Visibility == Visibility.Collapsed) { OptiOptions_SP.Visibility = Visibility.Visible; }
-      }
-
-      // if crop or multi dose levels checked
-      if (CropFromBody_CB.IsChecked == true || MultipleDoseLevels_CB.IsChecked == true)
-      {
-
-        // show section if checked
-        CropFromBody_SP.Visibility = CropFromBody_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
-        CropFromOptis_SP.Visibility = MultipleDoseLevels_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
-        MultiDoseLevelOptions_SP.Visibility = MultipleDoseLevels_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
-
-        // show options if either is checked
-        if (CropOptions_SP.Visibility == Visibility.Collapsed) { CropOptions_SP.Visibility = Visibility.Visible; }
-
-      }
-
-      // if crop and multi dose levels unchecked
-      if (CropFromBody_CB.IsChecked == false && MultipleDoseLevels_CB.IsChecked == false)
-      {
-        if (CropOptions_SP.Visibility == Visibility.Visible) { CropOptions_SP.Visibility = Visibility.Collapsed; }
-
-        // collapese sections
-        CropFromBody_SP.Visibility = Visibility.Collapsed;
-        CropFromOptis_SP.Visibility = Visibility.Collapsed;
-        MultiDoseLevelOptions_SP.Visibility = Visibility.Collapsed;
-      }
-
-      // if create ci or r50 structure checked
-      if (CreateCI_CB.IsChecked == true || CreateR50_CB.IsChecked == true)
-      {
-        // reveal/hide options first
-        CI_R50_SP.Visibility = CreateCI_CB.IsChecked == true || CreateR50_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
-        CIMargin_SP.Visibility = CreateCI_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
-        R50Margin_SP.Visibility = CreateR50_CB.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
-
-        // then show options if either is checked
-        if (OptiOptions_SP.Visibility == Visibility.Collapsed) { OptiOptions_SP.Visibility = Visibility.Visible; }
-      }
-
-      // if none of the options are checked
-      if (CropFromBody_CB.IsChecked == false && MultipleDoseLevels_CB.IsChecked == false && CreateCI_CB.IsChecked == false && CreateR50_CB.IsChecked == false)
-      {
-        // show options if either is checked
-        OptiOptions_SP.Visibility = Visibility.Collapsed;
-
-        // collapese sections
-        CropFromBody_SP.Visibility = Visibility.Collapsed;
-        CropFromOptis_SP.Visibility = Visibility.Collapsed;
-        MultiDoseLevelOptions_SP.Visibility = Visibility.Collapsed;
-        CI_R50_SP.Visibility = Visibility.Collapsed;
-        CIMargin_SP.Visibility = Visibility.Collapsed;
-        R50Margin_SP.Visibility = Visibility.Collapsed;
-      }
-    }
-
-    // event fired when different number of dose levels is defined
-    private void HandleDoseLevelCount(object sender, RoutedEventArgs e)
-    {
-      var radio1 = DoseLevel1_Radio;
-      var radio2 = DoseLevel2_Radio;
-      var radio3 = DoseLevel3_Radio;
-      var radio4 = DoseLevel4_Radio;
-
-      if (radio1.IsChecked == true)
-      {
-        DoseLevel1_SP.Visibility = Visibility.Visible;
-        DoseLevel2_SP.Visibility = Visibility.Collapsed;
-        DoseLevel3_SP.Visibility = Visibility.Collapsed;
-        DoseLevel4_SP.Visibility = Visibility.Collapsed;
-
-        DoseLevel1CropMargin_SP.Visibility = Visibility.Collapsed;
-      }
-      else if (radio2.IsChecked == true)
-      {
-        DoseLevel1_SP.Visibility = Visibility.Visible;
-        DoseLevel2_SP.Visibility = Visibility.Visible;
-        DoseLevel3_SP.Visibility = Visibility.Collapsed;
-        DoseLevel4_SP.Visibility = Visibility.Collapsed;
-        
-        DoseLevel1CropMargin_SP.Visibility = Visibility.Visible;
-        DoseLevel2CropMargin_SP.Visibility = Visibility.Collapsed;
-      }
-      else if (radio3.IsChecked == true)
-      {
-        DoseLevel1_SP.Visibility = Visibility.Visible;
-        DoseLevel2_SP.Visibility = Visibility.Visible;
-        DoseLevel3_SP.Visibility = Visibility.Visible;
-        DoseLevel4_SP.Visibility = Visibility.Collapsed;
-
-        DoseLevel1CropMargin_SP.Visibility = Visibility.Visible;
-        DoseLevel2CropMargin_SP.Visibility = Visibility.Visible;
-        DoseLevel3CropMargin_SP.Visibility = Visibility.Collapsed;
-      }
-      else if (radio4.IsChecked == true)
-      {
-        DoseLevel1_SP.Visibility = Visibility.Visible;
-        DoseLevel2_SP.Visibility = Visibility.Visible;
-        DoseLevel3_SP.Visibility = Visibility.Visible;
-        DoseLevel4_SP.Visibility = Visibility.Visible;
-
-        DoseLevel1CropMargin_SP.Visibility = Visibility.Visible;
-        DoseLevel2CropMargin_SP.Visibility = Visibility.Visible;
-        DoseLevel3CropMargin_SP.Visibility = Visibility.Visible;
-      }
-    }
-
-    // not used
-    #region not used
-
-    //// event fired when opti option selected/unselected - crop from body option
-    //private void CropFromBody_CB_Click(object sender, RoutedEventArgs e)
-    //{
-    //  var cb = sender as CheckBox;
-
-    //  if (cb.IsChecked == true) { cropFromBody = true; CropFromBody_SP.Visibility = Visibility.Visible; }
-    //  else { cropFromBody = false; CropFromBody_SP.Visibility = Visibility.Collapsed; }
-
-
-    //}
-
-    //// event fired when opti option selected/unselected - multiple dose levels option
-    //private void MultipleDoseLevels_CB_Click(object sender, RoutedEventArgs e)
-    //{
-    //  var cb = sender as CheckBox;
-    //  if (cb.IsChecked == true) { MultiDoseLevelOptions_SP.Visibility = Visibility.Visible; }
-    //  else { MultiDoseLevelOptions_SP.Visibility = Visibility.Collapsed; }
-    //}
-
-    //private void CreateOptiGTV_CB_Click(object sender, RoutedEventArgs e)
-    //{
-    //  var cb = sender as CheckBox;
-    //  if (cb.IsChecked == true) { createOptiGTVForSingleLesion = true; }
-    //  else { createOptiGTVForSingleLesion = false; }
-    //}
-
-    //private void CreateOptiTotal_CB_Click(object sender, RoutedEventArgs e)
-    //{
-    //  var cb = sender as CheckBox;
-    //  if (cb.IsChecked == true) { createOptiTotal  = true; }
-    //  else { createOptiTotal = false; }
-    //}
-
-    #endregion not used
-
-    #endregion opti structure section events
+    #endregion create structures button
 
     #region boolean structure button events
 
@@ -2793,7 +2803,8 @@ namespace OptiAssistant
               else
               {
                 // returns a segment volume of the CROP of the one structure from the other with the provided margin
-                newStructure.SegmentVolume = Helpers.CropStructure(baseStructure.SegmentVolume, booleanOfSelectedStructures, 0);
+                newStructure.SegmentVolume = baseStructure.SegmentVolume.Sub(booleanOfSelectedStructures.SegmentVolume);
+                //newStructure.SegmentVolume = Helpers.CropStructure(baseStructure.SegmentVolume, booleanOfSelectedStructures, 0);
               }
               // add margin if option selected
               if (CreateBooleanWitMargin_CB.IsChecked == true) { newStructure.SegmentVolume = Helpers.AddMargin(newStructure, booleanedStructureGrowMargin); }
@@ -2841,7 +2852,8 @@ namespace OptiAssistant
               else
               {
                 // returns a segment volume of the CROP of the one structure from the other with the provided margin
-                newStructure.SegmentVolume = Helpers.CropStructure(baseStructure.SegmentVolume, booleanOfSelectedStructures, 0);
+                newStructure.SegmentVolume = baseStructure.SegmentVolume.Sub(booleanOfSelectedStructures.SegmentVolume);
+                //newStructure.SegmentVolume = Helpers.CropStructure(baseStructure.SegmentVolume, booleanOfSelectedStructures, 0);
               }
               // add margin if option selected
               if (CreateBooleanWitMargin_CB.IsChecked == true) { newStructure.SegmentVolume = Helpers.AddMargin(newStructure, booleanedStructureGrowMargin); }
@@ -2872,8 +2884,33 @@ namespace OptiAssistant
       // Define a regular expression for repeated words.
       Regex rx = new Regex(@"^[a-zA-Z0-9_-]+$",
                             RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+      var validBoolMargin = true;
+
+      // set ring crop from target margin
+      if (BooleanMargin_TextBox.Text == "" || string.IsNullOrWhiteSpace(BooleanMargin_TextBox.Text))
+      {
+        validBoolMargin = false;
+      }
+      else
+      {
+        if (int.TryParse(BooleanMargin_TextBox.Text, out booleanedStructureGrowMargin))
+        {
+          //parsing successful 
+          if (InnerMargin_CB.IsChecked == true)
+            booleanedStructureGrowMargin = -booleanedStructureGrowMargin;
+        }
+        else
+        {
+          //parsing failed. 
+          validBoolMargin = false;
+        }
+      }
+
+
       if (!rx.IsMatch(BoolStructId_TextBox.Text)) { MessageBox.Show("Please enter a valid Structure Id \r\n\t- (hint: can only use letters, numbers, dashes, and underscores)"); okToContinue = false; return; }
       if (BoolBaseStruct_Combo.SelectedIndex == -1) { MessageBox.Show("Please select a base structure"); okToContinue = false; return; }
+      if (CreateBooleanWitMargin_CB.IsChecked == true && validBoolMargin == false) { MessageBox.Show("Please enter a valid integer value for the booleaned structure margin"); okToContinue = false; return; }
       if (BoolBaseStruct_Combo.SelectedIndex >= 0)
       {
         // if the structure exists already
@@ -2949,7 +2986,107 @@ namespace OptiAssistant
 
     #endregion boolean structure button events
 
-    #endregion button / checkbox events
+    #region approx overlap button events
+
+    private void ApproxOverlap_CB_Click(object sender, RoutedEventArgs e)
+    {
+      var cb = sender as CheckBox;
+      if (cb.IsChecked == true) { ApproximateOverlap_SP.Visibility = Visibility.Visible; }
+      else if (cb.IsChecked == false) { ApproximateOverlap_SP.Visibility = Visibility.Collapsed; }
+    }
+
+    private void ApproximateOverlap_Btn_Click_DEV(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+    private void ApproximateOverlap_Btn_Click(object sender, RoutedEventArgs e)
+    {
+      if (OverlapStructure1_Combo.SelectedIndex < 0 || OverlapStructure2_Combo.SelectedIndex < 0) { MessageBox.Show("Please ensure both structures are selected"); return; }
+
+      bool noneHR = false;
+      bool onlyOneHR = false;
+      bool bothHR = false;
+
+      var s1 = ss.Structures.First(x => x.Id == OverlapStructure1_Combo.SelectedItem.ToString());
+      var s2 = ss.Structures.First(x => x.Id == OverlapStructure2_Combo.SelectedItem.ToString());
+
+      var volOverlap = 0.0;
+      Tuple<double, double> percents = null;
+      //var pctS1 = 0.0;
+      //var pctS2 = 0.0;
+
+      patient.BeginModifications();
+
+      var overlapRegionId = "zOverlap";
+      Helpers.RemoveStructure(ss, overlapRegionId);
+      var overlapRegion = ss.AddStructure(CONTROL_DICOM_TYPE, overlapRegionId);
+
+      if (!s1.IsHighResolution && !s2.IsHighResolution) { noneHR = true; }
+      else if ((s1.IsHighResolution && !s2.IsHighResolution) || (!s1.IsHighResolution && s2.IsHighResolution)) { onlyOneHR = true; if (overlapRegion.CanConvertToHighResolution()) { overlapRegion.CanConvertToHighResolution(); } }
+      else if (s1.IsHighResolution && s2.IsHighResolution) { bothHR = true; }
+      else { MessageBox.Show("something's wrong, can't detect High Res status"); }
+
+      if (noneHR || bothHR)
+      {
+        overlapRegion.SegmentVolume = s1.SegmentVolume.And(s2.SegmentVolume);
+        
+        volOverlap = Math.Round(overlapRegion.Volume, 3);
+        percents = getOVerlapPercentages(overlapRegion.Volume, s1, s2);
+        
+      }
+      else if (onlyOneHR)
+      {
+        if (s1.IsHighResolution)
+        {
+          var tempS2Id = "zzztempS2";
+          Helpers.RemoveStructure(ss, tempS2Id);
+          var tempS2 = ss.AddStructure(s2.DicomType.ToString(), tempS2Id);
+          tempS2.SegmentVolume = s2.SegmentVolume;
+          if (tempS2.CanConvertToHighResolution()) { tempS2.ConvertToHighResolution(); }
+
+          overlapRegion.SegmentVolume = s1.SegmentVolume.And(tempS2);
+
+          volOverlap = Math.Round(overlapRegion.Volume, 3);
+          percents = getOVerlapPercentages(overlapRegion.Volume, s1, tempS2);
+        }
+
+        else if (s2.IsHighResolution)
+        {
+          var tempS1Id = "zzztempS1";
+          Helpers.RemoveStructure(ss, tempS1Id);
+          var tempS1 = ss.AddStructure(s2.DicomType.ToString(), tempS1Id);
+          tempS1.SegmentVolume = s1.SegmentVolume;
+          if (tempS1.CanConvertToHighResolution()) { tempS1.ConvertToHighResolution(); }
+
+          overlapRegion.SegmentVolume = s2.SegmentVolume.And(tempS1);
+
+          volOverlap = Math.Round(overlapRegion.Volume, 3);
+          percents = getOVerlapPercentages(overlapRegion.Volume, tempS1, s2);
+        }
+        else { MessageBox.Show("Something's wrong: onlyOneHR"); }
+      }
+
+      VolumeOverlapCC_Label.Content = volOverlap.ToString();
+      PctStructure1_Label.Content = percents.Item1.ToString();
+      PctStructure2_Label.Content = percents.Item2.ToString();
+
+      
+    }
+
+    /// <summary>
+    /// returns item1: pct overlap of the 1st input structure, item2: pct overlap of 2nd input structure
+    /// </summary>
+    /// <param name="volumeOverlap"></param>
+    /// <param name="structure1"></param>
+    /// <param name="structure2"></param>
+    /// <returns></returns>
+    Tuple<double, double> getOVerlapPercentages(double volumeOverlap, Structure structure1, Structure structure2)
+    {
+        return new Tuple<double, double>(Math.Round(volumeOverlap / structure1.Volume, 3) * 100, Math.Round(volumeOverlap / structure2.Volume, 3) * 100);
+    }
+
+    #endregion approx overlap button events
 
     #endregion event controls
     //---------------------------------------------------------------------------------
@@ -3040,8 +3177,6 @@ namespace OptiAssistant
       if (textBox != null)
         textBox.SelectAll();
     }
-
-  
 
     #endregion highlight text on tab focus
 

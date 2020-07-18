@@ -42,7 +42,7 @@ namespace VMS.TPS
       ProcessIdName.getRandomId(pId, out string rId);
       string course = context.Course != null ? context.Course.Id.ToString().Replace(" ", "_") : "NA";
       string pName = ProcessIdName.processPtName(context.Patient.Name);
-
+      
       #region unused
       //PlanningItem selectedPlanningItem;
       //PlanSetup planSetup;
@@ -103,6 +103,8 @@ namespace VMS.TPS
         mainControl.isGrady = true;
       }
       else { mainControl.isGrady = false; }
+
+      
 
       #endregion
 
@@ -182,9 +184,18 @@ namespace VMS.TPS
       }
 
       // populate listviews with structures on startup
-      if (mainControl.sorted_oarList != null) { foreach (Structure s in mainControl.sorted_oarList) { mainControl.oarListBoxItems.Add(new OptiAssistant.MainControl.StructureItem(s.Id)); /* mainControl.OarList_LV.Items.Add(s.Id);*/ } }
+      if (mainControl.sorted_oarList != null) { foreach (Structure s in mainControl.sorted_oarList) { mainControl.oarListBoxItems.Add(new OptiAssistant.MainControl.StructureItem(s.Id)); } }
       if (mainControl.sorted_ptvList != null) { foreach (Structure t in mainControl.sorted_ptvList) { mainControl.ptvListBoxItems.Add(new OptiAssistant.MainControl.StructureItem(t.Id)); mainControl.ringListBoxItems.Add(new OptiAssistant.MainControl.StructureItem(t.Id)); /*mainControl.PTVList_LV.Items.Add(t.Id); mainControl.PTVListForRings_LV.Items.Add(t.Id);*/ } }
-      if (mainControl.sorted_structureList != null) { foreach (Structure s in mainControl.sorted_structureList) { mainControl.booleanListBoxItems.Add(new OptiAssistant.MainControl.StructureItem(s.Id)); mainControl.BoolBaseStruct_Combo.Items.Add(s.Id); /* mainControl.OarList_LV.Items.Add(s.Id);*/ } }
+      if (mainControl.sorted_structureList != null) 
+      { 
+        foreach (Structure s in mainControl.sorted_structureList) 
+        { 
+          mainControl.booleanListBoxItems.Add(new OptiAssistant.MainControl.StructureItem(s.Id)); 
+          mainControl.BoolBaseStruct_Combo.Items.Add(s.Id);
+          mainControl.OverlapStructure1_Combo.Items.Add(s.Id);
+          mainControl.OverlapStructure2_Combo.Items.Add(s.Id);
+        } 
+      }
 
       mainControl.OarList_LV.ItemsSource = mainControl.oarListBoxItems;
       mainControl.PTVList_LV.ItemsSource = mainControl.ptvListBoxItems;
