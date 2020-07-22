@@ -16,6 +16,10 @@ using VMS.TPS.Common.Model.API;
 [assembly: ESAPIScript(IsWriteable = true)]
 
 
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
+
+
 namespace VMS.TPS
 {
   public class Script
