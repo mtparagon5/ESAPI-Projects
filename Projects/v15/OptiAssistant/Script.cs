@@ -12,12 +12,19 @@ using VMS.TPS.Common.Model.API;
 //[assembly: AssemblyFileVersion("1.0.0.1")]
 //[assembly: AssemblyInformationalVersion("1.0")]
 
+
 // TODO: Uncomment the following line if the script requires write access.
 [assembly: ESAPIScript(IsWriteable = true)]
 
-
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+// Version information for an assembly consists of the following four values:
+//
+//      Major Version
+//      Minor Version
+//      Build Number
+//      Revision
+//
+[assembly: AssemblyVersion("1.0.1.0")]
+[assembly: AssemblyFileVersion("1.0.1.0")]
 
 
 namespace VMS.TPS
