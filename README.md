@@ -8,7 +8,7 @@ Most recent updates:
     - ux design (see image below)
     - improved options for avoidance structures
     - addition of booleaned structure creation
-    - approximation of overlap
-    - handling for high resolution structures
+    - addition of approximation of overlap
+    - improved handling for high resolution structures
 
 ![Opti Assistant](./Images/OptiAssistant.PNG "Opti Assistant")
