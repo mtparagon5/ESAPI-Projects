@@ -51,7 +51,7 @@ namespace ExportToCSV
 
     // PUBLIC VARIABLES
     //public Window Window;
-    public string script = "DVHToCSV";
+    public string script = "ExportToCSV";
     public Patient patient;
     public PlanSetup ps;
     public PlanningItem pitem;
@@ -245,7 +245,6 @@ namespace ExportToCSV
           PathDisplay_Label.Content = DEFAULT_DVH_EXPORT_PATH;
           CustomFolder_SP.Visibility = Visibility.Collapsed;
           useDefaultPath = true;
-          //csvDataFilePath = BASE_DVH_EXPORT_PATH + userName + @"\\";
         }
         if (cb.Name == customFolder) // if custom folder to be used
         {
@@ -253,7 +252,6 @@ namespace ExportToCSV
           PathDisplay_Label.Content = CUSTOM_DVH_EXPORT_PATH;
           CustomFolder_SP.Visibility = Visibility.Visible;
           useDefaultPath = false;
-          //csvDataFilePath = BASE_DVH_EXPORT_PATH + userName + @"\\" + CustomFolder_TextBox.Text + @"\\";
         }
       }
       if (cb.IsChecked == false)
@@ -287,7 +285,6 @@ namespace ExportToCSV
           PathDisplay_Label.Content = CUSTOM_DVH_EXPORT_PATH;
           CustomFolder_SP.Visibility = Visibility.Visible;
           useDefaultPath = false;
-          //csvDataFilePath = BASE_DVH_EXPORT_PATH + userName + @"\\" + CustomFolder_TextBox.Text + @"\\";
         }
         if (cb.Name == customFolder) // if default folder to be used
         {
@@ -295,7 +292,6 @@ namespace ExportToCSV
           PathDisplay_Label.Content = DEFAULT_DVH_EXPORT_PATH;
           CustomFolder_SP.Visibility = Visibility.Collapsed;
           useDefaultPath = true;
-          //csvDataFilePath = BASE_DVH_EXPORT_PATH + userName + @"\\";
         }
       }
 
