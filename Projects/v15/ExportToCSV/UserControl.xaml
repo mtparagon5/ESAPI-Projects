@@ -1,0 +1,609 @@
+﻿<UserControl x:Class="ExportToCSV.MainControl"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VMS.TPS"
+        mc:Ignorable="d"
+        Height="auto" Width="auto" Background="#E1E1E1" FontFamily="Lucida Sans" FontWeight="Thin" FontStretch="ExtraExpanded" FontSize="15">
+
+  <!--Styles-->
+  <UserControl.Resources>
+    <Style x:Key="BlueRoundButtonTemplate" TargetType="Button">
+      <Setter Property="Foreground" Value="White"></Setter>
+      <Setter Property="Background" Value="#003E6B"></Setter>
+      <Setter Property="Cursor" Value="Hand"></Setter>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border CornerRadius="12"
+                    Background="{TemplateBinding Background}"
+                    BorderThickness="1">
+              <ContentPresenter HorizontalAlignment="Center" 
+                                VerticalAlignment="Center" 
+                                Margin="{TemplateBinding Padding}">
+              </ContentPresenter>
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="#0F609B"/>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+
+    <Style x:Key="BlueComboBox" TargetType="{x:Type ComboBoxItem}">
+      <Style.Resources>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#0F609B"/>
+      </Style.Resources>
+
+      <Setter Property="Background" Value="#0A558C"/>
+      <Setter Property="BorderBrush" Value="#0A558C"/>
+
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="true">
+          <Setter Property="BorderBrush" Value="#0F609B" />
+          <Setter Property="BorderThickness" Value="1" />
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+
+    <Style x:Key="GreenCheckMark" TargetType="{x:Type CheckBox}">
+
+      <Setter Property="Cursor" Value="Hand"></Setter>
+
+      <Setter Property="OverridesDefaultStyle"
+          Value="true" />
+
+      <Setter Property="Template">
+        <Setter.Value>
+
+          <ControlTemplate TargetType="CheckBox">
+            <BulletDecorator Background="Transparent">
+              <BulletDecorator.Bullet>
+                <Border x:Name="Border"
+                    Width="13"
+                    Height="13"
+                    CornerRadius="0"
+                    BorderThickness="0">
+
+                  <Grid>
+                    <Path Visibility="Collapsed"
+                      Width="10"
+                      Height="10"
+                      x:Name="CheckMark"
+                      SnapsToDevicePixels="False"
+                      StrokeThickness="2"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Bottom"
+                          
+                      Data="M 0 3.5 L 5 7 M 3.8 7 L 9 0">
+                      <Path.Stroke>
+                        <SolidColorBrush Color="Green" />
+                      </Path.Stroke>
+                    </Path>
+                    <Path Visibility="Collapsed"
+                      Width="7"
+                      Height="7"
+                      x:Name="InderminateMark"
+                      SnapsToDevicePixels="False"
+                      StrokeThickness="2"
+                      Data="M 0 7 L 7 0">
+                      <Path.Stroke>
+                        <SolidColorBrush Color="Blue" />
+                      </Path.Stroke>
+                    </Path>
+                  </Grid>
+                </Border>
+              </BulletDecorator.Bullet>
+              <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="CommonStates">
+                  <VisualState x:Name="Normal" />
+                  <VisualState x:Name="MouseOver"/>
+                  <VisualState x:Name="Pressed" />
+                  <VisualState x:Name="Disabled" />
+                </VisualStateGroup>
+                <VisualStateGroup x:Name="CheckStates">
+                  <VisualState x:Name="Checked">
+                    <Storyboard>
+                      <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)"
+                                                 Storyboard.TargetName="CheckMark">
+                        <DiscreteObjectKeyFrame KeyTime="0"
+                                            Value="{x:Static Visibility.Visible}" />
+                      </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                  </VisualState>
+                  <VisualState x:Name="Unchecked" />
+                  <VisualState x:Name="Indeterminate">
+                    <Storyboard>
+                      <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)"
+                                                 Storyboard.TargetName="InderminateMark">
+                        <DiscreteObjectKeyFrame KeyTime="0"
+                                            Value="{x:Static Visibility.Visible}" />
+                      </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                  </VisualState>
+                </VisualStateGroup>
+              </VisualStateManager.VisualStateGroups>
+              <ContentPresenter Margin="4,0,0,0"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left"
+                            RecognizesAccessKey="True" />
+            </BulletDecorator>
+          </ControlTemplate>
+
+        </Setter.Value>
+
+      </Setter>
+
+      <Style.Triggers>
+
+        <Trigger Property="IsMouseOver" Value="true">
+          <Setter Property="FontStyle" Value="Italic"/>
+        </Trigger>
+
+        <Trigger Property="IsEnabled" Value="False">
+          <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+          <Setter Property="FontStyle" Value="Italic"/>
+        </Trigger>
+      </Style.Triggers>
+
+    </Style>
+
+    <Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
+      <Setter Property="Stylus.IsFlicksEnabled" Value="True" />
+      <Style.Triggers>
+        <Trigger Property="Orientation" Value="Horizontal">
+          <Setter Property="Height" Value="10" />
+          <Setter Property="MinHeight" Value="10" />
+        </Trigger>
+        <Trigger Property="Orientation" Value="Vertical">
+          <Setter Property="Width" Value="10" />
+          <Setter Property="MinWidth" Value="10" />
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+
+  </UserControl.Resources>
+
+  <!--Main-->
+  <Border CornerRadius="2" BorderBrush="#003E6B" BorderThickness="3" Margin="5">
+    <Grid>
+      <StackPanel>
+
+        <!--Heading-->
+        <StackPanel Background="#003E6B"
+                  VerticalAlignment="Top">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Label  Grid.Column="1"
+                    Content="DVH To CSV"
+                    Foreground="White"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    FontSize="15"
+                    VerticalContentAlignment="Center"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"/>
+            <Button Grid.Column="2"
+                    x:Name="Instructions_Button"
+                    Content="Show Instructions"
+                    Click="Instructions_Button_Click"
+                    Foreground="White"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    FontSize="12"
+                    Margin="0,2,8,2"
+                    VerticalContentAlignment="Center"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="right"
+                    Cursor="Help"/>
+          </Grid>
+        </StackPanel>
+
+
+        <ScrollViewer CanContentScroll="True" MaxHeight="850" Width="750" MaxWidth="750" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible">
+
+          <!-- main panel -->
+          <StackPanel Orientation="Vertical"
+                    HorizontalAlignment="Center">
+
+            <!--Tool Selections-->
+            <StackPanel Orientation="Vertical"
+                      VerticalAlignment="Center"
+                      Margin="10">
+              <!-- row 1 -->
+              <Border Padding="10"
+                      CornerRadius="10"
+                      BorderThickness="1"
+                      BorderBrush="#003E6B">
+
+                <StackPanel Orientation="Horizontal"
+                        Margin="5"
+                        HorizontalAlignment="Center"
+                          Background="White">
+
+                  <Label Content="What would you like to export?"
+                      VerticalAlignment="Center"
+                      Margin="5,0,15,0"/>
+
+                  <CheckBox Content="DVH Data"
+                              VerticalAlignment="Center"
+                              VerticalContentAlignment="Bottom"
+                              Margin="15,0"
+                              x:Name="DVHData_CB"
+                              Click="DVHData_CB_Click"
+                              Style="{StaticResource GreenCheckMark}"
+                              IsChecked="True"
+                              IsEnabled="False"/>
+                  <CheckBox Content="Proximity Statistics"
+                              VerticalAlignment="Center"
+                              VerticalContentAlignment="Bottom"
+                              Margin="15,0"
+                              x:Name="ProximityStats_CB"
+                              Click="ProximityStats_CB_Click"
+                              Style="{StaticResource GreenCheckMark}"
+                              IsChecked="False"
+                              IsEnabled="False"/>
+
+                </StackPanel>
+
+              </Border>
+
+              <!-- row 2 -->
+              <StackPanel Orientation="Horizontal" 
+                        Margin="0,5"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+
+                <!-- DVH Export -->
+                <Border Padding="10"
+                      CornerRadius="10"
+                      BorderThickness="1"
+                      BorderBrush="#003E6B"
+                      Margin="0,0,5,0"
+                      x:Name="DVHData_SP"
+                      Visibility="Visible">
+
+
+                  <StackPanel Background="#E1E1E1">
+
+                    <!--Structure Selection-->
+                    <StackPanel Orientation="Horizontal"
+                          Background="White"
+                          Margin="0,5,0,5">
+
+                      <StackPanel Width="400" Margin="0,20">
+                        <Label x:Name="DVHDataStructureList_Label"
+                            Content="Structure List For DVH Data Collection"
+                            HorizontalAlignment="Center"
+                            />
+                        <TextBlock Text="Select the Structure(s) you'd like to collect the DVH for:"
+                              TextWrapping="Wrap"
+                              FontSize="12"
+                              FontStyle="Italic"
+                              HorizontalAlignment="Center"
+                              />
+                        <ListBox x:Name="StructureList_LV"
+                              Margin="5"
+                              Width="auto"
+                              MinHeight="150"
+                              MaxHeight="150"
+                              FontSize="13"
+                              ItemsSource="{Binding structureListBoxItems}"
+                              SelectionMode="Multiple" 
+                              Height="auto" 
+                              HorizontalContentAlignment="Center"
+                              VerticalContentAlignment="Center"
+                              BorderBrush="White">
+                          <ListBox.Resources>
+                            <Style TargetType="ListBoxItem">
+                              <Setter Property="OverridesDefaultStyle" Value="true" />
+                              <Setter Property="SnapsToDevicePixels" Value="true" />
+                              <Setter Property="HorizontalAlignment" Value="Left" />
+                              <Setter Property="Margin" Value="50,0,20,0" />
+                              <Setter Property="Template">
+                                <Setter.Value>
+                                  <ControlTemplate TargetType="ListBoxItem">
+                                    <CheckBox IsChecked="{Binding IsSelected}"
+                                        Style="{StaticResource GreenCheckMark}"
+                                        Margin="5,2"
+                                                  Width="150">
+                                      <TextBlock Text="{Binding Id}"></TextBlock>
+                                    </CheckBox>
+
+                                  </ControlTemplate>
+                                </Setter.Value>
+                              </Setter>
+                            </Style>
+                          </ListBox.Resources>
+                        </ListBox>
+                      </StackPanel>
+                    </StackPanel>
+
+                    <!--DVH Export Options-->
+                    <StackPanel Orientation="Horizontal"
+                                Background="White"
+                                Margin="0,5,0,5">
+
+                      <Grid>
+                        <Grid.RowDefinitions>
+                          <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <!--<ScrollViewer CanContentScroll="True" MinHeight="300"  MaxHeight="300" >-->
+
+                        <StackPanel Width="400" Margin="0,20">
+                          <StackPanel Orientation="Horizontal"
+                                          HorizontalAlignment="Center">
+                            <Label Content="DVH Options"
+                                        VerticalAlignment="Center"
+                                        FontSize="14"/>
+                          </StackPanel>
+                          <Label Content="____________________________________________________________________________"
+                                    Margin="0,-20,0,0"
+                                    HorizontalAlignment="Center"
+                                    VerticalContentAlignment="Top"
+                                    FontSize="14"/>
+
+
+                          <!--DVH Options-->
+                          <StackPanel Orientation="Vertical"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,5">
+
+                            <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Left">
+                              <Label Width="100" FontSize="13">Dose:</Label>
+                              <CheckBox Content="Gy"
+                                            Width="50"
+                                            Margin="5,3"
+                                            VerticalAlignment="Center"
+                                            VerticalContentAlignment="Bottom"
+                                            HorizontalAlignment="Left"
+                                            HorizontalContentAlignment="Left"
+                                            FontSize="13"
+                                            Style="{StaticResource GreenCheckMark}"
+                                            x:Name="AbsoluteDose_CB"
+                                            Click="HandleDVHExportOptions"
+                                            IsChecked="True"/>
+                              <CheckBox Content="%"
+                                            Margin="5,3"
+                                            VerticalAlignment="Center"
+                                            VerticalContentAlignment="Bottom"
+                                            HorizontalAlignment="Left"
+                                            HorizontalContentAlignment="Left"
+                                            FontSize="13"
+                                            Style="{StaticResource GreenCheckMark}"
+                                            x:Name="RelativeDose_CB"
+                                            Click="HandleDVHExportOptions"
+                                            IsChecked="False"/>
+
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Left">
+                              <Label Width="100" FontSize="13">Volume:</Label>
+                              <CheckBox Content="cc"
+                                            Margin="5,3"
+                                            Width="50"
+                                            VerticalAlignment="Center"
+                                            VerticalContentAlignment="Bottom"
+                                            HorizontalAlignment="Left"
+                                            HorizontalContentAlignment="Left"
+                                            FontSize="13"
+                                            Style="{StaticResource GreenCheckMark}"
+                                            x:Name="AbsoluteVolume_CB"
+                                            Click="HandleDVHExportOptions"
+                                            IsChecked="False"/>
+                              <CheckBox Content="%"
+                                            Margin="5,3"
+                                            VerticalAlignment="Center"
+                                            VerticalContentAlignment="Bottom"
+                                            HorizontalAlignment="Left"
+                                            HorizontalContentAlignment="Left"
+                                            FontSize="13"
+                                            Style="{StaticResource GreenCheckMark}"
+                                            x:Name="RelativeVolume_CB"
+                                            Click="HandleDVHExportOptions"
+                                            IsChecked="True"/>
+
+                            </StackPanel>
+                            <!--resolution-->
+                            <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Left">
+                              <Label Width="75" FontSize="13">Resolution:</Label>
+                              <ComboBox Width="150"
+                                        FontSize="12"
+                                        Background="#F5F7FA"
+                                        HorizontalContentAlignment="Left"
+                                        VerticalContentAlignment="Center"
+                                        SelectionChanged="HandleResolutionSelection"
+                                        x:Name="ResolutionSelector_Combo"/>
+
+                            </StackPanel>
+
+
+
+
+                          </StackPanel>
+
+
+                          <!--Preferred Path-->
+                          <StackPanel Orientation="Vertical"
+                                          HorizontalAlignment="Center"
+                                          Margin="0,20,0,0">
+
+                            <Label Content="Preferred Export Path"
+                                        FontSize="14"
+                                        HorizontalAlignment="Center"/>
+                            <Label Content="____________________________________________________________________________"
+                                      Margin="0,-20,0,0"
+                                      HorizontalAlignment="Center"
+                                      VerticalContentAlignment="Top"
+                                      FontSize="14"/>
+
+                            <StackPanel Orientation="Horizontal"
+                                                HorizontalAlignment="Center">
+                              <CheckBox Content="Default"
+                                                Margin="5,3"
+                                                Width="100"
+                                                VerticalAlignment="Center"
+                                                VerticalContentAlignment="Bottom"
+                                                HorizontalAlignment="Left"
+                                                HorizontalContentAlignment="Left"
+                                                FontSize="13"
+                                                Style="{StaticResource GreenCheckMark}"
+                                                x:Name="UseDefaultFolder_CB"
+                                                Click="HandleDVHExportOptions"
+                                                IsChecked="True"/>
+                              <CheckBox Content="Custom"
+                                                Margin="5,3"
+                                                VerticalAlignment="Center"
+                                                VerticalContentAlignment="Bottom"
+                                                HorizontalAlignment="Left"
+                                                HorizontalContentAlignment="Left"
+                                                FontSize="13"
+                                                Style="{StaticResource GreenCheckMark}"
+                                                x:Name="UseCustomFolder_CB"
+                                                Click="HandleDVHExportOptions"
+                                                IsChecked="False"/>
+
+                            </StackPanel>
+
+
+                            <StackPanel Orientation="Vertical">
+                              <Label x:Name="PathDisplay_Label" FontSize="12">.../RO PHI PHYSICS/__DVH Script Data/DVH Data/{username}/{datafile.csv}</Label>
+                              <StackPanel Orientation="Horizontal"
+                                          HorizontalAlignment="Center"
+                                          Visibility="Collapsed"
+                                          x:Name="CustomFolder_SP">
+                                <TextBox Width="120"
+                                            x:Name="CustomFolder_TextBox"
+                                            Background="#0A558C"
+                                            Foreground="White"
+                                            GotFocus="SelectAllText"
+                                            TextAlignment="Center"
+                                            VerticalContentAlignment="Center"
+                                            Margin="3,3,0,3"
+                                            FontSize="12"
+                                            Text=""/>
+                                <Label x:Name="CustomPathDisplay_Label" FontSize="12">/{datafile.csv}</Label>
+                              </StackPanel>
+                            </StackPanel>
+
+                          </StackPanel>
+
+                        </StackPanel>
+
+                        <!--</ScrollViewer>-->
+
+                      </Grid>
+                    </StackPanel>
+
+                  </StackPanel>
+
+                </Border>
+
+              </StackPanel>
+
+            </StackPanel>
+
+            <!--Create Structures Button-->
+            <StackPanel Orientation="Horizontal"
+                      HorizontalAlignment="Center">
+              <Button x:Name="ExportData_Btn"
+                    Click="ExportData_Btn_Click"
+                    Content="Export Data"
+                    FontSize="15"
+                    Width="250"
+                    Padding="5"
+                    Margin="0,0,0,15"
+                    Style="{StaticResource BlueRoundButtonTemplate}"
+                    VerticalContentAlignment="Center"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Cursor="Hand"/>
+
+            </StackPanel>
+
+            <!-- Instructions -->
+            <Border Padding="5"
+                      CornerRadius="10"
+                      BorderThickness="1"
+                      BorderBrush="#003E6B"
+                      Margin="0,0,0,10"
+                  HorizontalAlignment="Center"
+                      x:Name="Instructions_SP"
+                      Visibility="Collapsed">
+
+              <StackPanel Orientation="Vertical"
+                      VerticalAlignment="Center"
+                      Margin="5"
+                      Width="600"
+                      Background="White">
+                <Label Content="Instructions"
+                          HorizontalAlignment="Center"
+                          FontSize="15"/>
+                <!--Divider-->
+                <Label Content="__________________________________________________________"
+                          Margin="0,-20,0,5"
+                          HorizontalAlignment="Center"
+                          VerticalContentAlignment="Top"
+                          FontSize="14"
+                                />
+                <TextBlock 
+                          Text="1. Select the structures you would like to collect DVH data for."
+                          TextWrapping="WrapWithOverflow"
+                          Margin="5"
+                          FontSize="13"/>
+                <TextBlock 
+                          Text="2. Select your preferred Dose and Volume represention."
+                          TextWrapping="WrapWithOverflow"
+                          Margin="5"
+                          FontSize="13"/>
+                <TextBlock 
+                          Text="3. (Optional) Add a unique folder you'd like to export your data to."
+                          TextWrapping="WrapWithOverflow"
+                          Margin="5"
+                          FontSize="13"/>
+                <TextBlock 
+                          Text='Notes:'
+                          TextWrapping="WrapWithOverflow"
+                          Margin="5,5"
+                          FontSize="13"/>
+                <TextBlock 
+                          Text=' - All data will be exported to the ".../RO PHI Physics/_DVH Script Data/DVH Data/{YOUR USERNAME}/" directory by default but you can add a custom folder inside if you prefer'
+                          TextWrapping="WrapWithOverflow"
+                          Margin="5,5"
+                          FontSize="13"/>
+                <TextBlock 
+                          Text=' - All files will be saved as "{MRN}_{Course ID}_{PlanID}.csv"'
+                          TextWrapping="WrapWithOverflow"
+                          Margin="5,5"
+                          FontSize="13"/>
+
+              </StackPanel>
+
+            </Border>
+          </StackPanel>
+
+        </ScrollViewer>
+
+      </StackPanel>
+    </Grid>
+  </Border>
+
+
+
+
+</UserControl>
+
+
