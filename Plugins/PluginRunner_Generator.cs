@@ -16,7 +16,7 @@ namespace VMS.TPS
     }
 
     // path to the published scripts directory
-    private const string PUBLISHED_SCRIPTS_DIRECTORY = @"\\Fsimg\va_data$\ProgramData\Vision\PublishedScripts";
+    private const string PUBLISHED_SCRIPTS_DIRECTORY = @"YOUR_PUBLISHED_SCRIPTS_DIR_HERE";
 
     // examples below are for an example app called PlanChecker that lives in the example directory: ..\PublishedScripts\PlanChecker\PlanChecker.exe
     private const string APP_DIRECTORY_NAME= @"YOUR_APP_DIR_HERE"; // YOUR APP DIR HERE - e.g., PlanChecker
@@ -179,33 +179,3 @@ namespace VMS.TPS
 
 
 
-// using System;
-// using System.Diagnostics;
-// using System.IO;
-// using System.Linq;
-// using System.Reflection;
-// using System.Windows;
-// using VMS.TPS.Common.Model.API;
-// using System.Windows.Controls;
-
-// namespace VMS.TPS
-// {
-//     public class Script
-//     {
-//         public void Execute(ScriptContext context, Window window)
-//         {
-//             try
-//             {
-//                 Process.Start(AppExePath());
-//             }
-//             catch (Exception)
-//             {
-//                 MessageBox.Show("Failed to start application.");
-//             }
-//         }
-//         private string AppExePath()
-//         {
-//             return @"\\Fsimg\va_data$\ProgramData\Vision\PublishedScripts\test_mt\test\BeamDataVisualization.esapi.exe";
-//         }
-//     }
-// }
